@@ -166,9 +166,11 @@ Library.*/
 
 package plt.dataset.preprocessing;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+
 import plt.dataset.DataSet;
 
 /**
@@ -177,7 +179,7 @@ import plt.dataset.DataSet;
  */
 public class NumericBinary extends PreprocessingOperation {
     private List<Double> possibleValues;
-    private List<Double> ignore;
+    /*private List<Double> ignore;
     
     public NumericBinary(DataSet d, int feature, List<Double> ignore) {
         super(d, feature);
@@ -187,23 +189,27 @@ public class NumericBinary extends PreprocessingOperation {
         
         this.ignore = ignore;
 
-    }
+    }*/
 
     @Override
-    public int numberOfOutput() {
-        if (possibleValues == null) preparePossibleValues();
+    public int numberOfOutput(DataSet d,int feature) {
+        if (possibleValues == null) preparePossibleValues(d,feature);
         
         return possibleValues.size();
     }
+    
+    public List<Double> getPossibleValues(){
+    	return possibleValues;
+    }
 
     @Override
-    public double value(int object, int output) {
-        if (output > this.numberOfOutput())
+    public double value(DataSet d,int feature,int object, int output) {
+        if (output > this.numberOfOutput( d, feature))
             throw new IllegalArgumentException();
         
-        if (possibleValues == null) preparePossibleValues();
+        if (possibleValues == null) preparePossibleValues( d, feature);
 
-        Double value = Double.parseDouble(this.getDataSet().getFeature(object, this.getFeature()));
+        Double value = Double.parseDouble(d.getFeature(object, feature));
         
         if (possibleValues.get(output).equals(value))
             return 1;
@@ -212,11 +218,11 @@ public class NumericBinary extends PreprocessingOperation {
         
     }
     
-    private void preparePossibleValues() {
+    private void preparePossibleValues(DataSet d,int feature) {
         possibleValues = new LinkedList<>();
-        for (int i=0; i<this.getDataSet().getNumberOfObjects(); i++) {
-            Double value = Double.parseDouble(this.getDataSet().getFeature(i, this.getFeature()));
-            if (!possibleValues.contains(value) && (ignore == null || !ignore.contains(value)))
+        for (int i=0; i<d.getNumberOfObjects(); i++) {
+            Double value = Double.parseDouble(d.getFeature(i, feature));
+            if (!possibleValues.contains(value))// && (ignore == null || !ignore.contains(value)))
                 possibleValues.add(value);
         }
 
@@ -225,12 +231,38 @@ public class NumericBinary extends PreprocessingOperation {
     
     @Override
     public String toString() {
-        if (possibleValues == null) preparePossibleValues();
-        return "{Binary - numberOfOutput: "+ this.numberOfOutput() +"}";
+        if (possibleValues == null)
+            return "{Binary - numberOfOutput: null}";
+
+        else{
+        return "{Binary - numberOfOutput: "+ this.possibleValues.size() +"}";
+    
+        }
     }
 
     @Override
     public String getOperationName() {
         return "Binary";
     }
+
+	@Override
+	public List<Number> values(DataSet d, int feature, int object) {
+		List<Number> outputs = new ArrayList<Number>();
+		
+        if (possibleValues == null) {
+            preparePossibleValues(d,feature);
+        }
+
+        Double value = Double.parseDouble(d.getFeature(object, feature));
+
+        
+        for(Double x : possibleValues )
+        	if (x.equals(value)) {
+        		outputs.add(1);
+        	} else {
+        		outputs.add(0);
+        	}
+
+        return outputs;
+	}
 }

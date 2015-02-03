@@ -168,12 +168,13 @@ package plt.gui;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.Event;
+import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -183,225 +184,208 @@ import plt.dataset.preprocessing.*;
 import plt.gui.component.ModalPopup;
 
 
-public class ProcessingOperatorSelectorALL extends ModalPopup {
+public class ProcessingAllPopup extends ModalPopup {
 
-    private final BorderPane bp;
-    private final Experiment experiment;
-    private final Button button;
-    
-    public ProcessingOperatorSelectorALL(Button b, Experiment exp) {
+
+    public ProcessingAllPopup(){
         super();
-        this.experiment = exp;
-        this.button = b;
-        this.bp = new BorderPane();
+
     }
 
-    public void show(Parent parent, final EventHandler eventHandler) {
+    public void show(Parent parent, final EventHandler<MouseEvent> eventHandler,final ObservableList<FeaturePreprocessingInfo> tableDataSet) {
         
+    	
+    	BorderPane bp = new BorderPane();
+    	
+    		VBox vbox = new VBox();
+    		
+    			BorderPane nonNumericDataPane = new BorderPane();
+    	
+    	
         final TextField minTextField = new TextField("0");
         minTextField.setPrefWidth(50);
         final TextField maxTextField = new TextField("1");
         maxTextField.setPrefWidth(50);
 
 
-        bp.setPadding(new Insets(25));
-        VBox vbox = new VBox();
-        vbox.setSpacing(10);
-        
-        // Non-Numeric Data Settings.
-        BorderPane nonNumericDataPane = new BorderPane();
-        nonNumericDataPane.setPadding(new Insets(10));
-        nonNumericDataPane.setStyle("-fx-border-radius: 1; -fx-border-color: black");
-        
-        Font headerFont = Font.font("BirchStd", FontWeight.BOLD, 15);
-        Label lblNonNumericHeader = new Label("Non-Numeric Features");
-        lblNonNumericHeader.setFont(headerFont);
-        BorderPane.setAlignment(lblNonNumericHeader, Pos.CENTER);
-        nonNumericDataPane.setTop(lblNonNumericHeader);
-        
-        ToggleGroup nonNumericDataToggle = new ToggleGroup();
-        final RadioButton nonNPane_rb1 = new RadioButton("Nominal");
-        final RadioButton nonNPane_rb2 = new RadioButton("Binary representation");
-        nonNPane_rb1.setToggleGroup(nonNumericDataToggle);
-        nonNPane_rb2.setToggleGroup(nonNumericDataToggle);
-        VBox nonNumericDPane_innerVBox = new VBox(10);
-        nonNumericDPane_innerVBox.getChildren().addAll(nonNPane_rb1, nonNPane_rb2);
-
-        nonNumericDataToggle.selectedToggleProperty().addListener(new ChangeListener<Toggle>()
-        {
-            @Override
-            public void changed(ObservableValue<? extends Toggle> ov, Toggle oldValue, Toggle newValue)
-            {
-                PreprocessingOperation[] pos = experiment.preprocessingOperationsProperty().get();
-
-                int numOfFeatures = experiment.getDataset().getNumberOfFeatures();
-                
-                if (nonNPane_rb1.isSelected()) 
-                {    
-                    for(int i=0; i<numOfFeatures; i++)
-                    {
-                        if(! experiment.getDataset().isNumeric(i) )
-                        {
-                            pos[i] = new Nominal(experiment.getDataset(), i);
-                        }
-                    }
-                } 
-                else 
-                {
-                    for(int i=0; i<numOfFeatures; i++)
-                    {
-                        if(! experiment.getDataset().isNumeric(i) )
-                        {
-                            pos[i] = new Binary(experiment.getDataset(), i, null);
-                        }
-                    }
-                }
-            }
-        });
-
-        nonNPane_rb1.setSelected(true);
-        
-        nonNumericDataPane.setLeft(nonNumericDPane_innerVBox);
-        
-        
-        
-        // Numeric Data Settings.
-        final BorderPane numericDataPane = new BorderPane();
-        numericDataPane.setPadding(new Insets(10));
-        numericDataPane.setStyle("-fx-border-radius: 1; -fx-border-color: black");
-        
-        Label lblNumericHeader = new Label("Numeric Features");
-        lblNumericHeader.setFont(headerFont);
-        BorderPane.setAlignment(lblNumericHeader, Pos.CENTER);
-        numericDataPane.setTop(lblNumericHeader);
-        
-        ToggleGroup numericDataToggle = new ToggleGroup();
-        final RadioButton nPane_rb1 = new RadioButton("Default Value");
-        final RadioButton nPane_rb2 = new RadioButton("Min Max Normalization");
-        final RadioButton nPane_rb3 = new RadioButton("Binary Representation");
-        final RadioButton nPane_rb4 = new RadioButton("Z-Score Normalization");
-        nPane_rb1.setToggleGroup(numericDataToggle);
-        nPane_rb2.setToggleGroup(numericDataToggle);
-        nPane_rb3.setToggleGroup(numericDataToggle);
-        nPane_rb4.setToggleGroup(numericDataToggle);
-        VBox nDataPane_innerVBox = new VBox(10);
-        nDataPane_innerVBox.getChildren().addAll(nPane_rb1, nPane_rb2, nPane_rb3, nPane_rb4);
-        
-        numericDataToggle.selectedToggleProperty().addListener(new ChangeListener<Toggle>()
-        {
-            
-            @Override
-            public void changed(ObservableValue<? extends Toggle> ov, Toggle t, Toggle t1)
-            {
-
-                PreprocessingOperation[] pos = experiment.preprocessingOperationsProperty().get();
-
-                int numOfFeatures = experiment.getDataset().getNumberOfFeatures();
-                
-                numericDataPane.setRight(null);
-                
-                
-                if (nPane_rb1.isSelected())
-                {
-                    for(int i=0; i<numOfFeatures; i++)
-                    {
-                        if( experiment.getDataset().isNumeric(i) )
-                        {
-                            pos[i] = new Numeric(experiment.getDataset(), i);
-                        }
-                    }
-                } 
-                else if (nPane_rb2.isSelected()) 
-                {
-                    for(int i=0; i<numOfFeatures; i++)
-                    {
-                        if( experiment.getDataset().isNumeric(i) )
-                        {
-                            pos[i] = new MinMax(experiment.getDataset(), i, 0, 1);
-                        }
-                    }
-
-                    GridPane grid = new GridPane();
-                    grid.setPadding(new Insets(20));
-
-                    Label minLabel = new Label("Min:");
-
-                    Label maxLabel = new Label("Max:");
-
-                    grid.add(minLabel, 0, 0);
-                    grid.add(minTextField, 1, 0);
-                    grid.add(maxLabel, 0, 2);
-                    grid.add(maxTextField, 1, 2);
-                    numericDataPane.setRight(grid);
-
-                } 
-                else if (nPane_rb3.isSelected())
-                {
-                    for(int i=0; i<numOfFeatures; i++)
-                    {
-                        if( experiment.getDataset().isNumeric(i) )
-                        {
-                            pos[i] = new NumericBinary(experiment.getDataset(), i, null);
-                        }
-                    }
-                } 
-                else
-                {
-                    for(int i=0; i<numOfFeatures; i++)
-                    {
-                        if( experiment.getDataset().isNumeric(i) )
-                        {
-                            pos[i] = new ZScore(experiment.getDataset(), i);
-                        }
-                    }
-                }
-
-            }
-        });
-
-        nPane_rb1.setSelected(true);
-        
-        numericDataPane.setLeft(nDataPane_innerVBox);
-        
 
         
-        vbox.getChildren().add(nonNumericDataPane);
-        vbox.getChildren().add(numericDataPane);
-        bp.setCenter(vbox);
-        
+					Label lblNonNumericHeader = new Label("Nominal features");
+					nonNumericDataPane.setTop(lblNonNumericHeader);
+       
+        			ToggleGroup nonNumericDataToggle = new ToggleGroup();
+        			VBox nonNumericDPane_innerVBox = new VBox(10);
+        			nonNumericDataPane.setLeft(nonNumericDPane_innerVBox);
+        			
+        			int index = 0;
+            		for(PreprocessingOperation operator : PreprocessingOperation.getAvailableOperations(false)){
 
-        super.show(bp, parent, new EventHandler() {
+            			RadioButton rb1 = new RadioButton(operator.getOperationName());
+            			rb1.setToggleGroup(nonNumericDataToggle);
+            			rb1.setUserData(index);
+            			index++;
+            			//vbox.getChildren().add(rb1);
+            			nonNumericDPane_innerVBox.getChildren().add(rb1);
+        			
+            		}
+        			
+      
+
+            		nonNumericDataToggle.selectedToggleProperty().addListener(new ChangeListener<Toggle>()
+            		{
+            			@Override
+            			public void changed(ObservableValue<? extends Toggle> ov, Toggle oldValue, Toggle newValue)
+            			{
+            				
+            				for(FeaturePreprocessingInfo feature : tableDataSet){
+            					
+            					if(!feature.getPreprocessingOptions().getIsNumeric()){
+            						feature.setCurrPreProOpName((int)newValue.getUserData());
+            					}
+            				}
+            				
+            			
+            			}
+            		});
+
+        
+            		// Numeric Data Settings.
+            		final BorderPane numericDataPane = new BorderPane();
+
+        
+            			Label lblNumericHeader = new Label("Numeric features");
+            			numericDataPane.setTop(lblNumericHeader);
+        
+        
+            				ToggleGroup numericDataToggle = new ToggleGroup();
+            				VBox nDataPane_innerVBox = new VBox(10);
+            				numericDataPane.setLeft(nDataPane_innerVBox);
+
+            				
+            				index = 0;
+                    		for(PreprocessingOperation operator : PreprocessingOperation.getAvailableOperations(true)){
+
+                    			
+                    			if(operator instanceof MinMax){
+                            		
+                    				GridPane grid = new GridPane();
+                    					numericDataPane.setRight(grid);
+                    				
+
+                    					
+                    					minTextField.setPrefWidth(50);
+                    					maxTextField.setPrefWidth(50);
+                    				
+grid.setPadding(new Insets(20));
+
+                    					Label minLabel = new Label("Min:");
+                    					Label maxLabel = new Label("Max:");
+
+                    					grid.add(minLabel, 0, 0);
+                    					grid.add(minTextField, 1, 0);
+                    					grid.add(maxLabel, 0, 2);
+                    					grid.add(maxTextField, 1, 2);
+                    					
+                    			}
+                    	
+                    			
+                    			RadioButton rb1 = new RadioButton(operator.getOperationName());
+                    			rb1.setToggleGroup(numericDataToggle);
+                    			rb1.setUserData(index);
+                    			nDataPane_innerVBox.getChildren().add(rb1);
+                    			index++;
+
+                    			//numericDataPane.getChildren().add(rb1);
+                			
+                    		}
+                			
+
+                    		numericDataToggle.selectedToggleProperty().addListener(new ChangeListener<Toggle>()
+                    		{
+                    			@Override
+                    			public void changed(ObservableValue<? extends Toggle> ov, Toggle oldValue, Toggle newValue)
+                    			{
+                    				int selectedIndex = (int)newValue.getUserData();
+  
+                    					
+                    				
+                    					for(FeaturePreprocessingInfo feature : tableDataSet){
+                    					
+                    						if(feature.getPreprocessingOptions().getIsNumeric()){
+                    							feature.setCurrPreProOpName(selectedIndex);
+                    						}
+                    					}
+                    			
+                    			}
+                    		});	
+                    		
+                            
+                            
+                            vbox.getChildren().add(nonNumericDataPane);
+                            vbox.getChildren().add(numericDataPane);
+                            bp.setCenter(vbox);
+            				
+        
+            				
+            				
+
+
+        super.show(bp, parent, new EventHandler<MouseEvent>() {
 
             @Override
-            public void handle(Event t) {
-                PreprocessingOperation[] pos = experiment.preprocessingOperationsProperty().get();
+            public void handle(MouseEvent t) {
+            	
+            	
+					double min = 0, max = 1;
+					try {
+						min = Double.parseDouble(minTextField.textProperty().get());
+						max = Double.parseDouble(maxTextField.textProperty().get());
+					} catch (Exception e) {
+						min = 0;
+						max = 1;
+					}
 
-                int numOfFeatures = experiment.getDataset().getNumberOfFeatures();
-                
-                for(int i=0; i<numOfFeatures; i++)
-                {
-                    if (pos[i] instanceof MinMax) {
-                        double min = 0, max = 1;
-                        try {
-                            min = Double.parseDouble(minTextField.textProperty().get());
-                            max = Double.parseDouble(maxTextField.textProperty().get());
-                        } catch (Exception e) {
-                            min = 0;
-                            max = 1;
-                        }
-
-                        if (min >= max) {
-                            min = 0;
-                            max = 1;
-                        }
-                        pos[i] = new MinMax(experiment.getDataset(), i, min, max);
-                    }
-
-                    //button.setText(pos[item].toString());
-                }
-                
+					if (min >= max) {
+						min = 0;
+						max = 1;
+					}
+                 
+					
+      				for(FeaturePreprocessingInfo feature : tableDataSet){
+    					
+    					if(feature.getPreprocessingOptions().getSelected() instanceof MinMax){
+    						
+    						((MinMax)feature.getPreprocessingOptions().getSelected()).setMin(min);
+                            ((MinMax)feature.getPreprocessingOptions().getSelected()).setMax(max);
+    					}
+    				}
+            	
+            	
+  
+            	
                 eventHandler.handle(t);
             }
         }, null,400,400,false);
+        
+        
+        
+        
+        bp.setPadding(new Insets(25));
+        
+        vbox.setSpacing(10);
+                
+        
+        BorderPane.setAlignment(lblNonNumericHeader, Pos.CENTER);
+        
+                // Non-Numeric Data Settings.
+        nonNumericDataPane.setPadding(new Insets(10));
+        nonNumericDataPane.setStyle("-fx-border-radius: 1; -fx-border-color: black");
+           
+        Font headerFont = Font.font("BirchStd", FontWeight.BOLD, 15);
+        lblNonNumericHeader.setFont(headerFont);
+        numericDataPane.setPadding(new Insets(10));
+        numericDataPane.setStyle("-fx-border-radius: 1; -fx-border-color: black");
+        lblNumericHeader.setFont(headerFont);
+        BorderPane.setAlignment(lblNumericHeader, Pos.CENTER);
     }
 }

@@ -166,6 +166,10 @@ Library.*/
 
 package plt.dataset.preprocessing;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import plt.dataset.DataSet;
 
 /**
@@ -174,26 +178,26 @@ import plt.dataset.DataSet;
  */
 public class Numeric extends PreprocessingOperation {
 
-    public Numeric(DataSet d, int feature) {
+    /*public Numeric(DataSet d, int feature) {
         super(d, feature);
         if (!d.isNumeric(feature))
             throw  new IllegalArgumentException();
         
-    }
+    }*/
    
     @Override
-    public int numberOfOutput() {
+    public int numberOfOutput(DataSet d,int feature) {
         return 1;
     }
 
     @Override
-    public double value(int object, int output) {
-        return Double.parseDouble(this.getDataSet().getFeature(object, this.getFeature()));
+    public double value(DataSet d,int feature,int object, int output) {
+        return Double.parseDouble(d.getFeature(object, feature));
     }
     
     @Override
     public String toString() {
-        return "{Numeric - numberOfOutput: "+ this.numberOfOutput() +"}";
+        return "{Numeric - numberOfOutput: 1}";
 
     }
 
@@ -201,5 +205,10 @@ public class Numeric extends PreprocessingOperation {
     public String getOperationName() {
         return "Default";
     }
+
+	@Override
+	public List<Number> values(DataSet d, int feature, int object) {
+		 return new ArrayList<Number>(Arrays.asList(Double.parseDouble(d.getFeature(object, feature))));
+	}
     
 }

@@ -166,6 +166,10 @@ Library.*/
 
 package plt.dataset.preprocessing;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import plt.dataset.DataSet;
 
 /**
@@ -180,43 +184,43 @@ public class ZScore extends PreprocessingOperation {
     private boolean ready;
     
     
-    public ZScore(DataSet d, int feature) {
+   /* public ZScore(DataSet d, int feature) {
         super(d, feature);
         ready = false;
-    }
+    }*/
 
     @Override
-    public int numberOfOutput() {
+    public int numberOfOutput(DataSet d,int feature) {
         return 1;
     }
 
     @Override
-    public double value(int object, int output) {
-        if (output > this.numberOfOutput())
+    public double value(DataSet d,int feature,int object, int output) {
+        if (output > this.numberOfOutput(d,feature))
             throw new IllegalArgumentException();
         
-        if (!ready) prepareValues();
+        if (!ready) prepareValues(d,feature);
 
-        double value = Double.parseDouble(this.getDataSet().getFeature(object, this.getFeature()));
+        double value = Double.parseDouble(d.getFeature(object, feature));
         
         return (value-this.avg)/this.sigma;
         
     }
     
-    private void prepareValues() {
+    private void prepareValues(DataSet data,int feature) {
         
-        double n = this.getDataSet().getNumberOfObjects();
+        double n = data.getNumberOfObjects();
         double sum =0;
         for (int i=0; i< n; i++) {
-            double d = Double.parseDouble(this.getDataSet().getFeature(i, this.getFeature()));
+            double d = Double.parseDouble(data.getFeature(i, feature));
             sum += d;
         }         
         
-        this.avg = sum/this.getDataSet().getNumberOfObjects();
+        this.avg = sum/data.getNumberOfObjects();
         
         double x =0;
         for (int i=0; i< n; i++) {
-            double d = Double.parseDouble(this.getDataSet().getFeature(i, this.getFeature()));
+            double d = Double.parseDouble(data.getFeature(i, feature));
             x += Math.pow(d-this.avg , 2);
         }  
         
@@ -228,7 +232,7 @@ public class ZScore extends PreprocessingOperation {
         double meanOfDifferences = 0;
         for(int i=0; i<n; i++)
         {
-            double d = Double.parseDouble(this.getDataSet().getFeature(i, this.getFeature()));
+            double d = Double.parseDouble(data.getFeature(i, feature));
             double diff = d - avg;
             double squareDiff = diff * diff;
             squareDiffsArr[i] = squareDiff;
@@ -244,12 +248,12 @@ public class ZScore extends PreprocessingOperation {
 
     @Override
     public String toString() {
-        return "{ZScore - numberOfOutput: "+ this.numberOfOutput() +"}";
+        return "{ZScore - numberOfOutput: 1}";
     }
 
     @Override
     public String getOperationName() {
-        return "Z-Score";
+        return "z-score";
     }
     
     public double getAverage()
@@ -261,4 +265,13 @@ public class ZScore extends PreprocessingOperation {
     {
         return stdev;
     }
+
+	@Override
+	public List<Number> values(DataSet d, int feature, int object) {
+        if (!ready) prepareValues(d,feature);
+
+        double value = (Double.parseDouble(d.getFeature(object, feature))-this.avg)/this.sigma;
+        
+        return new ArrayList<Number>(Arrays.asList(value));
+	}
 }

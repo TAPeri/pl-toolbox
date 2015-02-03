@@ -283,14 +283,13 @@ public class ResultViewer {
          gPaneFeaturesIncluded.setVgap(5);
          
          int currRow = 0;
-         PreprocessingOperation[] preProOps = experiment.preprocessingOperationsProperty().get();
-         for(int i=0; i<preProOps.length; i++)
+
+         for(int i=0; i<experiment.getPreprocessingOperations().size(); i++)
          {
-             PreprocessingOperation tmpPreProOp = preProOps[i];
-             if(! (tmpPreProOp instanceof Ignoring))
+             if(experiment.getPreprocessingOperations().get(i).getIncludeFlag())
              {
-                 Label lblFeatureName = new Label(experiment.getDataset().getFeatureName(tmpPreProOp.getFeature()));
-                 Label lblPreProOp = new Label(tmpPreProOp.getOperationName());
+                 Label lblFeatureName = new Label(experiment.getDataset().getFeatureName(i));
+                 Label lblPreProOp = new Label(experiment.getPreprocessingOperations().get(i).getCurrPreProOpName());
                  
                  gPaneFeaturesIncluded.add(lblFeatureName, 0, currRow);
                  gPaneFeaturesIncluded.add(lblPreProOp, 1, currRow);

@@ -166,8 +166,11 @@ Library.*/
 
 package plt.dataset.preprocessing;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+
 import plt.dataset.DataSet;
 
 /**
@@ -177,27 +180,28 @@ import plt.dataset.DataSet;
 public class Nominal extends PreprocessingOperation {
     private List<String> possibleValues;
 
-    public Nominal(DataSet d, int featre) {
+  /*  public Nominal(DataSet d, int featre) {
         super(d, featre);
-    }
+    }*/
 
     @Override
-    public int numberOfOutput() {
+    public int numberOfOutput(DataSet d,int feature) {
         return 1;
     }
 
     @Override
-    public double value(int object, int output) {
-       if (possibleValues == null) preparePossibleValues();
+    public double value(DataSet d,int feature,int object, int output) {
+       if (possibleValues == null) preparePossibleValues(d,feature);
 
-        String value = this.getDataSet().getFeature(object, this.getFeature());
+       System.err.println("NOMINAL TO NUMBER");
+        String value = d.getFeature(object, feature);
         return this.possibleValues.indexOf(value);        
     }
     
-    private void preparePossibleValues() {
+    private void preparePossibleValues(DataSet d,int feature) {
         possibleValues = new LinkedList<>();
-        for (int i=0; i< this.getDataSet().getNumberOfObjects(); i++) {
-            String value = this.getDataSet().getFeature(i, this.getFeature());
+        for (int i=0; i< d.getNumberOfObjects(); i++) {
+            String value = d.getFeature(i, feature);
             if (!possibleValues.contains(value))
                 possibleValues.add(value);
         }   
@@ -205,8 +209,11 @@ public class Nominal extends PreprocessingOperation {
     
     @Override
     public String toString() {
-        if (possibleValues == null) preparePossibleValues();
-        return "{Nominal - numberOfOutput: "+ this.numberOfOutput() +"}";
+        if (possibleValues == null) 
+        	return "{Nominal - numberOfOutput: 1}";
+        else
+        	return "{Nominal - numberOfOutput: 1, numberOfPossibleValues: "+ this.possibleValues.size() +"}";
+
 
     }
 
@@ -214,5 +221,16 @@ public class Nominal extends PreprocessingOperation {
     public String getOperationName() {
         return "Nominal";
     }
+    
+	@Override
+	public List<Number> values(DataSet d, int feature, int object) {
+		
+	       if (possibleValues == null) preparePossibleValues(d,feature);
+
+	       System.err.println("NOMINAL TO NUMBER");
+	        String value = d.getFeature(object, feature);
+	        
+		 return new ArrayList<Number>(Arrays.asList(this.possibleValues.indexOf(value)));
+	}
     
 }

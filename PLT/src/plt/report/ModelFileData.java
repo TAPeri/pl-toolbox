@@ -199,10 +199,9 @@ public abstract class ModelFileData implements Serializable
             ArrayList<Integer> tmpFIDList = new ArrayList<>();
             ArrayList<String> tmpFNameList = new ArrayList<>();
             
-            boolean[] igArr = para_exp.ignoredFeaturesProperty().get();
-            for(int i=0; i<igArr.length; i++)
+            for(int i=0; i<para_exp.getPreprocessingOperations().size(); i++)
             {
-                if(! igArr[i])
+                if(para_exp.getPreprocessingOperations().get(i).getIncludeFlag())
                 {
                     tmpFIDList.add(i);
                     tmpFNameList.add(para_exp.getDataset().getFeatureName(i));
@@ -246,7 +245,7 @@ public abstract class ModelFileData implements Serializable
         PreprocessingInfo[] preprocessingInfo = new PreprocessingInfo[selF_ids.length];
         for(int i=0; i<selF_ids.length; i++)
         {
-            PreprocessingOperation preProOp = para_exp.preprocessingOperationsProperty().get()[selF_ids[i]];
+            PreprocessingOperation preProOp = para_exp.getPreprocessingOperations().get(selF_ids[i]).getPreprocessingOptions().getSelected();
             
             PreprocessingInfo nwPreProInfo = new PreprocessingInfo();
             nwPreProInfo.featureName = inputs[i];
@@ -258,9 +257,9 @@ public abstract class ModelFileData implements Serializable
                 double userGivenMin = castMinMax.getMin();
                 double userGivenMax = castMinMax.getMax();
                 
-                ObjectsOrderFormat castDataSet = (ObjectsOrderFormat) castMinMax.getDataSet();
-                double featureMin = (double) castDataSet.getMinValForFeature(selF_ids[i]);
-                double featureMax = (double) castDataSet.getMaxValForFeature(selF_ids[i]);
+                //ObjectsOrderFormat castDataSet = (ObjectsOrderFormat) castMinMax.getDataSet();
+                double featureMin = (double) para_exp.getDataset().getMinValForFeature(selF_ids[i]);
+                double featureMax = (double) para_exp.getDataset().getMaxValForFeature(selF_ids[i]);
                 
                 nwPreProInfo.addNwEntry("User Min", userGivenMin);
                 nwPreProInfo.addNwEntry("User Max", userGivenMax);

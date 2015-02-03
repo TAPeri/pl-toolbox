@@ -166,10 +166,6 @@ Library.*/
 
 package plt.dataset.datareader;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.util.*;
 
 import javafx.beans.property.BooleanProperty;
@@ -193,22 +189,29 @@ public class ObjectsOrderFormat implements DataSet {
     private List<Preference> instances;//orders
     
     private String[] featuresName;
-    private boolean isReady;
+    private String IDname;
+    //private boolean isReady;
     
     private boolean[] numeric;
     private List<Integer> atomicGroups;
     
-    private HashMap<Integer, Integer> mapping;
-    private HashMap<Integer, Integer> orderToActualObjID;
+    private HashMap<Integer, Integer> ID2feature;//ID -> feature Idx
+    private HashMap<Integer, Integer> feature2ID;//featyre Idx -> ID
     
     private HashMap<Integer, Object> featureToMinValMap;
     private HashMap<Integer, Object> featureToMaxValMap;
     
     private int numOfPreferences;
 
+    
+    public int getID(int idx){
+    	return feature2ID.get(idx);
+    
+    }
+    
     public ObjectsOrderFormat() 
     {
-        this.isReady = false;
+       // this.isReady = false;
         
         /*this.objects = null;
         this.order = null;
@@ -261,6 +264,15 @@ public class ObjectsOrderFormat implements DataSet {
     	if(parser.getFeatureNames().size()==1){
     		dataFilesValid.setValue(false);
     		return "Objects only contain ID.";
+    	}else{
+    		
+        	featuresName = new String[parser.getFeatureNames().size()-1];
+        	IDname = parser.getFeatureNames().get(0);
+    		for(int j = 1; j < parser.getFeatureNames().size(); j++){
+    			
+    			featuresName[j-1] = parser.getFeatureNames().get(j); 
+    		}
+    		
     	}
     	
     	
@@ -274,15 +286,15 @@ public class ObjectsOrderFormat implements DataSet {
     	for(int i = 0 ; i< numeric.length; i++)
     		numeric[i] = true;
     	
-    	mapping = new HashMap<Integer, Integer>();
-    	orderToActualObjID = new HashMap<Integer, Integer>();
+    	ID2feature = new HashMap<Integer, Integer>();
+    	feature2ID = new HashMap<Integer, Integer>();
     	
     	
     	for(int i = 0; i < parser.getData().size(); i++){
     		
     		int ID = Integer.valueOf(parser.getData().get(i).get(0));
-    		mapping.put(ID, i);///ID -> index on features
-    		orderToActualObjID.put(i, ID); //orderToActualObjID.put(entryNum, indentifier);//line number - comments - feature line -> ID (int)
+    		ID2feature.put(ID, i);///ID -> index on features
+    		feature2ID.put(i, ID); //orderToActualObjID.put(entryNum, indentifier);//line number - comments - feature line -> ID (int)
     		
     		for(int j = 1; j < parser.getFeatureNames().size(); j++){
     			
@@ -315,7 +327,7 @@ public class ObjectsOrderFormat implements DataSet {
     	
     	numOfPreferences = parser.getData().size();
     	
-    	if((mapping==null)||(mapping.size()==0))
+    	if((ID2feature==null)||(ID2feature.size()==0))
     		return  "Load object file first.";
     	
     	if(parser.getData().size()==0){
@@ -347,7 +359,7 @@ public class ObjectsOrderFormat implements DataSet {
                    return "Order file must contain ID integer values. Found \""+parser.getData().get(i).get(j)+"\" at line "+i;
                 }
     			
-    			if(!mapping.containsKey(order[j-1])){
+    			if(!ID2feature.containsKey(order[j-1])){
     				dataFilesValid.setValue(false);
     				return "Object with ID "+order[j-1]+" not found on object file. Line "+i;
     			}
@@ -374,6 +386,15 @@ public class ObjectsOrderFormat implements DataSet {
     	parsingOrderInformation = "";
     	
     	features = new String[parser.getData().size()][parser.getFeatureNames().size()-2];//ID and ratings are removed
+    	
+    	
+    	featuresName = new String[parser.getFeatureNames().size()-2];
+    	IDname = parser.getFeatureNames().get(0);
+		for(int j = 1; j < parser.getFeatureNames().size()-1; j++){
+			
+			featuresName[j-1] = parser.getFeatureNames().get(j); 
+		}
+		
     	numeric = new boolean[parser.getFeatureNames().size()-2];
     	instances = new ArrayList<Preference>();
     	atomicGroups = new ArrayList<Integer>();
@@ -383,15 +404,15 @@ public class ObjectsOrderFormat implements DataSet {
     	for(int i = 0 ; i< numeric.length; i++)
     		numeric[i] = true;
     	
-    	mapping = new HashMap<Integer, Integer>();
-    	orderToActualObjID = new HashMap<Integer, Integer>();
+    	ID2feature = new HashMap<Integer, Integer>();
+    	feature2ID = new HashMap<Integer, Integer>();
     	
     	
     	for(int i = 0; i < parser.getData().size(); i++){
     		
     		int ID = Integer.valueOf(parser.getData().get(i).get(0));
-    		mapping.put(ID, i);///ID -> index on features
-    		orderToActualObjID.put(i, ID); //orderToActualObjID.put(entryNum, indentifier);//line number - comments - feature line -> ID (int)
+    		ID2feature.put(ID, i);///ID -> index on features
+    		feature2ID.put(i, ID); //orderToActualObjID.put(entryNum, indentifier);//line number - comments - feature line -> ID (int)
     		
     		for(int j = 1; j < parser.getFeatureNames().size()-1; j++){
     			
@@ -418,11 +439,11 @@ public class ObjectsOrderFormat implements DataSet {
     			
     			if(ratings[i]>ratings[j]){
     				instances.add(new Preference(i,j));
-    				atomicGroups.add( orderToActualObjID.get(i));
+    				atomicGroups.add( feature2ID.get(i));
     			}
     			else if(ratings[i]<ratings[j]){
     				instances.add(new Preference(j,i));
-    				atomicGroups.add( orderToActualObjID.get(i));
+    				atomicGroups.add( feature2ID.get(i));
     			}
     			
     		}
@@ -446,7 +467,7 @@ public class ObjectsOrderFormat implements DataSet {
     }
     
     public int getObjActualID(int para_objOrderID) {
-        return orderToActualObjID.get(para_objOrderID);
+        return feature2ID.get(para_objOrderID);
     }
     
     @Override
@@ -481,6 +502,10 @@ public class ObjectsOrderFormat implements DataSet {
         }
 
         return "Unknown";
+    }
+    
+    public String getIDName(){
+    	return IDname;
     }
 
     @Override

@@ -166,6 +166,10 @@ Library.*/
 
 package plt.dataset.preprocessing;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import plt.dataset.DataSet;
 import plt.dataset.datareader.ObjectsOrderFormat;
 
@@ -178,36 +182,37 @@ public class MinMax extends PreprocessingOperation{
     private double min;
     private double max;
     
-    public MinMax(DataSet d, int featre, double min, double max) {
-        super(d, featre);
+    public MinMax( double min, double max) {
+       // super(d, featre);
         this.min = min;
         this.max = max;
     }
     
     @Override
-    public int numberOfOutput() {
+    public int numberOfOutput(DataSet d,int feature) {
         return 1;
     }
 
     @Override
-    public double value(int object, int output) {
-        Double value_actual = Double.parseDouble(this.getDataSet().getFeature(object, this.getFeature()));
+    public double value(DataSet d,int feature,int object, int output) {
+        Double value_actual = Double.parseDouble(d.getFeature(object, feature));
         
-        ObjectsOrderFormat castDataSet = (ObjectsOrderFormat) this.getDataSet();
-        double minValForFeature = (double) castDataSet.getMinValForFeature(this.getFeature());
-        double maxValForFeature = (double) castDataSet.getMaxValForFeature(this.getFeature());
+        ObjectsOrderFormat castDataSet = (ObjectsOrderFormat) d;
+        double minValForFeature = (double) castDataSet.getMinValForFeature(feature);
+        double maxValForFeature = (double) castDataSet.getMaxValForFeature(feature);
         
         double nwMin = min;
         double nwMax = max;
         
-        double computedVal = (nwMin + (((value_actual - minValForFeature) / (maxValForFeature - minValForFeature)) * (nwMax-nwMin)));
-        double roundedVal = (double)Math.round(computedVal * 1000) / 1000;
-        return roundedVal;
+        double computedVal = (nwMin + ((  (value_actual - minValForFeature) / (maxValForFeature - minValForFeature)) * (nwMax-nwMin)));
+        
+        //double roundedVal = (double)Math.round(computedVal * 1000) / 1000;
+        return computedVal;
     }
     
     @Override
     public String toString() {
-        return "{MinMax - numberOfOutput: "+ this.numberOfOutput() +" min: "+this.min+
+        return "{MinMax - numberOfOutput: 1 min: "+this.min+
                 " max: "+ this.max +"}";
 
     }
@@ -219,10 +224,24 @@ public class MinMax extends PreprocessingOperation{
     public double getMax() {
         return this.max;
     }
+    
+    public void setMin(double m) {
+        this.min = m;
+    }
+    
+    public void setMax(double m) {
+        this.max = m;
+    }
 
     @Override
     public String getOperationName() {
-        return "Min Max";
+        return "Min-Max";
     }
+
+	@Override
+	public List<Number> values(DataSet d, int feature, int object) {
+		
+		return new ArrayList<Number>(Arrays.asList(this.value(d,feature,object,0)));
+	}
 
 }

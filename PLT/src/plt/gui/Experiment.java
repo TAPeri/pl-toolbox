@@ -167,13 +167,12 @@ Library.*/
 package plt.gui;
 
 import java.util.Calendar;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javafx.beans.property.*;
-import plt.dataset.DataParser;
-import plt.dataset.DataSet;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import plt.dataset.PreprocessedDataSet;
 import plt.dataset.TrainableDataSet;
 import plt.dataset.datareader.ObjectsOrderFormat;
@@ -220,9 +219,9 @@ public class Experiment {
     private BooleanProperty useValidator;
     private StringProperty k;
 
+    
     /* preprocessing*/
-    private ObjectProperty<PreprocessingOperation[]> preprocessingOperations;
-    private ObjectProperty<boolean[]> ignoredFeatures;
+    private ObservableList<FeaturePreprocessingInfo> preprocessingOperations;//observable because it is displayed on preprocessing tab
     
     /* feature selection*/
     private BooleanProperty useValidatorForFeatureSelection;
@@ -236,11 +235,11 @@ public class Experiment {
     
     /* property*/
 
-    //public ObjectProperty<ObjectsOrderFormat> dataSetProperty() { return this.dataSet; }
+
     public ObjectsOrderFormat getDataset() { return this.dataSet; }
 
-    public ObjectProperty<PreprocessingOperation[]> preprocessingOperationsProperty() { return this.preprocessingOperations; }
-    public ObjectProperty<boolean[]> ignoredFeaturesProperty() { return this.ignoredFeatures ; }
+
+   
     public ObjectProperty<PLAlgorithm> algorithmProperty() { return this.algorithm; }
     public BooleanProperty useValidatorProperty() { return this.useValidator; }
     public BooleanProperty useValidatorForFeatureSelectionProperty() { return this.useValidatorForFeatureSelection; }
@@ -251,9 +250,31 @@ public class Experiment {
     public ObjectProperty<Calendar> expStartTimestampProperty() { return expStartTimestamp; }
     public ObjectProperty<Calendar> expCompleteTimestampProperty() { return expCompleteTimestamp; }
 
+    
+    
+    
+    public ObservableList<FeaturePreprocessingInfo> initialisePreprocessing()
+    {
+    	preprocessingOperations =  FXCollections.observableArrayList();
+        
+        int numOfFeatures = dataSet.getNumberOfFeatures();
+        
+        for(int i=0; i<numOfFeatures; i++)
+        {                        
+            preprocessingOperations.add(new FeaturePreprocessingInfo(i, true, dataSet.getFeatureName(i), 0, dataSet.isNumeric(i)));
+        }
+        
+        return preprocessingOperations;
+    }
+    
+    public ObservableList<FeaturePreprocessingInfo> getPreprocessingOperations(){
+    	return preprocessingOperations;
+    };
+
+    
     public Experiment() {
         
-        final Experiment self = this;
+      //  final Experiment self = this;
         
 
         
@@ -261,8 +282,8 @@ public class Experiment {
         //self.dataSet.set(new ObjectsOrderFormat());
         this.dataSet = new ObjectsOrderFormat();
         
-        this.preprocessingOperations = new SimpleObjectProperty<>();
-        this.ignoredFeatures = new SimpleObjectProperty<>();
+       // this.preprocessingOperations = new SimpleObjectProperty<>();
+       // this.ignoredFeatures = new SimpleObjectProperty<>();
         this.algorithm = new SimpleObjectProperty<>();
         this.useValidator = new SimpleBooleanProperty(false);
         this.useValidatorForFeatureSelection = new SimpleBooleanProperty(false);
@@ -412,16 +433,15 @@ public class Experiment {
        
        ExecutionProgress.reset();
        ExecutionProgress.signalBeginTask("Setting Dataset",1.0f/10.0f);
-        
-       boolean[] ignored = this.ignoredFeatures.get();
-       PreprocessingOperation[] ops = new PreprocessingOperation[this.preprocessingOperations.get().length];
+               
+       PreprocessingOperation[] ops = new PreprocessingOperation[this.preprocessingOperations.size()];
        
        
-       for (int i=0; i < ignored.length ; i++)
-           if (ignored[i]) 
-               ops[i] = new Ignoring(this.dataSet, i);
+       for (int i=0; i < ops.length ; i++)
+           if (preprocessingOperations.get(i).getIncludeFlag()) 
+               ops[i] = preprocessingOperations.get(i).getPreprocessingOptions().getSelected();
            else
-               ops[i] = this.preprocessingOperations.get()[i];
+               ops[i] = new Ignoring( i);
 
        TrainableDataSet t = new PreprocessedDataSet(this.dataSet, ops);
        

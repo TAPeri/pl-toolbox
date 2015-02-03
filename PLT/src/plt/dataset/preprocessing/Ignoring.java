@@ -166,6 +166,9 @@ Library.*/
 
 package plt.dataset.preprocessing;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import plt.dataset.DataSet;
 
 /**
@@ -174,28 +177,36 @@ import plt.dataset.DataSet;
  */
 public class Ignoring extends PreprocessingOperation {
 
-    public Ignoring(DataSet d, int feature) {
-        super(d, feature);
+	int ignoredFeature;
+    public Ignoring(int feature) {
+    	ignoredFeature= feature;
+        //super(d, feature);
     }
 
     @Override
-    public int numberOfOutput() {
+    public int numberOfOutput(DataSet d,int feature) {
         return 0;
     }
 
     @Override
-    public double value(int object, int output) {
+    public double value(DataSet d,int feature,int object, int output) {
         return 0;
     }
     
     @Override
     public String toString() {
-        return "{Ignoring - numberOfOutput: "+ this.numberOfOutput() +"}";
+        return "{Ignoring - numberOfOutput: 0}";
     }
 
     @Override
     public String getOperationName() {
         return "Ignoring";
     }
+
+	@Override
+	public List<Number> values(DataSet d, int feature, int object) {
+		return new ArrayList<Number>();
+
+	}
     
 }

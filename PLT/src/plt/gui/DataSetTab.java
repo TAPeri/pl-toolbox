@@ -183,9 +183,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.input.MouseEvent;
@@ -199,7 +197,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Popup;
 import javafx.stage.PopupWindow;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 import javafx.util.Callback;
 import plt.dataset.DataParser;
 import plt.dataset.datareader.DataFileParseStatus;
@@ -333,7 +330,7 @@ public class DataSetTab extends Tab {
     }
     
     
-    TableView<List<String>> preview;
+    TableView<List<String>> preview; //The list represents each of the features (not each of the samples)
     
     
     class LoadIDataFileHandler implements EventHandler<MouseEvent>
@@ -672,8 +669,7 @@ public class DataSetTab extends Tab {
         @Override
         public void handle(MouseEvent mouseEvent)
         {
-            EventType eType = mouseEvent.getEventType();
-            String eTypeName = eType.getName();
+            String eTypeName = mouseEvent.getEventType().getName();
             
             if(((eTypeName).equals("MOUSE_ENTERED"))
             ||((eTypeName).equals("MOUSE_EXITED")))
@@ -681,14 +677,11 @@ public class DataSetTab extends Tab {
             	
                 Node uiComponent = (Node) mouseEvent.getSource();
                 
-                Parent parent = stage.getScene().getRoot();
-                MasterGUI mGUI = (MasterGUI) parent;
                 
                 
                 
                 if((eTypeName).equals("MOUSE_ENTERED"))
                 {
-                    String uiComponent_id = uiComponent.getId();
                     final String tooltipHelpText = "";//helpStore.getToolTip(uiComponent_id);
 
                     
@@ -784,9 +777,8 @@ public class DataSetTab extends Tab {
 
 
                         Point mousePt = MouseInfo.getPointerInfo().getLocation();
-                        Window reqWindow = stage.getScene().getWindow();
-                        int windowX = mousePt.x - (int) reqWindow.getX();
-                        int windowY = mousePt.y - (int) reqWindow.getY();
+
+
                         toolTip.show(stage.getScene().getWindow(), mousePt.x+10, mousePt.y+10);
                     }
                 });

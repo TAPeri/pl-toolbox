@@ -201,21 +201,21 @@ public class PreprocessedDataSet extends TrainableDataSet {
 
         this.numberOfFeature = 0;
         for (int i = 0; i < dataSet.getNumberOfFeatures(); i++) {
-            if (preprocessingOperations[i].numberOfOutput() < 0) {
+            if (preprocessingOperations[i].numberOfOutput(dataSet,i) < 0) {
                 throw new IllegalArgumentException();
             }
             
-            if (this.dataSet != preprocessingOperations[i].getDataSet()) {
+           /* if (this.dataSet != preprocessingOperations[i].getDataSet()) {
                 throw  new IllegalArgumentException();
-            }
+            }*/
             
-            this.numberOfFeature += preprocessingOperations[i].numberOfOutput();
+            this.numberOfFeature += preprocessingOperations[i].numberOfOutput(dataSet,i);
         }
 
         this.operationForFeature = new int[this.numberOfFeature];
         int counter =0;
         for (int i = 0; i < dataSet.getNumberOfFeatures(); i++) {
-            for (int j = 0; j < preprocessingOperations[i].numberOfOutput(); j++) {
+            for (int j = 0; j < preprocessingOperations[i].numberOfOutput(dataSet,i); j++) {
                 this.operationForFeature[counter++] = i;
             }
         }
@@ -277,7 +277,7 @@ public class PreprocessedDataSet extends TrainableDataSet {
             }
 
             
-            cache[n][f] = this.preprocessingOperations[this.operationForFeature[f]].value( n, value);
+            cache[n][f] = this.preprocessingOperations[this.operationForFeature[f]].value(this.dataSet,f, n, value);
             cacheStatus[n] += 1;
         }
 

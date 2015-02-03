@@ -285,10 +285,13 @@ public class MasterGUI extends BorderPane
 			public void changed(ObservableValue<? extends Boolean> arg0,
 					Boolean arg1, Boolean arg2) {
 				if(arg2){
+					
+					experiment.initialisePreprocessing();					
 					enableTabs();
 				}
 				
-			}});
+			}
+		});
         
         
         tabPane.selectionModelProperty();
@@ -310,10 +313,10 @@ public class MasterGUI extends BorderPane
 
 
                     int numOfIgnoredFeatures = 0;
-                    boolean[] tmpIgArr = experiment.ignoredFeaturesProperty().get();
-                    for(int i=0; i<tmpIgArr.length; i++)
+
+                    for(int i=0; i<experiment.getPreprocessingOperations().size(); i++)
                     {
-                        if(tmpIgArr[i]) { numOfIgnoredFeatures++; }
+                        if(!experiment.getPreprocessingOperations().get(i).getIncludeFlag()) { numOfIgnoredFeatures++; }
                     }
 
 

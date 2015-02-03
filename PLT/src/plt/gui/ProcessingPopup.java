@@ -166,13 +166,11 @@ Library.*/
 
 package plt.gui;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -183,162 +181,112 @@ import plt.gui.component.ModalPopup;
  *
  * @author Institute of Digital Games, UoM Malta
  */
-public class ProcessingOperatorSelector extends ModalPopup {
+public class ProcessingPopup extends ModalPopup {
 
-    private final BorderPane bp;
-    private final Experiment experiment;
-    private final int item;
-    private final Button button;
+
+    private final PreprocessingSelector options;
     
-    public ProcessingOperatorSelector(int i, Button b, Experiment exp) {
+    public ProcessingPopup(PreprocessingSelector options){//int i, Button b, Experiment exp) {
         super();
-        this.experiment = exp;
-        this.item = i;
-        this.button = b;
-        this.bp = new BorderPane();
+        
+        this.options = options;
+        
+
+        
     }
 
-    public void show(Parent parent, final EventHandler eventHandler) {
+    public void show(Parent parent, final EventHandler<MouseEvent> eventHandler) {
         
-        final TextField minTextField = new TextField("0");
-        minTextField.setPrefWidth(50);
-        final TextField maxTextField = new TextField("1");
-        maxTextField.setPrefWidth(50);
-
-
-        bp.setPadding(new Insets(25));
-        VBox vbox = new VBox();
-        ToggleGroup toggle = new ToggleGroup();
-        vbox.setSpacing(10);
-
-
-        if (!experiment.getDataset().isNumeric(item)) {
-            final RadioButton rb1 = new RadioButton("Nominal");
-            rb1.setToggleGroup(toggle);
-
-            final RadioButton rb2 = new RadioButton("Binary representation");
-            rb2.setToggleGroup(toggle);
-            vbox.getChildren().addAll(rb1, rb2);
-
-            toggle.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
-
-                @Override
-                public void changed(ObservableValue<? extends Toggle> ov, Toggle oldValue, Toggle newValue) {
-                    PreprocessingOperation[] pos = experiment.preprocessingOperationsProperty().get();
-
-                    if (rb1.isSelected()) {
-                        pos[item] = new Nominal(experiment.getDataset(), item);
-                    } else {
-                        pos[item] = new Binary(experiment.getDataset(), item, null);
-                    }
-
-
-                }
-            });
-
-            PreprocessingOperation po = experiment.preprocessingOperationsProperty().get()[item];
-            rb1.setSelected(po instanceof Nominal);
-            rb2.setSelected(po instanceof Binary);
-
-
-
-        } else {
-            final RadioButton rb1 = new RadioButton("Default Value");
-            rb1.setToggleGroup(toggle);
-
-            final RadioButton rb2 = new RadioButton("Min Max Normalization");
-            rb2.setToggleGroup(toggle);
-
-            final RadioButton rb3 = new RadioButton("Binary representation");
-            rb3.setToggleGroup(toggle);
-            
-            RadioButton rb4 = new RadioButton("Z-Score Normalization");
-            rb4.setToggleGroup(toggle);
-
-
-            vbox.getChildren().addAll(rb1, rb2, rb3, rb4);
-
-            toggle.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
-
-                @Override
-                public void changed(ObservableValue<? extends Toggle> ov, Toggle t, Toggle t1) {
-
-                    PreprocessingOperation[] pos = experiment.preprocessingOperationsProperty().get();
-
-                    bp.setRight(null);
-
-                    if (rb1.isSelected()) {
-                        pos[item] = new Numeric(experiment.getDataset(), item);
-                    } else if (rb2.isSelected()) {
-                        pos[item] = new MinMax(experiment.getDataset(), item, 0, 1);
-
-                        GridPane grid = new GridPane();
-                        grid.setPadding(new Insets(20));
-
-                        Label minLabel = new Label("Min:");
-
-                        Label maxLabel = new Label("Max:");
-
-                        grid.add(minLabel, 0, 0);
-                        grid.add(minTextField, 1, 0);
-                        grid.add(maxLabel, 0, 2);
-                        grid.add(maxTextField, 1, 2);
-                        bp.setRight(grid);
-
-                    } else if (rb3.isSelected()) {
-                        pos[item] = new NumericBinary(experiment.getDataset(), item, null);
-                    } else {
-                        pos[item] = new ZScore(experiment.getDataset(), item);
-                    }
-
-                }
-            });
-
-            PreprocessingOperation po = experiment.preprocessingOperationsProperty().get()[item];
-            rb1.setSelected(po instanceof Numeric);
-            rb3.setSelected(po instanceof Binary);
-            rb2.setSelected(po instanceof MinMax);
-            rb4.setSelected(po instanceof ZScore);
-
-            if (po instanceof MinMax) {
-                MinMax minMax = (MinMax) po;
-                minTextField.textProperty().set(minMax.getMin() + "");
-                maxTextField.textProperty().set(minMax.getMax() + "");
-            }
-
-        }
-
-        bp.setLeft(vbox);
         
+    	BorderPane bp = new BorderPane();
+    		VBox vbox = new VBox();
+    		bp.setLeft(vbox);
+    		
+    			final ToggleGroup toggle = new ToggleGroup();
 
+				final TextField minTextField = new TextField("0");
+				final TextField maxTextField = new TextField("1");    			
+    			
+bp.setPadding(new Insets(25));
+vbox.setSpacing(10);
 
-        super.show(bp, parent, new EventHandler() {
+				int index = 0;
+        		for(PreprocessingOperation operator : options.getOptions()){
+        	
+        			if(operator instanceof MinMax){
+        		
+        				GridPane grid = new GridPane();
+        				bp.setRight(grid);
+        				
+        					if(options.getSelected() instanceof MinMax){
+        						minTextField.textProperty().set(((MinMax) options.getSelected()).getMin() + "");
+        						maxTextField.textProperty().set(((MinMax) options.getSelected()).getMax() + "");
+        					}else{
+        						minTextField.textProperty().set(((MinMax) operator).getMin() + "");
+        						maxTextField.textProperty().set(((MinMax) operator).getMax() + "");
+        					}
+        					minTextField.setPrefWidth(50);
+        					maxTextField.setPrefWidth(50);
+        				
+grid.setPadding(new Insets(20));
 
-            @Override
-            public void handle(Event t) {
-                PreprocessingOperation[] pos = experiment.preprocessingOperationsProperty().get();
+        					Label minLabel = new Label("Min:");
+        					Label maxLabel = new Label("Max:");
 
-                if (pos[item] instanceof MinMax) {
-                    double min = 0, max = 1;
-                    try {
-                        min = Double.parseDouble(minTextField.textProperty().get());
-                        max = Double.parseDouble(maxTextField.textProperty().get());
-                    } catch (Exception e) {
-                        min = 0;
-                        max = 1;
-                    }
-
-                    if (min >= max) {
-                        min = 0;
-                        max = 1;
-                    }
-                    pos[item] = new MinMax(experiment.getDataset(), item, min, max);
-                }
-
-                //button.setText(pos[item].toString());
+        					grid.add(minLabel, 0, 0);
+        					grid.add(minTextField, 1, 0);
+        					grid.add(maxLabel, 0, 2);
+        					grid.add(maxTextField, 1, 2);
+        					
+        			}
+        	
+        			//bp.setRight(null);
+        	        	
+        			RadioButton rb1 = new RadioButton(operator.getOperationName());
+        			rb1.setToggleGroup(toggle);
+        			rb1.setUserData(index);
+        			
+        			index++;
+        			vbox.getChildren().add(rb1);
+        			if(operator.getOperationName().equals( options.getSelected().getOperationName()))
+        				rb1.setSelected(true);
+        				
+        		}
                 
-                eventHandler.handle(t);
-            }
-        }, null, false);
+
+        		super.show(bp, parent, new EventHandler<MouseEvent>() {
+
+        			@Override
+        			public void handle(MouseEvent t) {
+        				
+        				int selectedIndex = (int)toggle.getSelectedToggle().getUserData();
+        				options.setSelected(selectedIndex);
+        				
+        				if(options.getSelected() instanceof MinMax){
+                            double min = 0, max = 1;
+                            try {
+                                min = Double.parseDouble(minTextField.textProperty().get());
+                                max = Double.parseDouble(maxTextField.textProperty().get());
+                            } catch (Exception e) {
+                                min = 0;
+                                max = 1;
+                            }
+
+                            if (min >= max) {
+                                min = 0;
+                                max = 1;
+                            }
+                            
+                            ((MinMax)options.getSelected()).setMin(min);
+                            ((MinMax)options.getSelected()).setMax(max);
+        					
+        				}else{
+        					System.out.println("Not MinMax");
+        				}
+        			
+        				eventHandler.handle(t);
+        			}
+        
+        		}, null, false);
     }
 }

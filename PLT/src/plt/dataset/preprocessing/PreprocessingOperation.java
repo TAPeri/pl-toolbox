@@ -166,6 +166,10 @@ Library.*/
 
 package plt.dataset.preprocessing;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import plt.dataset.DataSet;
 
 /**
@@ -174,25 +178,50 @@ import plt.dataset.DataSet;
  */
 public abstract  class PreprocessingOperation {
     
-    private DataSet dataSet;
-    private int feature;
+    //private DataSet dataSet;
+   // private int feature;
     
-    public PreprocessingOperation(DataSet d,int feature) {
+   /* public PreprocessingOperation(DataSet d,int feature) {
         this.dataSet = d;
         this.feature = feature;
-    }
+    }*/
     
-    public DataSet getDataSet() {
+   /* public DataSet getDataSet() {
         return this.dataSet;
     }
     
     public int getFeature() {
         return this.feature;
-    }
+    }*/
     
-    abstract public int numberOfOutput();
+    abstract public int numberOfOutput(DataSet d,int feature);
     
-    abstract public double value(int object, int output);
+    abstract public double value(DataSet d,int feature,int object, int output);
+    abstract public List<Number> values(DataSet d,int feature,int object);
     
     abstract public String getOperationName();
+    
+    static public List<PreprocessingOperation> getAvailableOperations(final DataSet dataSet, final int feature){
+    	
+    	return getAvailableOperations(dataSet.isNumeric(feature));
+    	
+    }
+    
+    static public List<PreprocessingOperation> getAvailableOperations(boolean isNumeric){
+
+    	if(isNumeric){
+    		
+    		return new ArrayList<PreprocessingOperation>(Arrays.asList(new Numeric(), new NumericBinary(),new ZScore(),new MinMax(0,1)));
+    		
+    	}else{
+    		System.out.println("Nominal preprocessing disabled");
+    		return new ArrayList<PreprocessingOperation>(Arrays.asList(new Binary()));
+    		//return new ArrayList<PreprocessingOperation>(Arrays.asList(new Binary(),new Nominal()));
+
+
+    	}
+    	
+    }
+    
+
 }

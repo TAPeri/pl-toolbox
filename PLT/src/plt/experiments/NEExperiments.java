@@ -275,7 +275,7 @@ public class NEExperiments extends Application {
 
             PreprocessingOperation[] po = new PreprocessingOperation[numberOfFeatures];
             for (int j = 0; j < numberOfFeatures; j++) {
-                po[j] = new Numeric(dataSet, j);
+                po[j] = new Numeric();
             }
 
             TrainableDataSet trainableDataSet = new PreprocessedDataSet(dataSet, po);
