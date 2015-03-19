@@ -187,6 +187,7 @@ import javafx.stage.Stage;
 import plt.featureselection.examples.NBest;
 import plt.gui.component.ModalPopup;
 import plt.gui.configurators.PLRankSvmConfigurator;
+import plt.gui.dataset.DataSetTab;
 import plt.plalgorithm.neruoevolution.PLNeuroEvolutionConfigurator;
 import plt.gui.help.Tab1Help;
 import plt.gui.help.Tab2Help;
@@ -199,8 +200,11 @@ import plt.plalgorithm.svm.libsvm_plt.PLRankSvm;
 /**
  *
  * GUI controller
+ * 
+ * Initialises the Experiment object and the 4 tabs with the main processing steps
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
+ * @author Hector P. Martinez
  */
 public class MasterGUI extends BorderPane
 {
@@ -219,40 +223,76 @@ public class MasterGUI extends BorderPane
      
         experiment = new Experiment();
 
+        //Main steps in tabs
         tabPane = new TabPane();
-        final Tab tab1 = new DataSetTab(parentStage, experiment.getDataset());
-        tab1.setText("Dataset");
+        this.setCenter(tabPane);
+        
+        	final Tab tab1 = new DataSetTab(parentStage, experiment.getDataset());
+        	tab1.setText("Dataset");
 
-        final Tab tab2 = new PreprocessingTab(parentStage, experiment);
-        tab2.setText("Preprocessing");
+        	final Tab tab2 = new PreprocessingTab(parentStage, experiment);
+        	tab2.setText("Preprocessing");
 
-        final Tab tab3 = new FeatureSelectionTab(parentStage, experiment);
-        tab3.setText("Feature Selection");
+        	final Tab tab3 = new FeatureSelectionTab(parentStage, experiment);
+        	tab3.setText("Feature Selection");
 
-        final Tab tab4 = new AlgorithmTab(parentStage, experiment);
-        tab4.setText("Preference Learning Methods");
+        	final Tab tab4 = new AlgorithmTab(parentStage, experiment);
+        	tab4.setText("Preference Learning Methods");        
+        
+        	tabPane.tabClosingPolicyProperty().set(TabPane.TabClosingPolicy.UNAVAILABLE);
+        	tabPane.getTabs().addAll(tab1, tab2, tab3 ,tab4);
 
         
         
-        tabPane.tabClosingPolicyProperty().set(TabPane.TabClosingPolicy.UNAVAILABLE);
-        tabPane.getTabs().addAll(tab1, tab2, tab3 ,tab4);
         
-        
+        //Next, back and help buttons
         BorderPane bottomPane = new BorderPane();
+        this.setBottom(bottomPane);
+        bottomPane.setPadding(new Insets(10, 10, 10, 10));
+        bottomPane.setStyle("-fx-background-color: #336699;");        
         
-        
-        final Button btnBack = new Button();
-        btnBack.setPrefSize(200, 20);
-        btnBack.setVisible(false);
-        Label lblBackBtn = new Label("BACK");
-        ImageView imgViewBkBtn = new ImageView(new Image(DataSetTab.class.getResourceAsStream("bkButton.png")));
-        BorderPane backBtnInnerBPane = new BorderPane();
-        backBtnInnerBPane.setLeft(imgViewBkBtn);
-        backBtnInnerBPane.setCenter(lblBackBtn);
-        btnBack.setGraphic(backBtnInnerBPane);
-        
-        
-        
+        	HBox navBtnBox = new HBox(10);
+        	bottomPane.setRight(navBtnBox);
+
+        		btnNext = new Button();
+        		navBtnBox.getChildren().add(btnNext);
+
+        		btnNext.setPrefSize(200, 20);
+        		btnNext.disableProperty().setValue(true);
+        		
+        			BorderPane nextBtnInnerBPane = new BorderPane();
+        			btnNext.setGraphic(nextBtnInnerBPane);
+        			
+        				Label lblNextBtn = new Label("Next");
+        				nextBtnInnerBPane.setCenter(lblNextBtn);
+        				
+        				ImageView imgViewNextBtn = new ImageView(new Image(DataSetTab.class.getResourceAsStream("nxtButton.png")));
+        				nextBtnInnerBPane.setRight(imgViewNextBtn);
+        			
+        		final Button btnBack = new Button();
+        		navBtnBox.getChildren().add(btnBack);
+
+        		btnBack.setPrefSize(200, 20);
+        		btnBack.setVisible(false);
+        		
+        			BorderPane backBtnInnerBPane = new BorderPane();
+        			btnBack.setGraphic(backBtnInnerBPane); 
+        			
+        			    Label lblBackBtn = new Label("Back");
+        			    backBtnInnerBPane.setCenter(lblBackBtn);
+        			    
+        			    ImageView imgViewBkBtn = new ImageView(new Image(DataSetTab.class.getResourceAsStream("bkButton.png")));
+        			    backBtnInnerBPane.setLeft(imgViewBkBtn);
+        		
+        			     			
+        	
+            Button helpButton = new Button();
+            bottomPane.setLeft(helpButton);
+            helpButton.setVisible(true);
+            helpButton.setGraphic(new ImageView(new Image(DataSetTab.class.getResourceAsStream("helpButton.png"))));
+        	
+            
+            
         btnBack.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -266,19 +306,9 @@ public class MasterGUI extends BorderPane
             
         });
         
+   
         
-        
-        btnNext = new Button();
-        btnNext.setPrefSize(200, 20);
-        Label lblNextBtn = new Label("Next");
-        ImageView imgViewNextBtn = new ImageView(new Image(DataSetTab.class.getResourceAsStream("nxtButton.png")));
-        BorderPane nextBtnInnerBPane = new BorderPane();
-        nextBtnInnerBPane.setCenter(lblNextBtn);
-        nextBtnInnerBPane.setRight(imgViewNextBtn);
-        btnNext.setGraphic(nextBtnInnerBPane);
-        btnNext.disableProperty().setValue(true);
-        
-        
+        //Enable tabs only when dataset is loaded
         experiment.getDataset().addDataLoaderListener(new ChangeListener<Boolean>(){
 
 			@Override
@@ -286,7 +316,6 @@ public class MasterGUI extends BorderPane
 					Boolean arg1, Boolean arg2) {
 				if(arg2){
 					
-					experiment.initialisePreprocessing();					
 					enableTabs();
 				}
 				
@@ -294,13 +323,120 @@ public class MasterGUI extends BorderPane
 		});
         
         
-        tabPane.selectionModelProperty();
+        //tabPane.selectionModelProperty();
+  
         
-        btnNext.setOnAction(new EventHandler<ActionEvent>() {
+        
+        //Change label of 'next button' when at tab 4
+        tab4.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
+                if (t1)
+                {
+                    
+                    Label lblNextBtn = new Label("Run experiment");
+                    ImageView imgViewNextBtn = new ImageView(new Image(DataSetTab.class.getResourceAsStream("runExperimentButton.png")));
+                    BorderPane nextBtnInnerBPane = new BorderPane();
+                    nextBtnInnerBPane.setCenter(lblNextBtn);
+                    nextBtnInnerBPane.setRight(imgViewNextBtn);
+                    btnNext.setGraphic(nextBtnInnerBPane);
+                }
+                else
+                {
+                    Label lblNextBtn = new Label("Next");
+                    ImageView imgViewNextBtn = new ImageView(new Image(DataSetTab.class.getResourceAsStream("nxtButton.png")));
+                    BorderPane nextBtnInnerBPane = new BorderPane();
+                    nextBtnInnerBPane.setCenter(lblNextBtn);
+                    nextBtnInnerBPane.setRight(imgViewNextBtn);
+                    btnNext.setGraphic(nextBtnInnerBPane);
+                }
+            }
+        });
+        
+        
+        //Hide back button when tab1 is selected
+        tab1.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
+                
+                if(t1)
+                {
+                    btnBack.setVisible(false);
+                    btnNext.setVisible(true);
+                }
+                else
+                {
+                    btnBack.setVisible(true);
+                }
+            }
+        });
+        
+        
+        
+        
+
+        
+        helpButton.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
             public void handle(ActionEvent t) {
+                if(tab1.selectedProperty().get())
+                {
+                    Tab1Help h = new Tab1Help();
+                    h.show(parentStage.getScene().getRoot(), null);
+                }
+                else if(tab2.selectedProperty().get())
+                {
+                    Tab2Help h = new Tab2Help();
+                    h.show(parentStage.getScene().getRoot(), null);
+                }
+                else if(tab3.selectedProperty().get())
+                {
+                    Tab3Help h = new Tab3Help();
+                    h.show(parentStage.getScene().getRoot(), null);
+                }
+                else if(tab4.selectedProperty().get())
+                {
+                    Tab4Help h = new Tab4Help();
+                    h.show(parentStage.getScene().getRoot(), null);
+                }
+            }
+            
+        });
+        
+        /*helpButton.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent t) {
+                if (tab1.selectedProperty().get()) {
+                    ArrayList<String> itemsToInclude = new ArrayList<String>();
+                    itemsToInclude.add("Loading a dataset");
+                    itemsToInclude.add("Button: Import Object File");
+                    itemsToInclude.add("Button: Import Ranking File");
+                    
+                    String reqHTML = dataSetTab_HelpStore.constructHtml(itemsToInclude);
+                    HelpPopup hPopup = new HelpPopup(reqHTML);
+                    hPopup.show(parentStage.getScene().getRoot(), null);
+                    
+                    //Tab1Help h = new Tab1Help();
+                    //h.show(parentStage.getScene().getRoot(), null);
+                }
                 
+                if (tab2.selectedProperty().get()) {
+                    Tab2Help h = new Tab2Help();
+                    h.show(parentStage.getScene().getRoot(), null);
+                }
+                
+            }
+        });*/
+        
+        
+        
+        
+        btnNext.setOnAction(new EventHandler<ActionEvent>() {//Next tab or start experiment
+
+            @Override
+            public void handle(ActionEvent t) {
                 
                 if(! tab4.selectedProperty().get())
                 {
@@ -308,6 +444,8 @@ public class MasterGUI extends BorderPane
                 }
                 else if(tab4.selectedProperty().get())
                 {
+                	
+                	System.err.println("These checks should be moved somewhere else");
                     // Perform safety checks.
                     boolean allClear = true;
 
@@ -452,124 +590,18 @@ public class MasterGUI extends BorderPane
             }
         });
         
-        tab4.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
-                if (t1)
-                {
-                    
-                    Label lblNextBtn = new Label("RUN EXPERIMENT");
-                    ImageView imgViewNextBtn = new ImageView(new Image(DataSetTab.class.getResourceAsStream("runExperimentButton.png")));
-                    BorderPane nextBtnInnerBPane = new BorderPane();
-                    nextBtnInnerBPane.setCenter(lblNextBtn);
-                    nextBtnInnerBPane.setRight(imgViewNextBtn);
-                    btnNext.setGraphic(nextBtnInnerBPane);
-                }
-                else
-                {
-                    Label lblNextBtn = new Label("NEXT");
-                    ImageView imgViewNextBtn = new ImageView(new Image(DataSetTab.class.getResourceAsStream("nxtButton.png")));
-                    BorderPane nextBtnInnerBPane = new BorderPane();
-                    nextBtnInnerBPane.setCenter(lblNextBtn);
-                    nextBtnInnerBPane.setRight(imgViewNextBtn);
-                    btnNext.setGraphic(nextBtnInnerBPane);
-                }
-            }
-        });
-        
-        tab1.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
-                
-                if(t1)
-                {
-                    btnBack.setVisible(false);
-                    btnNext.setVisible(true);
-                }
-                else
-                {
-                    btnBack.setVisible(true);
-                }
-            }
-        });
         
         
-        
-        
-        Button helpButton = new Button();
-        helpButton.setVisible(true);
-        helpButton.setGraphic(new ImageView(new Image(DataSetTab.class.getResourceAsStream("helpButton.png"))));
-        helpButton.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent t) {
-                if(tab1.selectedProperty().get())
-                {
-                    Tab1Help h = new Tab1Help();
-                    h.show(parentStage.getScene().getRoot(), null);
-                }
-                else if(tab2.selectedProperty().get())
-                {
-                    Tab2Help h = new Tab2Help();
-                    h.show(parentStage.getScene().getRoot(), null);
-                }
-                else if(tab3.selectedProperty().get())
-                {
-                    Tab3Help h = new Tab3Help();
-                    h.show(parentStage.getScene().getRoot(), null);
-                }
-                else if(tab4.selectedProperty().get())
-                {
-                    Tab4Help h = new Tab4Help();
-                    h.show(parentStage.getScene().getRoot(), null);
-                }
-            }
-            
-        });
-        
-        /*helpButton.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent t) {
-                if (tab1.selectedProperty().get()) {
-                    ArrayList<String> itemsToInclude = new ArrayList<String>();
-                    itemsToInclude.add("Loading a dataset");
-                    itemsToInclude.add("Button: Import Object File");
-                    itemsToInclude.add("Button: Import Ranking File");
-                    
-                    String reqHTML = dataSetTab_HelpStore.constructHtml(itemsToInclude);
-                    HelpPopup hPopup = new HelpPopup(reqHTML);
-                    hPopup.show(parentStage.getScene().getRoot(), null);
-                    
-                    //Tab1Help h = new Tab1Help();
-                    //h.show(parentStage.getScene().getRoot(), null);
-                }
-                
-                if (tab2.selectedProperty().get()) {
-                    Tab2Help h = new Tab2Help();
-                    h.show(parentStage.getScene().getRoot(), null);
-                }
-                
-            }
-        });*/
         
         //helpButton.visibleProperty().bind(tab1.selectedProperty().or(tab2.selectedProperty()));
-        
-        
-        
-        
-        HBox navBtnBox = new HBox(10);
-        navBtnBox.getChildren().addAll(btnBack,btnNext);
-        
-        bottomPane.setPadding(new Insets(10, 10, 10, 10));
-        bottomPane.setStyle("-fx-background-color: #336699;");
-        bottomPane.setLeft(helpButton);
-        bottomPane.setRight(navBtnBox);
-        
-        this.setCenter(tabPane);
-        this.setBottom(bottomPane);
+  
         
         disableTabs(new ArrayList<Integer>(Arrays.asList(1,2,3)));
+        
+        
+        
+        
+        
         
         
         
@@ -593,6 +625,10 @@ public class MasterGUI extends BorderPane
             tabPane.getTabs().get(para_tabsToEnable.get(i)).setDisable(true);
         }
     }
+    
+    
+    
+    
     
     
 }

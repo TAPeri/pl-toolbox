@@ -370,6 +370,9 @@ public class Execution  {
             cStart = Calendar.getInstance();
         }
 
+        
+        String prevTime = "";
+        
         @Override
         public void run() 
         {
@@ -377,7 +380,12 @@ public class Execution  {
             while((! haltTimerThread)&&(! ExecutionProgress.shutdownProgram)&&(! ExecutionProgress.hasInterruptRequest(threadID)))
             {
                 Calendar currTStamp = Calendar.getInstance();
-                txtCurrDuration.setText( TimeHelper.calculateDuration(cStart, currTStamp) );
+                
+                if(!prevTime.equals(""+TimeHelper.calculateDuration(cStart, currTStamp))){
+                	prevTime = ""+TimeHelper.calculateDuration(cStart, currTStamp);
+                	System.err.println("Removed "+TimeHelper.calculateDuration(cStart, currTStamp));
+                }
+                //txtCurrDuration.setText( TimeHelper.calculateDuration(cStart, currTStamp) );
             }
             
             if((ExecutionProgress.needToShutdown())||(ExecutionProgress.hasInterruptRequest(threadID)))

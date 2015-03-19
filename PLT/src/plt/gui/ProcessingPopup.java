@@ -179,7 +179,10 @@ import plt.gui.component.ModalPopup;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * Pop-up window used to select preprocessing options of a selected feature
+ *
+ * @author Vincent Farrugia
+ * @author Hector P. Martinez
  */
 public class ProcessingPopup extends ModalPopup {
 

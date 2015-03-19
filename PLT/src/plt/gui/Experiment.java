@@ -188,7 +188,10 @@ import plt.validator.examples.NoValidation;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * Contains all necessary parameters and elements to run (or replicate) the experiment 
+ *
+ * @author Vincent Farrugia
+ * @author Hector P. Martinez
  */
 public class Experiment {
     

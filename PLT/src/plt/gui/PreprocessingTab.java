@@ -195,7 +195,10 @@ import javafx.util.Callback;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * GUI functionality to choose how to preprocess each feature (is nominal or numerical? normalisation schemes)
+ *
+ * @author Vincent Farugia
+ * @author Hector P. Martinez
  */
 public class PreprocessingTab extends Tab {
 
@@ -220,6 +223,7 @@ public class PreprocessingTab extends Tab {
 				public void changed(ObservableValue<? extends Boolean> arg0,
 						Boolean arg1, Boolean arg2) {
 					if(arg2){
+						experiment.initialisePreprocessing();					
 
 						setup();
 					}

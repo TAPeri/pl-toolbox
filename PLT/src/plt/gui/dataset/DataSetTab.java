@@ -164,7 +164,7 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.gui;
+package plt.gui.dataset;
 
 import java.awt.MouseInfo;
 import java.awt.Point;
@@ -205,7 +205,8 @@ import plt.dataset.datareader.ObjectsOrderFormat;
 /**
  *  GUI to load a dataset
  *   
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
+ * @author Hector P. Martinez
  */
 public class DataSetTab extends Tab {
 
@@ -287,6 +288,9 @@ public class DataSetTab extends Tab {
     
 
    
+    /*
+     * Load dataset that contains objects + ratings
+     */
     class LoadSingleFileHandler implements EventHandler<MouseEvent> {
 
     	@Override
@@ -296,7 +300,7 @@ public class DataSetTab extends Tab {
 	        if (file != null) {
 	            if(latestWorkingDir == null) { latestWorkingDir = file.getParent(); }
 	            
-	            final DataParser parser = new DataParser(file,",",0,0,false,false,true);
+	            final DataParser parser = new DataParser(file,",",0,0,false,true,true);
 	            
 	           	final EventHandler<MouseEvent> eventHandler = new EventHandler<MouseEvent>() {
 
@@ -333,6 +337,9 @@ public class DataSetTab extends Tab {
     TableView<List<String>> preview; //The list represents each of the features (not each of the samples)
     
     
+    /*
+     * Load the objects of a dataset that is given in two files (objects + orders)
+     */
     class LoadIDataFileHandler implements EventHandler<MouseEvent>
     {
         @Override
@@ -343,7 +350,7 @@ public class DataSetTab extends Tab {
 	        if (file != null) {
 	            if(latestWorkingDir == null) { latestWorkingDir = file.getParent(); }
 	            
-	            final DataParser parser = new DataParser(file,",",0,0,false,false,true);
+	            final DataParser parser = new DataParser(file,",",0,0,false,true,true);
 	            
 	           	final EventHandler<MouseEvent> eventHandler = new EventHandler<MouseEvent>() {
 
@@ -376,6 +383,9 @@ public class DataSetTab extends Tab {
         }
     }
     
+    /*
+     * Load the orders of a dataset that is given in two files (objects + orders)
+     */    
     public class LoadOrderDataFileHandler implements EventHandler<MouseEvent>
     {
 	   

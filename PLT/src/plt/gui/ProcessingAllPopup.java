@@ -183,7 +183,13 @@ import javafx.scene.text.FontWeight;
 import plt.dataset.preprocessing.*;
 import plt.gui.component.ModalPopup;
 
-
+/**
+*
+* Pop-up window used to select preprocessing options of all features
+*
+* @author Vincent Farugia
+* @author Hector P. Martinez
+*/
 public class ProcessingAllPopup extends ModalPopup {
 
 

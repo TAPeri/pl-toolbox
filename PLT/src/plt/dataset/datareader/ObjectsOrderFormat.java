@@ -274,7 +274,8 @@ public class ObjectsOrderFormat implements DataSet {
     		}
     		
     	}
-    	
+    	numFeatures = featuresName.length;
+
     	
     	features = new String[parser.getData().size()][parser.getFeatureNames().size()-1];//ID is removed
     	numeric = new boolean[parser.getFeatureNames().size()-1];
@@ -303,7 +304,7 @@ public class ObjectsOrderFormat implements DataSet {
                 try {
                     Double.parseDouble(parser.getData().get(i).get(j));
                 }catch (NumberFormatException e) {
-                    this.numeric[i] = false;
+                    this.numeric[j-1] = false;
                 }
     		}
     	}
@@ -351,23 +352,34 @@ public class ObjectsOrderFormat implements DataSet {
     		
     		for(int j = 1; j < parser.getData().get(i).size(); j++){
     			
+    			int objectID = -1;
+    			
     			try {
-    				order[j-1] = Integer.valueOf(parser.getData().get(i).get(j));	            
+    				  
+    						
+    				objectID	=Integer.valueOf(parser.getData().get(i).get(j));  
+    				
+        			if(!ID2feature.containsKey(objectID)){
+        				dataFilesValid.setValue(false);
+        				return "Object with ID "+order[j-1]+" not found on object file. Line "+i;
+        			}else{
+        				order[j-1] =ID2feature.get(objectID);
+        				
+        			}
+    				
                 }catch (NumberFormatException e) {
                 	
                    dataFilesValid.setValue(false);
                    return "Order file must contain ID integer values. Found \""+parser.getData().get(i).get(j)+"\" at line "+i;
                 }
     			
-    			if(!ID2feature.containsKey(order[j-1])){
-    				dataFilesValid.setValue(false);
-    				return "Object with ID "+order[j-1]+" not found on object file. Line "+i;
-    			}
+
     			
     		}
     		
     		for (Preference p : Preference.listToPairWisePreference(order)) {
-                instances.add(p);
+                //instances.add(p);
+    			instances.add(p);
                 atomicGroups.add(ID);//group ID
             }
     		
@@ -389,6 +401,9 @@ public class ObjectsOrderFormat implements DataSet {
     	
     	
     	featuresName = new String[parser.getFeatureNames().size()-2];
+    	
+    	numFeatures = featuresName.length;
+    	
     	IDname = parser.getFeatureNames().get(0);
 		for(int j = 1; j < parser.getFeatureNames().size()-1; j++){
 			
@@ -421,7 +436,7 @@ public class ObjectsOrderFormat implements DataSet {
                 try {
                     Double.parseDouble(parser.getData().get(i).get(j));
                 }catch (NumberFormatException e) {
-                    this.numeric[i] = false;
+                    this.numeric[j-1] = false;
                 }
     		}
     		
@@ -482,10 +497,12 @@ public class ObjectsOrderFormat implements DataSet {
         return numOfPreferences;
     }
 
+    int numFeatures = 0;
+    
     @Override
     public int getNumberOfFeatures() {
-
-        return features[0].length;
+    	return numFeatures;
+//        return features[0].length;
     }
 
     @Override

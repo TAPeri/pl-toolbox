@@ -166,6 +166,7 @@ Library.*/
 
 package plt.gui;
 
+import plt.gui.dataset.DataSetTab;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -175,7 +176,10 @@ import javafx.stage.WindowEvent;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * Launcher
+ *
+ * @author Vincent Farrugia
+ * @author Hector P. Martinez
  */
 public class Main extends Application
 {
@@ -189,10 +193,10 @@ public class Main extends Application
         
         MasterGUI mGUI = new MasterGUI(stage);
         
-        Scene mainScene2 = new Scene(mGUI, 1000, 900);
+        Scene mainScene2 = new Scene(mGUI, 600, 300);
         mainScene2.getStylesheets().add(Main.class.getResource("MainCSS.css").toExternalForm());
         stage.setScene(mainScene2);
-        stage.setTitle("PLT: Preference Learning Toolbox (v1.0)");
+        stage.setTitle("PLT: Preference Learning Toolbox");
         stage.getIcons().add(new Image(DataSetTab.class.getResourceAsStream("plt_logo.png")));
         stage.setResizable(true);
         stage.show();

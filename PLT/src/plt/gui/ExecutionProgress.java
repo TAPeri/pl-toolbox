@@ -253,14 +253,22 @@ public class ExecutionProgress
     // para_portionOfRemainingProgPerc = value between 0 and 1.
     public static void signalBeginTask(String para_taskMainHeader, float para_portionOfRemainingProgPerc)
     {
+
+    	
         if(progressStack == null) { progressStack = new ArrayList<>(); }
         progressStack.add((1-totProgress.get()) * para_portionOfRemainingProgPerc);
         currTaskProgress = 0;
         
         taskHeader = para_taskMainHeader;
         if(currTaskTextIndicator == null) { currTaskTextIndicator = new SimpleStringProperty(""); }
+        
+    	System.err.println("Removed "+taskHeader + " - " + taskSubHeader);
+    	return;
+        
+        /*
         currTaskTextIndicator.setValue(taskHeader + " - " + taskSubHeader);
         //currTaskTextIndicator.set("3");
+        */
     }
     
     public static void signalTaskComplete()
@@ -293,8 +301,15 @@ public class ExecutionProgress
     public static void setTaskSubHeader(String para_taskSubHeader)
     {
         taskSubHeader = para_taskSubHeader;
+
+    	System.err.println("Removed "+taskHeader + " - " + para_taskSubHeader);
+    	return;
+    	/*
         currTaskTextIndicator.setValue(taskHeader + " - " + taskSubHeader);
         //currTaskTextIndicator.setValue("4");
+         
+         */
+         
     }
     
     public static void registerThread(int para_threadID)
