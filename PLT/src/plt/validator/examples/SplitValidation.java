@@ -170,9 +170,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
+import javafx.scene.Node;
 import plt.dataset.TrainableDataSet;
+import plt.gui.algorithms.PLAlgorithm;
 import plt.model.Model;
-import plt.plalgorithm.PLAlgorithm;
 import plt.report.Report;
 import plt.utils.Preference;
 import plt.validator.Validator;
@@ -250,4 +252,10 @@ public class SplitValidation extends Validator {
     public String toString() {
         return "NoValidation";
     }
+
+	@Override
+	public Node getUI() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

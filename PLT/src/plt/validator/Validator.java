@@ -166,7 +166,8 @@ Library.*/
 
 package plt.validator;
 
-import plt.plalgorithm.PLAlgorithm;
+import javafx.scene.Node;
+import plt.gui.algorithms.PLAlgorithm;
 import plt.report.Report;
 
 /**
@@ -176,5 +177,7 @@ import plt.report.Report;
 public abstract class Validator {
 
     public abstract Report runWithValidation(PLAlgorithm algorithm);
+    
+    public abstract Node getUI();
     
 }

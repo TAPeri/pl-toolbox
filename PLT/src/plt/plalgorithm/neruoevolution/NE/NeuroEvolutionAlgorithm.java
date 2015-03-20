@@ -174,7 +174,7 @@ import plt.plalgorithm.neruoevolution.GA.GeneticEncoder;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
  */
 
 public class NeuroEvolutionAlgorithm {

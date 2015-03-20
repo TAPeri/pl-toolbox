@@ -169,10 +169,14 @@ package plt.featureselection.examples;
 import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javafx.scene.Node;
+import javafx.scene.layout.Pane;
 import plt.dataset.TrainableDataSet;
 import plt.featureselection.FeatureSelection;
 import plt.featureselection.SelectedFeature;
-import plt.plalgorithm.PLAlgorithm;
+import plt.gui.algorithms.PLAlgorithm;
+import plt.gui.configurators.NBestConfigurator;
 import plt.report.Report;
 import plt.validator.Validator;
 
@@ -246,5 +250,16 @@ public class SFS extends FeatureSelection {
     public String getFSelName() {
         return "SFS";
     }
+
+
+    /*
+     * Return empty pane as there are no options
+     * @see plt.featureselection.FeatureSelection#getUI()
+     */
+	@Override
+	public Node getUI() {
+		
+		return new Pane();
+	}
    
 }

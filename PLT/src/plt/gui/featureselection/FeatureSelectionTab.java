@@ -164,19 +164,190 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.plalgorithm.backpropagation;
+package plt.gui.featureselection;
 
-import plt.plalgorithm.neruoevolution.NE.ActivationFunction;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import plt.gui.Experiment;
+import plt.gui.algorithms.SupportedAlgorithms;
+import plt.gui.algorithms.SupportedValidations;
+import plt.gui.customcomponents.ModulePane;
+
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * GUI functionality to choose feature selection algorithms
+ * To add more algorithms, feature selection methods or validation approaches, modify SupportedAlgorithms, SupportedFeatureSelections or SupportedValidations
+ *
+ * @author Vincent Farrugia
+ * @author Hector P. Martinez
  */
-public interface PLBackPropagationConfigurator {
-       public int[] getTopology(int inputSize);
+public class FeatureSelectionTab extends Tab {
 
-        public ActivationFunction[] getActivationsFunctions();
-        public double getLearningRate();
-        public double getErrorThreeshold();
-        public int getMaxNumberOfIterations();
+    final private Stage stage;
+    private Experiment experiment;
+
+    //VBox tmpVBox;
+    VBox moduleHBox;
+
+    public FeatureSelectionTab(Stage s, Experiment e) {
+        super();
+        this.experiment = e;
+        this.stage = s;
+        setup();
+    }
+
+    private void setup()
+    {
+        
+        //final FeatureSelectionTab self = this;        
+        //final BorderPane bp = new BorderPane();
+       // this.setContent(bp);
+        
+        final ScrollPane sPane = new ScrollPane();  
+        this.setContent(sPane);
+        stage.heightProperty().addListener(new ChangeListener<Number>() {
+        
+        	
+            @Override
+            public void changed(ObservableValue<? extends Number> ov, Number t, Number t1){
+                
+                sPane.setPrefHeight(t1.doubleValue() * 0.7);
+            }
+            
+        });
+        
+sPane.setStyle("-fx-background-color: transparent;"); // Hide the scrollpane gray border.
+sPane.setPrefSize(880,600);
+        
+        
+        final Pane nestedBp = new Pane();
+        nestedBp.setPrefHeight(400);
+        nestedBp.setPrefWidth(650);
+        
+        	moduleHBox = new VBox(30);
+        	sPane.setContent(moduleHBox);
+        	nestedBp.getChildren().add(moduleHBox); 
+        
+        	Pane tmpParentPane1 = new Pane();
+        	moduleHBox.getChildren().add(tmpParentPane1);
+        	
+        		final ModulePane featureSelection = new ModulePane("Feature Selection", new ArrayList<String>(Arrays.asList(SupportedFeatureSelection.labels)),new Pane(),"modulePane3",850);
+        		tmpParentPane1.getChildren().add(featureSelection);
+        	
+        	Pane tmpParentPane2 = new Pane();
+        	moduleHBox.getChildren().add(tmpParentPane2);
+            	
+        		final ModulePane algorithmMPane = new ModulePane("Algorithm", new ArrayList<String>(Arrays.asList(SupportedAlgorithms.labels)), new Pane(), "modulePane1",850);
+        		tmpParentPane2.getChildren().add(algorithmMPane);
+        		algorithmMPane.disableMPane();
+        	
+        	Pane tmpParentPane3 = new Pane();
+        	moduleHBox.getChildren().add(tmpParentPane3);
+        
+        		final ModulePane validatorMPane = new ModulePane("Cross Validation", new ArrayList<String>(Arrays.asList(SupportedValidations.labels)),new Pane(),"modulePane2",850);
+        		tmpParentPane3.getChildren().add(validatorMPane);
+        		validatorMPane.disableMPane();
+
+            	this.experiment.algorithmForFeatureSelectionProperty().set(null);
+        	
+         
+        
+        
+        
+        featureSelection.choiceBox.valueProperty().addListener(new ChangeListener<String>() 
+        {
+            
+            @Override
+            public void changed(ObservableValue<? extends String> ov, String t, String t1) {
+                                                        
+                int i =  featureSelection.choiceBox.getSelectionModel().getSelectedIndex();
+                
+                experiment.featureSelectionProperty().set(SupportedFeatureSelection.classes[i]);
+                
+                if(SupportedFeatureSelection.classes[i]==null){
+                	featureSelection.setMainContent(new Pane());
+                	
+                	 algorithmMPane.disableMPane();
+                     validatorMPane.disableMPane();
+                      
+                     //algorithmMPane.setChoiceBoxOptions(new ArrayList<String>(Arrays.asList(SupportedAlgorithms.labels)));
+                	
+                }else{
+                	featureSelection.setMainContent(SupportedFeatureSelection.classes[i].getUI());
+                    algorithmMPane.enableMPane();
+                    validatorMPane.enableMPane();
+                }
+                
+                //experiment.algorithmForFeatureSelectionProperty().set(null);
+            }
+            
+        });
+        
+        
+        algorithmMPane.choiceBox.valueProperty().addListener(new ChangeListener<String>() {
+                        
+            @Override
+            public void changed(ObservableValue<? extends String> ov, String t, String t1) {
+                
+                if(featureSelection.choiceBox.getSelectionModel().getSelectedIndex() == 0)
+                {
+                    
+                }
+                else
+                {
+                   /* if((algorithmMPane.choiceBox.getItems().size() != 3))
+                    {
+                        algorithmMPane.setChoiceBoxOptions(new ArrayList<String>(Arrays.asList("Evolving NN","Back propagation","Rank SVM")));
+                    }*/
+                    
+                    int i =  algorithmMPane.choiceBox.getSelectionModel().getSelectedIndex();
+                    
+                    /*if(i == -1)
+                    {
+                        String txtChoice = (String) t;
+                        if(txtChoice.equals("Evolving NN")) { i = 0; }
+                        else if(txtChoice.equals("Back propagation")) { i = 1; }
+                        else if(txtChoice.equals("Rank SVM")) { i = 2; }
+                    }*/
+                    
+                	
+
+                    if(SupportedAlgorithms.classes[i]==null){
+                    	algorithmMPane.setMainContent(new HBox());
+                    	
+                    }else{
+                    	algorithmMPane.setMainContent(SupportedAlgorithms.classes[i].getUI());
+                    	experiment.algorithmForFeatureSelectionProperty().set(SupportedAlgorithms.classes[i]);
+                    }
+                }
+            }
+        });
+        
+        
+        validatorMPane.choiceBox.valueProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> ov, String t, String t1) {
+                int i =  validatorMPane.choiceBox.getSelectionModel().getSelectedIndex();
+                
+                experiment.validatorForFeatureSelectionProperty().set(SupportedValidations.classes[i]);
+                validatorMPane.setMainContent(SupportedValidations.classes[i].getUI());   
+            }
+        });
+        
+        //featureSelection.choiceBox.getSelectionModel().select(0);
+        //algorithmMPane.choiceBox.getSelectionModel().select(0);
+        //validatorMPane.choiceBox.getSelectionModel().select(0);
+    }
+    
+    
 }

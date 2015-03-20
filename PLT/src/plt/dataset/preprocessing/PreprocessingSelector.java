@@ -1,8 +1,7 @@
-package plt.gui;
+package plt.dataset.preprocessing;
 
 import java.util.List;
 
-import plt.dataset.preprocessing.PreprocessingOperation;
 import javafx.beans.property.SimpleStringProperty;
 
 public class PreprocessingSelector {

@@ -180,7 +180,8 @@ import plt.utils.Preference;
  * Objects file contains the input samples (1 per row)
  * The order file specify the partial orders between input samples (each row a sequence of IDs, from higher to lower)
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
+ * @author Hector P. Martinez
  */
 public class ObjectsOrderFormat implements DataSet {
 

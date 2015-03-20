@@ -166,38 +166,18 @@ Library.*/
 
 package plt.gui.dataset;
 
-import java.awt.MouseInfo;
-import java.awt.Point;
-
-import plt.gui.component.ModalPopup;
-
 import java.io.File;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import javafx.application.Platform;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
-import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
-import javafx.stage.Popup;
 import javafx.stage.PopupWindow;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 import plt.dataset.DataParser;
 import plt.dataset.datareader.DataFileParseStatus;
 import plt.dataset.datareader.ObjectsOrderFormat;
@@ -214,10 +194,11 @@ public class DataSetTab extends Tab {
     private ObjectsOrderFormat dataset;
     //private HelpDataStore helpStore;
         
+    
+    LoadingOptionsPopUp preview;
+
     String latestWorkingDir;
     
-    Pane customToolTipNode;
-    Popup toolTip;
     
     Text objectsStatusText;
     Text orderStatusText;
@@ -233,6 +214,7 @@ public class DataSetTab extends Tab {
         latestWorkingDir = null;
         
         setup();
+
     }
 
     
@@ -328,13 +310,27 @@ public class DataSetTab extends Tab {
 	           			
 	           	};
 	            
-	        	buildPopUp(file,parser,eventHandler,false);
+	        	preview = new LoadingOptionsPopUp(file,parser,eventHandler,false,stage);
 	        }
     	}
     }
     
     
-    TableView<List<String>> preview; //The list represents each of the features (not each of the samples)
+    
+    
+    public void testLoad(){
+    	
+    	DataParser parser1 = new DataParser(new File("/Users/hector/Downloads/adhoc_features/games-global.csv"),",",0,0,true,true,true);
+		parser1.processData();
+    	objectsStatusText.setText(this.dataset.setObjectData(parser1));	                    	
+		
+        DataParser parser2 = new DataParser(new File("/Users/hector/Downloads/adhoc_features/reports-challenge.csv"),",",0,0,false,false,false);
+		parser2.processData();
+    	orderStatusText.setText(this.dataset.setOrderData(parser2));
+
+    }
+    
+    
     
     
     /*
@@ -352,6 +348,9 @@ public class DataSetTab extends Tab {
 	            
 	            final DataParser parser = new DataParser(file,",",0,0,false,true,true);
 	            
+	            System.out.println(file.getAbsolutePath());
+	            
+	            //Handler used when pop up is closed
 	           	final EventHandler<MouseEvent> eventHandler = new EventHandler<MouseEvent>() {
 
 	           		@Override
@@ -377,11 +376,12 @@ public class DataSetTab extends Tab {
 	           		}
 	           	};
 	            
-	        	buildPopUp(file,parser,eventHandler,false);
+	        	preview = new LoadingOptionsPopUp(file,parser,eventHandler,false,stage);
 	        }
       
         }
     }
+    
     
     /*
      * Load the orders of a dataset that is given in two files (objects + orders)
@@ -397,7 +397,8 @@ public class DataSetTab extends Tab {
 	            if(latestWorkingDir == null) { latestWorkingDir = file.getParent(); }
 	            
 	            final DataParser parser = new DataParser(file,",",0,0,false,false,false);
-	            
+	            System.out.println(file.getAbsolutePath());
+
 	           	final EventHandler<MouseEvent> eventHandler = new EventHandler<MouseEvent>() {
 
 	           		@Override
@@ -424,13 +425,11 @@ public class DataSetTab extends Tab {
 	           		}
 	           	};
 	            
-	        	buildPopUp(file,parser,eventHandler,false);
+	           	preview = new LoadingOptionsPopUp(file,parser,eventHandler,false,stage);
 	        }
 
 	   }
     }
-    
-
     
     private File chooseFile(){
     	
@@ -443,363 +442,7 @@ public class DataSetTab extends Tab {
         
     }
     
-    public void buildPopUp(File file,DataParser parser,EventHandler<MouseEvent> eventHandler,boolean featureNamesOption) {
 
-               BorderPane mainPane = new BorderPane();
-	
-               VBox box = new VBox();
-               mainPane.setCenter(box);
-
-               	HBox options = new HBox();
-               	preview = new TableView<List<String>>();
-               	preview.setEditable(false);
-		
-               	box.getChildren().addAll(options,preview);
-               	options.getChildren().addAll(
-               			separatorSelector(parser),
-               			skipLineSelector(parser),
-               			selectID(parser));
-               	
-               	if(featureNamesOption)
-               		options.getChildren().add(featureNames(parser));
-   
-               	ModalPopup modalPopup = new ModalPopup();
-               	modalPopup.show(mainPane, stage.getScene().getRoot(), eventHandler, null, false);
-               	
-    }
-    
-    private Node featureNames(final DataParser parser){
-    	
-    	VBox selectorBox = new VBox();
-
-    	CheckBox featuresInclued = new CheckBox("First line are feature names");
-    	selectorBox.getChildren().add(featuresInclued);
-    	
-    	featuresInclued.selectedProperty().addListener(new ChangeListener<Boolean>(){
-
-			@Override
-			public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean newValue) {
-				parser.setFeaturesIncluded((boolean) newValue);
-				updatePreview(parser);
-				
-			}
-    		
-    	});
-    	
-    	return selectorBox;
-    	
-    }
-    
-    private Node selectID(final DataParser parser) {
-
-    	VBox selectorBox = new VBox();
-		
-		final ToggleGroup tGroup = new ToggleGroup();
-
-			RadioButton rBtn_Line = new RadioButton("ID is row number"); 
-			rBtn_Line.setUserData(false);
-			rBtn_Line.setToggleGroup(tGroup);
-			selectorBox.getChildren().add(rBtn_Line);
-    	
-			RadioButton rBtn_Column = new RadioButton("ID is first column"); 
-			rBtn_Column.setUserData(true);
-			rBtn_Column.setToggleGroup(tGroup);
-			selectorBox.getChildren().add(rBtn_Column);
-			
-			tGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
-
-				@Override
-				public void changed( ObservableValue<? extends Toggle> arg0, Toggle arg1, Toggle newValue) {
-					parser.setIDcolumn((boolean) newValue.getUserData());
-					updatePreview(parser);
-					
-				}});
-			
-			tGroup.selectToggle(rBtn_Line);    
-			
-			
-    	
-    	return selectorBox;
-    	
-	}
-
-
-	private Node skipLineSelector(final DataParser parser) {
-
-		GridPane selectorGrid = new GridPane();
-
-		selectorGrid.add(new Label("Ignore first rows"), 0, 0);
-		selectorGrid.add(new Label("Ignore first columns"), 0, 1);
-		
-		TextArea rows = new TextArea("0");
-		rows.setPrefWidth(10);
-		rows.setPrefHeight(1);
-		selectorGrid.add(rows, 1, 0);
-		
-		rows.textProperty().addListener(new ChangeListener<String>(){
-			@Override
-			public void changed(ObservableValue<? extends String> arg0, String arg1, String newValue) {
-				
-				try{
-					int number = Integer.parseInt(newValue);
-					parser.skipRows(number);
-					updatePreview(parser);
-					
-				}catch(NumberFormatException ex){;}
-			}
-			
-		});
-		
-
-		TextArea columns = new TextArea("0");
-		columns.setPrefWidth(10);
-		columns.setPrefHeight(1);
-		selectorGrid.add(columns,1, 1);
-
-		columns.textProperty().addListener(new ChangeListener<String>(){
-			@Override
-			public void changed(ObservableValue<? extends String> arg0, String arg1, String newValue) {
-				
-				try{
-					int number = Integer.parseInt(newValue);
-					parser.skipColumns(number);
-					updatePreview(parser);
-					
-				}catch(NumberFormatException ex){;}
-			}
-			
-		});
-		
-
-		return selectorGrid;
-	}
-
-
-	private Node separatorSelector(final DataParser parser){
-    	
-			VBox separatorBox = new VBox();
-		
-				separatorBox.getChildren().add(new Label("Separator:"));
-	
-				final ToggleGroup tGroup = new ToggleGroup();
-	
-					RadioButton rBtn_commaSeparator = new RadioButton("Comma"); 
-						rBtn_commaSeparator.setUserData(",");
-						rBtn_commaSeparator.setToggleGroup(tGroup);
-						separatorBox.getChildren().add(rBtn_commaSeparator);
-		
-						RadioButton rBtn_tabSeparator = new RadioButton("Tab");		
-						rBtn_tabSeparator.setUserData("\t");
-						rBtn_tabSeparator.setToggleGroup(tGroup);
-						separatorBox.getChildren().add(rBtn_tabSeparator);
-		
-						RadioButton rBtn_spaceSeparator = new RadioButton("Space"); 
-						rBtn_spaceSeparator.setUserData(" ");
-						rBtn_spaceSeparator.setToggleGroup(tGroup);
-						separatorBox.getChildren().add(rBtn_spaceSeparator);
-		
-						final RadioButton rBtn_customStrSeparator = new RadioButton();
-						rBtn_customStrSeparator.setToggleGroup(tGroup);
-						separatorBox.getChildren().add(rBtn_customStrSeparator);
-		
-						//Customizable label and used data for last item
-						final Label lbl_customStrSeparator = new Label("Other");
-						final TextField txt_customStrSeparator = new TextField("");
-						txt_customStrSeparator.setPrefWidth(100);
-		
-						rBtn_customStrSeparator.setGraphic(lbl_customStrSeparator);
-						rBtn_customStrSeparator.selectedProperty().addListener(new ChangeListener<Boolean>() {//If custom radio button selected,text area displayed
-							@Override
-							public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean newValue)
-							{
-								if(newValue) {  rBtn_customStrSeparator.setGraphic(txt_customStrSeparator);
-								}else { rBtn_customStrSeparator.setGraphic(lbl_customStrSeparator);}
-							}
-						});
-
-						txt_customStrSeparator.textProperty().addListener(new ChangeListener<String>(){//If custom text change, change user data
-
-							@Override
-							public void changed(ObservableValue<? extends String> arg0, String arg1, String newValue) {
-								rBtn_customStrSeparator.setUserData( newValue);
-							}
-						});
-		
-						
-						tGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
-
-							@Override
-							public void changed( ObservableValue<? extends Toggle> arg0, Toggle arg1, Toggle newValue) {
-								parser.setSeparator((String) newValue.getUserData());
-								updatePreview(parser);
-								
-							}});
-						
-						tGroup.selectToggle(rBtn_commaSeparator);     
-						return separatorBox;
-    	
-    }
-    
-    
-    private void updatePreview(DataParser parser){
-    	
-    	List<String> features = parser.getFeatureNames();
-    	
-    	ObservableList<List<String>> data = FXCollections.observableArrayList();
-        data.addAll(parser.getPreviewData());
-    	
-        preview.getItems().clear();
-        preview.getColumns().clear();
-//        preview.getItems().removeAll(preview.getItems());
-  //      preview.getColumns().removeAll(preview.getColumns());
-    	
-        for(int i = 0; i< features.size();i++){
-        	TableColumn<List<String>, String> tc = new TableColumn<>(features.get(i));
-        	final int colNo = i;
-        	        	
-        	tc.setCellValueFactory(new Callback<CellDataFeatures<List<String>, String>, ObservableValue<String>>() {
-                 @Override
-                 public ObservableValue<String> call(CellDataFeatures<List<String>, String> p) {
-                     return new SimpleStringProperty((p.getValue().get(colNo)));
-                 }
-             });
-        	 tc.setPrefWidth(90);
-             preview.getColumns().add(tc);
-        }
-    	preview.setItems(data);
-    	
-    }
-    
-    
-    
-    
-    class UramakiMouseEventHandler implements EventHandler<MouseEvent>
-    {
-
-        @Override
-        public void handle(MouseEvent mouseEvent)
-        {
-            String eTypeName = mouseEvent.getEventType().getName();
-            
-            if(((eTypeName).equals("MOUSE_ENTERED"))
-            ||((eTypeName).equals("MOUSE_EXITED")))
-            {
-            	
-                Node uiComponent = (Node) mouseEvent.getSource();
-                
-                
-                
-                
-                if((eTypeName).equals("MOUSE_ENTERED"))
-                {
-                    final String tooltipHelpText = "";//helpStore.getToolTip(uiComponent_id);
-
-                    
-
-                    
-                    ToolTipCreator nwTTCjob = new ToolTipCreator(uiComponent,tooltipHelpText);
-                    Thread nwTTThread = new Thread(nwTTCjob);
-                    nwTTThread.start();
-                    
-                                        
-                
-                    
-                    
-                    System.out.println("Testing");
-                    
-                    
-                }
-                else if((eTypeName).equals("MOUSE_EXITED"))
-                {
-                    
-                    
-                    toolTip.hide();
-                }
-            }
-            
-            
-            
-        }
-    }
-    
-    class ToolTipCreator implements Runnable
-    {
-        long tooltipDelay_ms = 1500;
-        Node uiComponent;
-        String ttStr;
-        
-        public ToolTipCreator(Node para_uiComponent, String para_TTTextStr)
-        {
-            uiComponent = para_uiComponent;
-            ttStr = para_TTTextStr;
-        }
-        
-        @Override
-        public void run()
-        {
-            try 
-            {
-                Thread.sleep(tooltipDelay_ms);
-            }
-            catch (InterruptedException ex) 
-            {
-                Logger.getLogger(DataSetTab.class.getName()).log(Level.SEVERE, null, ex);
-            } 
-            
-            if(uiComponent.hoverProperty().getValue())
-            {
-                // Display Tool Tip.
-                
-                Platform.runLater(new Runnable() 
-                {
-                    @Override public void run()
-                    {
-                        customToolTipNode = new Pane();
-                        double maxToolTipWidth = 260;
-
-                        double tooltipTextWidth = ttStr.length() * 7;
-
-                        double actualToolTipWidth;
-                        if(tooltipTextWidth < maxToolTipWidth)
-                        {
-                            actualToolTipWidth = tooltipTextWidth;
-                        }
-                        else
-                        {
-                            actualToolTipWidth = maxToolTipWidth;
-                        }
-
-                        int numOfTTLines = (int) (tooltipTextWidth / maxToolTipWidth); 
-                        if((tooltipTextWidth % maxToolTipWidth) != 0) {numOfTTLines++;}
-
-                        double actualToolTipHeight = numOfTTLines * 20 + 10;
-
-                        customToolTipNode.setPrefSize(actualToolTipWidth,actualToolTipHeight);
-                        customToolTipNode.setId("ToolTipBox");
-
-                        Text ttText = new Text(10,20,ttStr);
-                        ttText.setWrappingWidth(actualToolTipWidth);
-                        customToolTipNode.getChildren().add(ttText);
-
-                        toolTip.getContent().clear();
-                        toolTip.getContent().add(customToolTipNode);
-                        
-
-
-                        Point mousePt = MouseInfo.getPointerInfo().getLocation();
-
-
-                        toolTip.show(stage.getScene().getWindow(), mousePt.x+10, mousePt.y+10);
-                    }
-                });
-               
-                
-                System.out.println("Displayed Tooltip");
-            }
-        }
-        
-    }
-    
     
     
 }

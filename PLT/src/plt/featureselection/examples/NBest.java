@@ -169,10 +169,13 @@ package plt.featureselection.examples;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javafx.scene.Node;
 import plt.dataset.TrainableDataSet;
 import plt.featureselection.FeatureSelection;
 import plt.featureselection.SelectedFeature;
-import plt.plalgorithm.PLAlgorithm;
+import plt.gui.algorithms.PLAlgorithm;
+import plt.gui.configurators.NBestConfigurator;
 import plt.report.Report;
 import plt.validator.Validator;
 
@@ -183,6 +186,13 @@ import plt.validator.Validator;
 public class NBest extends FeatureSelection {
     private NBestConfigurator configurator;
     private SelectedFeature result;
+    
+    
+    public NBest(){
+    	
+    	this.configurator = new NBestConfigurator();
+    	
+    }
     
     public NBest(NBestConfigurator configurator) {
         this.configurator = configurator;
@@ -231,5 +241,11 @@ public class NBest extends FeatureSelection {
     public String getFSelName() {
         return "N-Best";
     }
+
+	@Override
+	public Node getUI() {
+		
+		return configurator.ui()[0].getContent();
+	}
     
 }

@@ -201,7 +201,7 @@ import plt.plalgorithm.neruoevolution.NE.Sigmond;
  *
  * @author Institute of Digital Games, UoM Malta
  */
-public class PLNeuroEvolutionConfigurator implements plt.plalgorithm.neruoevolution.PLNeuroEvolutionConfigurator {
+public class PLNeuroEvolutionConfigurator{// implements plt.plalgorithm.neruoevolution.PLNeuroEvolutionConfigurator {
 
     
     private ArrayList<TextField> topology;
@@ -272,7 +272,7 @@ public class PLNeuroEvolutionConfigurator implements plt.plalgorithm.neruoevolut
         mutation.setPrefWidth(30);
     }
 
-    @Override
+   // @Override
     public int[] getTopology(int inputSize)
     {
         int j = 0;
@@ -299,13 +299,13 @@ public class PLNeuroEvolutionConfigurator implements plt.plalgorithm.neruoevolut
         return result;
     }
 
-    @Override
+   // @Override
     public int iterations()
     {
         return parseOrFailWithZero(iterations);
     }
 
-    @Override
+   // @Override
     public GeneticAlgorithmConfigurator getGeneticAlgorithmConfigurator() {
         final PLNeuroEvolutionConfigurator self = this;
         return new GeneticAlgorithmConfigurator() {
@@ -637,7 +637,7 @@ public class PLNeuroEvolutionConfigurator implements plt.plalgorithm.neruoevolut
     
     
 
-    @Override
+   // @Override
     public ActivationFunction[] getActivationsFunctions()
     {
         int j = 0;

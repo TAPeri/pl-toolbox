@@ -1,4 +1,4 @@
-package plt.gui;
+package plt.dataset.preprocessing;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;

@@ -164,23 +164,234 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.plalgorithm.neruoevolution;
+package plt.gui.preprocess;
 
-import plt.plalgorithm.neruoevolution.GA.GeneticAlgorithmConfigurator;
-import plt.plalgorithm.neruoevolution.NE.ActivationFunction;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import plt.dataset.preprocessing.*;
+import plt.gui.component.ModalPopup;
 
 /**
- *
- * @author Institute of Digital Games, UoM Malta
- */
-public interface PLNeuroEvolutionConfigurator   {
-    
-    public GeneticAlgorithmConfigurator getGeneticAlgorithmConfigurator();
+*
+* Pop-up window used to select preprocessing options of all features
+*
+* @author Vincent Farugia
+* @author Hector P. Martinez
+*/
+public class ProcessingAllPopup extends ModalPopup {
 
-    public int iterations();
-    
-    public int[] getTopology(int inputSize);
 
-    public ActivationFunction[] getActivationsFunctions();
+    public ProcessingAllPopup(){
+        super();
 
+    }
+
+    public void show(Parent parent, final EventHandler<MouseEvent> eventHandler,final ObservableList<FeaturePreprocessingInfo> tableDataSet) {
+        
+    	
+    	BorderPane bp = new BorderPane();
+    	
+    		VBox vbox = new VBox();
+    		
+    			BorderPane nonNumericDataPane = new BorderPane();
+    	
+    	
+        final TextField minTextField = new TextField("0");
+        minTextField.setPrefWidth(50);
+        final TextField maxTextField = new TextField("1");
+        maxTextField.setPrefWidth(50);
+
+
+
+        
+					Label lblNonNumericHeader = new Label("Nominal features");
+					nonNumericDataPane.setTop(lblNonNumericHeader);
+       
+        			ToggleGroup nonNumericDataToggle = new ToggleGroup();
+        			VBox nonNumericDPane_innerVBox = new VBox(10);
+        			nonNumericDataPane.setLeft(nonNumericDPane_innerVBox);
+        			
+        			int index = 0;
+            		for(PreprocessingOperation operator : PreprocessingOperation.getAvailableOperations(false)){
+
+            			RadioButton rb1 = new RadioButton(operator.getOperationName());
+            			rb1.setToggleGroup(nonNumericDataToggle);
+            			rb1.setUserData(index);
+            			index++;
+            			//vbox.getChildren().add(rb1);
+            			nonNumericDPane_innerVBox.getChildren().add(rb1);
+        			
+            		}
+        			
+      
+
+            		nonNumericDataToggle.selectedToggleProperty().addListener(new ChangeListener<Toggle>()
+            		{
+            			@Override
+            			public void changed(ObservableValue<? extends Toggle> ov, Toggle oldValue, Toggle newValue)
+            			{
+            				
+            				for(FeaturePreprocessingInfo feature : tableDataSet){
+            					
+            					if(!feature.getPreprocessingOptions().getIsNumeric()){
+            						feature.setCurrPreProOpName((int)newValue.getUserData());
+            					}
+            				}
+            				
+            			
+            			}
+            		});
+
+        
+            		// Numeric Data Settings.
+            		final BorderPane numericDataPane = new BorderPane();
+
+        
+            			Label lblNumericHeader = new Label("Numeric features");
+            			numericDataPane.setTop(lblNumericHeader);
+        
+        
+            				ToggleGroup numericDataToggle = new ToggleGroup();
+            				VBox nDataPane_innerVBox = new VBox(10);
+            				numericDataPane.setLeft(nDataPane_innerVBox);
+
+            				
+            				index = 0;
+                    		for(PreprocessingOperation operator : PreprocessingOperation.getAvailableOperations(true)){
+
+                    			
+                    			if(operator instanceof MinMax){
+                            		
+                    				GridPane grid = new GridPane();
+                    					numericDataPane.setRight(grid);
+                    				
+
+                    					
+                    					minTextField.setPrefWidth(50);
+                    					maxTextField.setPrefWidth(50);
+                    				
+grid.setPadding(new Insets(20));
+
+                    					Label minLabel = new Label("Min:");
+                    					Label maxLabel = new Label("Max:");
+
+                    					grid.add(minLabel, 0, 0);
+                    					grid.add(minTextField, 1, 0);
+                    					grid.add(maxLabel, 0, 2);
+                    					grid.add(maxTextField, 1, 2);
+                    					
+                    			}
+                    	
+                    			
+                    			RadioButton rb1 = new RadioButton(operator.getOperationName());
+                    			rb1.setToggleGroup(numericDataToggle);
+                    			rb1.setUserData(index);
+                    			nDataPane_innerVBox.getChildren().add(rb1);
+                    			index++;
+
+                    			//numericDataPane.getChildren().add(rb1);
+                			
+                    		}
+                			
+
+                    		numericDataToggle.selectedToggleProperty().addListener(new ChangeListener<Toggle>()
+                    		{
+                    			@Override
+                    			public void changed(ObservableValue<? extends Toggle> ov, Toggle oldValue, Toggle newValue)
+                    			{
+                    				int selectedIndex = (int)newValue.getUserData();
+  
+                    					
+                    				
+                    					for(FeaturePreprocessingInfo feature : tableDataSet){
+                    					
+                    						if(feature.getPreprocessingOptions().getIsNumeric()){
+                    							feature.setCurrPreProOpName(selectedIndex);
+                    						}
+                    					}
+                    			
+                    			}
+                    		});	
+                    		
+                            
+                            
+                            vbox.getChildren().add(nonNumericDataPane);
+                            vbox.getChildren().add(numericDataPane);
+                            bp.setCenter(vbox);
+            				
+        
+            				
+            				
+
+
+        super.show(bp, parent, new EventHandler<MouseEvent>() {
+
+            @Override
+            public void handle(MouseEvent t) {
+            	
+            	
+					double min = 0, max = 1;
+					try {
+						min = Double.parseDouble(minTextField.textProperty().get());
+						max = Double.parseDouble(maxTextField.textProperty().get());
+					} catch (Exception e) {
+						min = 0;
+						max = 1;
+					}
+
+					if (min >= max) {
+						min = 0;
+						max = 1;
+					}
+                 
+					
+      				for(FeaturePreprocessingInfo feature : tableDataSet){
+    					
+    					if(feature.getPreprocessingOptions().getSelected() instanceof MinMax){
+    						
+    						((MinMax)feature.getPreprocessingOptions().getSelected()).setMin(min);
+                            ((MinMax)feature.getPreprocessingOptions().getSelected()).setMax(max);
+    					}
+    				}
+            	
+            	
+  
+            	
+                eventHandler.handle(t);
+            }
+        }, null,400,400,false);
+        
+        
+        
+        
+        bp.setPadding(new Insets(25));
+        
+        vbox.setSpacing(10);
+                
+        
+        BorderPane.setAlignment(lblNonNumericHeader, Pos.CENTER);
+        
+                // Non-Numeric Data Settings.
+        nonNumericDataPane.setPadding(new Insets(10));
+        nonNumericDataPane.setStyle("-fx-border-radius: 1; -fx-border-color: black");
+           
+        Font headerFont = Font.font("BirchStd", FontWeight.BOLD, 15);
+        lblNonNumericHeader.setFont(headerFont);
+        numericDataPane.setPadding(new Insets(10));
+        numericDataPane.setStyle("-fx-border-radius: 1; -fx-border-color: black");
+        lblNumericHeader.setFont(headerFont);
+        BorderPane.setAlignment(lblNumericHeader, Pos.CENTER);
+    }
 }

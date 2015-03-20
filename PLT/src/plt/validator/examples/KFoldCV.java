@@ -169,11 +169,26 @@ package plt.validator.examples;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import plt.dataset.DataSet;
+
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import plt.dataset.TrainableDataSet;
 import plt.gui.ExecutionProgress;
+import plt.gui.algorithms.PLAlgorithm;
+import plt.gui.component.AdvanceTextField;
 import plt.model.Model;
-import plt.plalgorithm.PLAlgorithm;
 import plt.report.Report;
 import plt.utils.Preference;
 import plt.validator.Validator;
@@ -184,9 +199,31 @@ import plt.validator.Validator;
  */
 public class KFoldCV extends Validator {
     public int k;
+    private StringProperty kProperty;
     
-    public KFoldCV(int k) {
-        this.k = k;
+    public KFoldCV(){
+    	this(3);
+    }
+    
+    public KFoldCV(int _k) {
+        this.k = _k;
+        
+
+        kProperty = new SimpleStringProperty(""+k);
+        kProperty.addListener(new ChangeListener<String>(){
+
+			@Override
+			public void changed(ObservableValue<? extends String> arg0, String arg1, String arg2) {
+				try{
+					k = Integer.parseInt(arg2);
+				}catch(Exception ex){
+					k = 3;
+					kProperty.set("3");
+				}
+				
+			}
+        	
+        });
     }
     
 
@@ -270,5 +307,45 @@ public class KFoldCV extends Validator {
     public String toString() {
         return "KFoldCV: {k:"+this.k+"}";
     }
+
+
+	@Override
+	public Node getUI() {
+		
+		BorderPane kBPane = new BorderPane();
+          
+      	Label lblCrossValidationHeader = new Label("k-fold cross validation");
+      	kBPane.setLeft(lblCrossValidationHeader);
+      
+      	HBox cntentBx = new HBox(20);
+      	kBPane.setRight(cntentBx); 
+      	
+      		GridPane validatorContentGPane = new GridPane();
+      		cntentBx.getChildren().add(validatorContentGPane);
+      	
+      			Label kLabel = new Label("k:");
+      			validatorContentGPane.add(kLabel, 0, 0);
+      			//kLabel.visibleProperty().bind(validatorMPane.choiceBox.getSelectionModel().selectedIndexProperty().isEqualTo(1));
+	
+      			TextField k  = new AdvanceTextField("[0-9]", "3");
+      			//k.visibleProperty().bind(kLabel.visibleProperty());
+      			validatorContentGPane.add(k, 1, 0);
+		
+      			this.kProperty.bind(k.textProperty());
+		
+		//cntentBx.getChildren().addAll(kLabel,k);		
+			
+//Should move this to CSS   	
+kBPane.getStyleClass().add("modulePane2Child");
+Font headerFont = Font.font("BirchStd", FontWeight.BOLD, 15);
+lblCrossValidationHeader.setFont(headerFont);
+BorderPane.setAlignment(lblCrossValidationHeader, Pos.CENTER);        
+k.setPrefWidth(30);     			
+validatorContentGPane.setPadding(new Insets(20));
+validatorContentGPane.setHgap(15);
+validatorContentGPane.setVgap(12);
+			
+		return kBPane;
+	}
 
 }

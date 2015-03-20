@@ -176,6 +176,8 @@ import plt.dataset.preprocessing.Numeric;
 import plt.dataset.preprocessing.PreprocessingOperation;
 import plt.functions.LinearFunction;
 import plt.functions.QuadraticFuncion;
+import plt.gui.algorithms.PLNeuroEvolution;
+import plt.gui.configurators.PLNeuroEvolutionConfigurator;
 import plt.plalgorithm.neruoevolution.GA.GeneticAlgorithmConfigurator;
 import plt.plalgorithm.neruoevolution.GA.ParentSelection;
 import plt.plalgorithm.neruoevolution.GA.genticaloperators.CrossOver;
@@ -186,8 +188,6 @@ import plt.plalgorithm.neruoevolution.GA.parentselections.RouletteWheelSelection
 import plt.plalgorithm.neruoevolution.NE.ActivationFunction;
 import plt.plalgorithm.neruoevolution.NE.Linear;
 import plt.plalgorithm.neruoevolution.NE.Sigmond;
-import plt.plalgorithm.neruoevolution.PLNeuroEvolution;
-import plt.plalgorithm.neruoevolution.PLNeuroEvolutionConfigurator;
 import plt.report.Report;
 import plt.validator.Validator;
 import plt.validator.examples.SplitValidation;

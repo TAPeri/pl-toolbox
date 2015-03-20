@@ -169,6 +169,7 @@ package plt.gui;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -201,6 +202,8 @@ import plt.featureselection.examples.SFS;
 import plt.gui.component.ModalPopup;
 import plt.model.Model;
 import plt.report.Report;
+import plt.validator.examples.KFoldCV;
+import plt.validator.examples.NoValidation;
 
 /**
  *
@@ -402,14 +405,14 @@ public class ResultViewer {
             validationGPane.setVgap(5);
             
             
-            if(experiment.useValidatorForFeatureSelectionProperty().get())
+            if(experiment.validatorForFeatureSelectionProperty().get() instanceof KFoldCV)
             {
                 validationBPane.setTop(lblValidationHeader);
                         
                 validationGPane.add(new Label("Type:"), 0, 0);
                 validationGPane.add(new Label("K-Fold"), 1, 0);
                 validationGPane.add(new Label("# Folds:"), 0, 1);
-                validationGPane.add(new Label(experiment.kForFeatureSelectionProperty().get()), 1, 1);
+                validationGPane.add(new Label(  ""+((KFoldCV)experiment.validatorForFeatureSelectionProperty().get()).k)  , 1, 1);
                 
                 validationBPane.setCenter(validationGPane);
             }
@@ -494,21 +497,21 @@ public class ResultViewer {
              validationGPane.setVgap(5);
              
              
-             if(experiment.useValidatorProperty().get())
+             if(experiment.validatorProperty().get() instanceof KFoldCV)
              {
                  validationBPane.setTop(lblValidationHeader);
                          
                  validationGPane.add(new Label("Type:"), 0, 0);
                  validationGPane.add(new Label("K-Fold"), 1, 0);
                  validationGPane.add(new Label("# Folds:"), 0, 1);
-                 validationGPane.add(new Label(experiment.kProperty().get()), 1, 1);
+                 validationGPane.add(new Label(   ""+((KFoldCV)experiment.validatorProperty().get()).k  ), 1, 1);
                  
                  validationBPane.setCenter(validationGPane);
              }
              else
              {
                  validationGPane.add(lblValidationHeader, 0, 0);
-                 validationGPane.add(new Label("NONE"), 1, 0);
+                 validationGPane.add(new Label("None"), 1, 0);
                  
                  validationBPane.setCenter(validationGPane);
              }
@@ -538,7 +541,7 @@ public class ResultViewer {
          ObservableList<ModelTableDataRow> data = FXCollections.observableArrayList();
          
          double averageAccuracy = 0;
-         if(! experiment.useValidatorProperty().get())
+         if( experiment.validatorProperty().get() instanceof NoValidation)
          {
              data.add(new ModelTableDataRow(0, "Training Accuracy", this.report.resultAccurancy(0)));
              averageAccuracy = this.report.resultAccurancy(0);

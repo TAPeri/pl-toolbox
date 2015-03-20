@@ -166,10 +166,11 @@ Library.*/
 
 package plt.validator.examples;
 
+import javafx.scene.Node;
+import javafx.scene.layout.Pane;
 import plt.dataset.TrainableDataSet;
-import plt.gui.ExecutionProgress;
+import plt.gui.algorithms.PLAlgorithm;
 import plt.model.Model;
-import plt.plalgorithm.PLAlgorithm;
 import plt.report.Report;
 import plt.utils.Preference;
 import plt.validator.Validator;
@@ -221,4 +222,10 @@ public class NoValidation extends Validator {
     public String toString() {
         return "NoValidation";
     }
+
+	@Override
+	public Node getUI() {
+
+		return new Pane();
+	}
 }

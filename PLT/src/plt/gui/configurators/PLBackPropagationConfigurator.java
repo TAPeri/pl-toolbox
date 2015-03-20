@@ -201,7 +201,7 @@ import plt.plalgorithm.neruoevolution.NE.Sigmond;
  * @author Institute of Digital Games, UoM Malta
  */
 
-public class PLBackPropagationConfigurator implements plt.plalgorithm.backpropagation.PLBackPropagationConfigurator {
+public class PLBackPropagationConfigurator{// implements plt.plalgorithm.backpropagation.PLBackPropagationConfigurator {
     
     private ArrayList<TextField> topology;
     private ArrayList<ChoiceBox> choiceBoxTopology;
@@ -255,7 +255,7 @@ public class PLBackPropagationConfigurator implements plt.plalgorithm.backpropag
     
     
     
-    @Override
+   // @Override
     public int[] getTopology(int inputSize)
     {
         int j = 0;
@@ -291,10 +291,7 @@ public class PLBackPropagationConfigurator implements plt.plalgorithm.backpropag
         annGridPane.setHgap(15);
         annGridPane.setVgap(12);
 
-        GridPane grid2 = new GridPane();
-        grid2.setPadding(new Insets(20));
-        grid2.setHgap(10);
-        grid2.setVgap(12);
+
         
         Font headerFont = Font.font("BirchStd", FontWeight.BOLD, 15);
         
@@ -410,6 +407,13 @@ public class PLBackPropagationConfigurator implements plt.plalgorithm.backpropag
         Label errorThreesholdLabel = new Label("Error threshold:");
         Label maxNumberOfIterationsLabel = new Label("Epochs:");    
         
+        
+        GridPane grid2 = new GridPane();
+        grid2.setPadding(new Insets(20));
+        grid2.setHgap(10);
+        grid2.setVgap(12);
+        
+        
         grid2.add(learningRateLabel, 0, 0);
         grid2.add(learningRate, 1, 0);
         grid2.add(errorThreesholdLabel,0,1);
@@ -440,7 +444,7 @@ public class PLBackPropagationConfigurator implements plt.plalgorithm.backpropag
     
     
     
-    @Override
+    //@Override
     public ActivationFunction[] getActivationsFunctions()
     {
         int j = 0;
@@ -496,17 +500,17 @@ public class PLBackPropagationConfigurator implements plt.plalgorithm.backpropag
     }
     
 
-    @Override
+  //  @Override
     public double getLearningRate() {
         return parseDobuleOrFailWithZero(learningRate);    
     }
 
-    @Override
+   // @Override
     public double getErrorThreeshold() {
         return parseDobuleOrFailWithZero(errorThreeshold);    
     }
 
-    @Override
+  //  @Override
     public int getMaxNumberOfIterations() {
         return parseIntegerOrFailWithZero(maxNumberOfIterations);    
     }

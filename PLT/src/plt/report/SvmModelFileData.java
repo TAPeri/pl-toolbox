@@ -170,11 +170,12 @@ import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
 import plt.dataset.TrainableDataSet;
 import plt.featureselection.SelectedFeature;
 import plt.gui.Experiment;
+import plt.gui.algorithms.PLRankSvm;
 import plt.gui.configurators.PLRankSvmConfigurator;
-import plt.plalgorithm.svm.libsvm_plt.PLRankSvm;
 import plt.plalgorithm.svm.libsvm_plt.SVMDataStore;
 import plt.utils.TimeHelper;
 

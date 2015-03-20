@@ -164,111 +164,121 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-
-package plt.plalgorithm.backpropagation;
+package plt.gui.algorithms;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javafx.scene.Node;
+import javafx.scene.control.TitledPane;
+import javafx.scene.layout.HBox;
 import plt.dataset.TrainableDataSet;
 import plt.featureselection.SelectedFeature;
-import plt.gui.ExecutionProgress;
 import plt.gui.Experiment;
+import plt.gui.configurators.PLNeuroEvolutionConfigurator;
 import plt.json.JsonObjIO;
 import plt.model.Model;
-import plt.plalgorithm.PLAlgorithm;
-import plt.plalgorithm.neruoevolution.NE.SimpleNeuralNetwork;
-import plt.plalgorithm.neruoevolution.PLNeuroEvolution;
+import plt.plalgorithm.neruoevolution.GA.GeneticAlgorithmConfigurator;
+import plt.plalgorithm.neruoevolution.GA.genticaloperators.CrossOverType;
+import plt.plalgorithm.neruoevolution.NE.*;
 import plt.report.NNModelFileData;
 import plt.utils.Preference;
+
 
 /**
  *
  * @author Institute of Digital Games, UoM Malta
  */
-public class PLBackPropagation extends PLAlgorithm {
-    private PLBackPropagationConfigurator configurator;
-    private NeuralNetwork network;
+public class PLNeuroEvolution extends PLAlgorithm {
+    private PLNeuroEvolutionConfigurator configurator;
+    private NeuroEvolutionAlgorithm ne;
+    private NeuroEvolutionAlgorithmConfigurator nec;
+    private NetworkEvalutaor nee;
     
-    public PLBackPropagation(TrainableDataSet dataSet, PLBackPropagationConfigurator configurator) {
-        super(dataSet);
-        
-        this.configurator = configurator;
-        
+    
+    
+    public PLNeuroEvolution() {
+
+    	this(null,new PLNeuroEvolutionConfigurator());
+    	
     }
     
-    @Override
-    protected Model run() throws InterruptedException {
-        
-        Logger.getLogger("plt.logger").log(Level.INFO, "run PLBackPropagation");
-
-        TrainableDataSet dataSet = this.getDataset();
-        boolean trained = false;
-       
-        for (int i=0; i< this.configurator.getMaxNumberOfIterations() && !trained; i++) {
-            ExecutionProgress.setTaskSubHeader("MLP Iteration "+(i+1));
-            
-            double error = 0;
-            
-            
-            for (int j =0; j< dataSet.getNumberOfPreferences() ; j++) {
-
-                Preference instance = this.getDataset().getPreference(j);
-                                
-                double[] featuresPreferred = this.getFeatureSelection().select( dataSet.getFeatures(instance.getPreferred()));
-                double[] featuresOther= this.getFeatureSelection().select( dataSet.getFeatures(instance.getOther()));
-
-                
-                network.setInputs(featuresPreferred);
-                double fPreferred = network.getOutputs()[0];
-                network.setInputs(featuresOther);
-                double fOther = network.getOutputs()[0];
-                
-
-                network.setInputs(featuresOther);
-                error += network.backpropagate(false, fPreferred);
-                network.setInputs(featuresPreferred);
-                error += network.backpropagate(true, fOther);
-
-            }
-            
-            error /= dataSet.getNumberOfPreferences()*2;
-            trained =  error < this.configurator.getErrorThreeshold();
-            
-            network.applyDeltas();
-            
-            
-            ExecutionProgress.incrementTaskProgByPerc(1.0f / (this.configurator.getMaxNumberOfIterations() * 1.0f));
-            
-            if((ExecutionProgress.needToShutdown())||(ExecutionProgress.hasInterruptRequest(1)))
-            {
-                ExecutionProgress.signalDeactivation(1);
-                throw new InterruptedException();
-            }
-        }
-        
-        
-        return modelForNetwork(network, this.getDataset(), this.getFeatureSelection());
-
     
+
+    public PLNeuroEvolution(TrainableDataSet n, PLNeuroEvolutionConfigurator configurator) {
+        super(n);
+        final PLNeuroEvolution self = this;
+
+        this.configurator = configurator;
+        this.nec = new NeuroEvolutionAlgorithmConfigurator(this.configurator.getGeneticAlgorithmConfigurator()) {
+
+            @Override
+            public int[] getTopology() {
+                return self.configurator.getTopology(self.getFeatureSelection().getSize());
+            }
+
+            @Override
+            public ActivationFunction[] getActivationsFunctions() {
+                return self.configurator.getActivationsFunctions();
+            }
+        };
+        
+        this.nee = new NetworkEvalutaor() {
+            @Override
+            public double evaluate(SimpleNeuralNetwork network) {
+                
+                double fitness = 0;
+
+                TrainableDataSet dataSet = self.getDataset();
+                
+                Hashtable<Integer,Double> h = new Hashtable<>();
+                for (int i=0; i<dataSet.getNumberOfObjects(); i++) {
+                    double[] featuresOther = self.getFeatureSelection().select( dataSet.getFeatures(i));
+                    network.setInputs(featuresOther);
+                    h.put(i,network.getOutputs()[0]);
+                }
+                    
+                for (int i =0; i< dataSet.getNumberOfPreferences() ; i++) {
+                    Preference instance = self.getDataset().getPreference(i);
+                    double fPreferred = h.get(instance.getPreferred());
+                    double fOther = h.get(instance.getOther());
+                    
+                    int epsilon = fOther > fPreferred ? 5 : 30;
+                    double delta= plt.utils.Math.sigmoid(1, epsilon*(fPreferred-fOther)); 
+                    
+                    
+                    fitness += delta;
+                }
+                                
+                
+                return fitness;
+            }
+        };
+
+    }
+
+    @Override
+    public Model run() throws InterruptedException {
+       Logger.getLogger("plt.logger").log(Level.INFO, "run PLNeuroEvolution");
+       this.ne.runFor(this.configurator.iterations());
+        final SimpleNeuralNetwork resultNetwork = ne.getNeuralNetuork();
+        return modelForNetwork(resultNetwork, this.getDataset(), this.getFeatureSelection());
+
     }
 
     @Override
     protected Model beforeRun() {
-        int inputSize = this.getFeatureSelection().getSize();
-        this.network = new NeuralNetwork(
-                this.configurator.getTopology(inputSize), 
-                this.configurator.getActivationsFunctions(), 
-                this.configurator.getLearningRate()
-                );
-    
-        return modelForNetwork(network, this.getDataset(), this.getFeatureSelection());
+        this.ne = new NeuroEvolutionAlgorithm(this.nec, nee);
+        return modelForNetwork(ne.getNeuralNetuork(), this.getDataset(), this.getFeatureSelection());
     }
     
     
-        static private Model modelForNetwork(final SimpleNeuralNetwork network, TrainableDataSet dataSet, final SelectedFeature selection) {
+    static private Model modelForNetwork(final SimpleNeuralNetwork network, TrainableDataSet dataSet, final SelectedFeature selection) {
+        
         Model model = new Model(dataSet, selection) {
 
             @Override
@@ -284,17 +294,18 @@ public class PLBackPropagation extends PLAlgorithm {
             public void save(File file) throws IOException{
                 try {
                     Date date=new Date() ;  
-                    //BufferedWriter out = new BufferedWriter( new FileWriter (new File(file, "BP"+date.getTime())));
+                    //BufferedWriter out = new BufferedWriter( new FileWriter (new File(file, "NE"+date.getTime())));
                     BufferedWriter out = new BufferedWriter(new FileWriter(file));
-                    out.write("BP#"+ Arrays.toString(network.weights)+ "#" +Arrays.toString(network.topology));
+                    out.write("NE#"+ Arrays.toString(network.weights)+ "#" +Arrays.toString(network.topology));
                     out.close();
                 } catch (IOException ex) {
                     Logger.getLogger(PLNeuroEvolution.class.getName()).log(Level.SEVERE, null, ex);
                     
                     throw ex;
                 }
-
             }*/
+            
+            
             
             @Override
             public void save(File file, Experiment experiment, double accResult_specificModel, double accResult_averageOverFolds) throws IOException{
@@ -302,7 +313,7 @@ public class PLBackPropagation extends PLAlgorithm {
                  
                     // Construct file data for chosen model.
                     NNModelFileData objToStore = new NNModelFileData(file.getName(),
-                                                                     "Backpropagation",
+                                                                     "NeuroEvolution",
                                                                      network,
                                                                      this.getDataSet(),
                                                                      this.selectedFeature(),
@@ -320,14 +331,18 @@ public class PLBackPropagation extends PLAlgorithm {
                    throw ex;
                 }
             }
-            
         };
         
         return model;        
     }
 
+    public PLNeuroEvolutionConfigurator getConfigurator()
+    {
+        return configurator;
+    }
+    
     @Override
-    public ArrayList<Object[]> getProperties() 
+    public ArrayList<Object[]> getProperties()
     {
         // Multilayer Perceptron Properties:
         
@@ -365,29 +380,62 @@ public class PLBackPropagation extends PLAlgorithm {
         
         
         
-        // Backprop Properties:
-        String subSec2_header = "Backpropagation";
+        // GA Properties:
+        
+        String subSec2_header = "GA Properties";
         ArrayList<String[]> subSec2_content = new ArrayList<>();
         
+        GeneticAlgorithmConfigurator gaConfig = configurator.getGeneticAlgorithmConfigurator();
         
-        String[] errorThresholdContentPair = new String[2];
-        errorThresholdContentPair[0] = "Error Threshold:";
-        errorThresholdContentPair[1] = ""+configurator.getErrorThreeshold();
-        subSec2_content.add(errorThresholdContentPair);
+        String[] popContentPair = new String[2];
+        popContentPair[0] = "Population:";
+        popContentPair[1] = ""+gaConfig.getPopulationSize();
+        subSec2_content.add(popContentPair);
         
-        String[] learningRateContentPair = new String[2];
-        learningRateContentPair[0] = "Learning Rate:";
-        learningRateContentPair[1] = ""+configurator.getLearningRate();
-        subSec2_content.add(learningRateContentPair);
+        String[] crossoverRateContentPair = new String[2];
+        crossoverRateContentPair[0] = "Crossover Probability:";
+        crossoverRateContentPair[1] = ""+gaConfig.getCrossOver().getProbability();
+        subSec2_content.add(crossoverRateContentPair);
         
-        String[] maxIterationsContentPair = new String[2];
-        maxIterationsContentPair[0] = "Epochs:";
-        maxIterationsContentPair[1] = ""+configurator.getMaxNumberOfIterations();
-        subSec2_content.add(maxIterationsContentPair);
+        String[] crossoverTypeContentPair = new String[2];
+        crossoverTypeContentPair[0] = "Crossover Type:";
+        
+        String typStr = "";
+        if(gaConfig.getCrossOver().getCrossOverType() == CrossOverType.ONEPOINT) { typStr = "OnePoint"; }
+        else if(gaConfig.getCrossOver().getCrossOverType() == CrossOverType.TWOPOINT) { typStr = "TwoPoint"; }
+        else if(gaConfig.getCrossOver().getCrossOverType() == CrossOverType.UNIFORM) { typStr = "Uniform"; }
+        crossoverTypeContentPair[1] = typStr;
+        subSec2_content.add(crossoverTypeContentPair);
+        
+        
+        String[] mutationRateContentPair = new String[2];
+        mutationRateContentPair[0] = "Mutation Probability:";
+        mutationRateContentPair[1] = ""+gaConfig.getMutation().getProbability();
+        subSec2_content.add(mutationRateContentPair);
+        
+        String[] numOfParentsContentPair = new String[2];
+        numOfParentsContentPair[0] = "Num of Parents:";
+        numOfParentsContentPair[1] = ""+gaConfig.getNumberOfParents();
+        subSec2_content.add(numOfParentsContentPair);
+        
+        String[] parentSelectionContentPair = new String[2];
+        parentSelectionContentPair[0] = "Parent Selection:";
+        parentSelectionContentPair[1] = ""+gaConfig.getParentSelection().getSelectionName();
+        subSec2_content.add(parentSelectionContentPair);
+        
+        String[] elitismSizeContentPair = new String[2];
+        elitismSizeContentPair[0] = "Elitism Size:";
+        elitismSizeContentPair[1] = ""+gaConfig.getElitSize();
+        subSec2_content.add(elitismSizeContentPair);
+        
+        String[] iterationsContentPair = new String[2];
+        iterationsContentPair[0] = "Generations:";
+        iterationsContentPair[1] = ""+gaConfig.getIterations();
+        subSec2_content.add(iterationsContentPair);
         
         
         
-        
+    
         Object[] wrapper1 = new Object[2];
         wrapper1[0] = subSec1_header;
         wrapper1[1] = subSec1_content;
@@ -402,4 +450,20 @@ public class PLBackPropagation extends PLAlgorithm {
         
         return retData;
     }
+
+
+    TitledPane[] ui;
+    
+	@Override
+	public Node getUI() {
+		ui  = configurator.ui();
+		HBox output = new HBox(5);
+         for(int counter=0; counter<ui.length; counter++)
+         {
+             Node tmpContentNode = ui[counter].getContent();
+             output.getChildren().add(tmpContentNode);
+         }
+
+		return output;
+	}
 }

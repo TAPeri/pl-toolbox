@@ -182,7 +182,7 @@ import plt.gui.component.AdvanceTextField;
  *
  * @author Institute of Digital Games, UoM Malta
  */
-public class NBestConfigurator implements plt.featureselection.examples.NBestConfigurator {
+public class NBestConfigurator {//implements plt.featureselection.examples.NBestConfigurator {
     private TextField n;
     
     private static int parseOrFailWithZero(TextField t) {
@@ -198,7 +198,7 @@ public class NBestConfigurator implements plt.featureselection.examples.NBestCon
         n.setPrefWidth(30);
     }        
 
-    @Override
+    //@Override
     public int getN() {
          return parseOrFailWithZero(this.n);
     }

@@ -176,15 +176,15 @@ import javafx.collections.ObservableList;
 import plt.dataset.PreprocessedDataSet;
 import plt.dataset.TrainableDataSet;
 import plt.dataset.datareader.ObjectsOrderFormat;
+import plt.dataset.preprocessing.FeaturePreprocessingInfo;
 import plt.dataset.preprocessing.Ignoring;
 import plt.dataset.preprocessing.PreprocessingOperation;
 import plt.featureselection.FeatureSelection;
-import plt.plalgorithm.PLAlgorithm;
+import plt.gui.algorithms.PLAlgorithm;
 import plt.report.Report;
 import plt.utils.TimeHelper;
 import plt.validator.Validator;
-import plt.validator.examples.KFoldCV;
-import plt.validator.examples.NoValidation;
+
 
 /**
  *
@@ -219,18 +219,21 @@ public class Experiment {
     private ObjectProperty<PLAlgorithm> algorithm;
     
     /* validation*/
-    private BooleanProperty useValidator;
-    private StringProperty k;
+    private ObjectProperty<Validator> validatorSelection;
+    //private BooleanProperty useValidator;
+    //private StringProperty k;
 
     
     /* preprocessing*/
     private ObservableList<FeaturePreprocessingInfo> preprocessingOperations;//observable because it is displayed on preprocessing tab
     
     /* feature selection*/
-    private BooleanProperty useValidatorForFeatureSelection;
-    private StringProperty kForFeatureSelection;    
-    private ObjectProperty<PLAlgorithm> algorithmForFeatureSelection;
+   // private BooleanProperty useValidatorForFeatureSelection;
+   // private StringProperty kForFeatureSelection;    
     private ObjectProperty<FeatureSelection> featureSelection;
+    private ObjectProperty<PLAlgorithm> algorithmForFeatureSelection;
+    private ObjectProperty<Validator> validatorForFeatureSelection;
+    
     
     /* meta-data */
     private ObjectProperty<Calendar> expStartTimestamp;
@@ -244,10 +247,14 @@ public class Experiment {
 
    
     public ObjectProperty<PLAlgorithm> algorithmProperty() { return this.algorithm; }
-    public BooleanProperty useValidatorProperty() { return this.useValidator; }
-    public BooleanProperty useValidatorForFeatureSelectionProperty() { return this.useValidatorForFeatureSelection; }
-    public StringProperty kProperty() { return this.k; }
-    public StringProperty kForFeatureSelectionProperty() {return this.kForFeatureSelection; }
+    //public BooleanProperty useValidatorProperty() { return this.useValidator; }
+    
+    public ObjectProperty<Validator> validatorProperty(){return this.validatorSelection;}
+    
+    public ObjectProperty<Validator> validatorForFeatureSelectionProperty() { return this.validatorForFeatureSelection; }
+    
+    //public StringProperty kProperty() { return this.k; }
+   // public StringProperty kForFeatureSelectionProperty() {return this.kForFeatureSelection; }
     public ObjectProperty<PLAlgorithm> algorithmForFeatureSelectionProperty() { return this.algorithmForFeatureSelection; }
     public ObjectProperty<FeatureSelection> featureSelectionProperty() { return this.featureSelection; }
     public ObjectProperty<Calendar> expStartTimestampProperty() { return expStartTimestamp; }
@@ -288,12 +295,16 @@ public class Experiment {
        // this.preprocessingOperations = new SimpleObjectProperty<>();
        // this.ignoredFeatures = new SimpleObjectProperty<>();
         this.algorithm = new SimpleObjectProperty<>();
-        this.useValidator = new SimpleBooleanProperty(false);
-        this.useValidatorForFeatureSelection = new SimpleBooleanProperty(false);
-        this.k = new SimpleStringProperty();
-        this.kForFeatureSelection = new SimpleStringProperty();
+       // this.useValidator = new SimpleBooleanProperty(false);
+       // this.useValidatorForFeatureSelection = new SimpleBooleanProperty(false);
+     //   this.k = new SimpleStringProperty();
+       // this.kForFeatureSelection = new SimpleStringProperty();
+        this.validatorForFeatureSelection = new SimpleObjectProperty<>();
         this.featureSelection = new SimpleObjectProperty<>();
         this.algorithmForFeatureSelection = new SimpleObjectProperty<>();
+        
+        this.validatorSelection =  new SimpleObjectProperty<>();
+        
         this.expStartTimestamp = new SimpleObjectProperty<>();
         this.expCompleteTimestamp = new SimpleObjectProperty<>();
         
@@ -456,12 +467,12 @@ public class Experiment {
        
        
        
-       Validator validator = new NoValidation();
+      /* Validator validator = new NoValidation();
           
        if (this.useValidator.get()) {
         int d = Integer.parseInt(this.k.get());
         validator = new KFoldCV(d);
-       }
+       }*/
        
        String tmpTName = "";
        if(this.featureSelectionProperty().get() != null) { tmpTName = "Feature Selection"; }
@@ -473,16 +484,16 @@ public class Experiment {
            Logger.getLogger("plt.logger").log(Level.INFO, "running feature selection");
 
            FeatureSelection f = this.featureSelectionProperty().get();
-           Validator validatorForFS = new NoValidation();
-           if (this.useValidatorForFeatureSelection.get()) {
-               int d = Integer.parseInt(this.kForFeatureSelection.get());
-               validatorForFS = new KFoldCV(d);
-           }
+          // Validator validatorForFS = new NoValidation();
+          // if (this.useValidatorForFeatureSelection.get()) {
+          //     int d = Integer.parseInt(this.kForFeatureSelection.get());
+          //     validatorForFS = new KFoldCV(d);
+          // }
            
            PLAlgorithm algoFS = this.algorithmForFeatureSelection.get();
            algoFS.setDataSet(t);
            
-           f.run(validatorForFS, algoFS);
+           f.run(validatorForFeatureSelection.get(), algoFS);
            
             Logger.getLogger("plt.logger").log(Level.INFO, "selected feature: \n"+f.getResult());
 
@@ -496,7 +507,7 @@ public class Experiment {
        
        ExecutionProgress.signalBeginTask("Experiment",1);
        Logger.getLogger("plt.logger").log(Level.INFO, "running experiment - dataset: \n"+t);
-       Report retRep = this.algorithm.get().createModelWithValidation(validator);     
+       Report retRep = this.algorithm.get().createModelWithValidation(validatorSelection.get());     
        ExecutionProgress.signalTaskComplete();
        
        

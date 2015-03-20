@@ -180,12 +180,14 @@ import javafx.scene.text.Text;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * GUI element to display the configuration parameters for different algorithms
+ *
+ * @author Vincent Farrugia
  */
 public class ModulePane extends BorderPane
 {
     public Text txtTitle;
-    public ChoiceBox choiceBox;
+    public ChoiceBox<String> choiceBox;
     public Node mainContent;
     
     HBox headerHBox;
@@ -203,7 +205,7 @@ public class ModulePane extends BorderPane
                       int para_prefWidth)
     {
         txtTitle = new Text(para_Title);
-        choiceBox = new ChoiceBox(FXCollections.observableArrayList(para_ChoiceBoxOptions));
+        choiceBox = new ChoiceBox<String>(FXCollections.observableArrayList(para_ChoiceBoxOptions));
         mainContent = para_mainContent;
         BorderPane.setAlignment(mainContent, Pos.CENTER);
         

@@ -164,11 +164,13 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.plalgorithm;
+package plt.gui.algorithms;
 
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javafx.scene.Node;
 import plt.dataset.TrainableDataSet;
 import plt.featureselection.SelectedFeature;
 import plt.model.Model;
@@ -177,7 +179,9 @@ import plt.validator.Validator;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
+ * @author Hector P. Martinez
+ * 
  */
 public abstract class PLAlgorithm {
 
@@ -261,5 +265,7 @@ public abstract class PLAlgorithm {
     protected abstract Model beforeRun();
     
     public abstract ArrayList<Object[]> getProperties();
+    
+    public abstract Node getUI();
 
 }

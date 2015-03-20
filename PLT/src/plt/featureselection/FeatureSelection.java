@@ -166,7 +166,8 @@ Library.*/
 
 package plt.featureselection;
 
-import plt.plalgorithm.PLAlgorithm;
+import javafx.scene.Node;
+import plt.gui.algorithms.PLAlgorithm;
 import plt.validator.Validator;
 
 /**
@@ -191,5 +192,11 @@ public abstract class FeatureSelection {
      * @return the result as a SelectedFeature object. 
      */
     public abstract SelectedFeature getResult();
+    
+    
+    /**
+     * @return UI elements to set up the algorithm. 
+     */
+    public abstract Node getUI();
 
 }

@@ -185,17 +185,20 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import plt.featureselection.examples.NBest;
+import plt.gui.algorithms.AlgorithmTab;
+import plt.gui.algorithms.PLNeuroEvolution;
+import plt.gui.algorithms.PLRankSvm;
 import plt.gui.component.ModalPopup;
+import plt.gui.configurators.PLNeuroEvolutionConfigurator;
 import plt.gui.configurators.PLRankSvmConfigurator;
 import plt.gui.dataset.DataSetTab;
-import plt.plalgorithm.neruoevolution.PLNeuroEvolutionConfigurator;
+import plt.gui.featureselection.FeatureSelectionTab;
 import plt.gui.help.Tab1Help;
 import plt.gui.help.Tab2Help;
 import plt.gui.help.Tab3Help;
 import plt.gui.help.Tab4Help;
+import plt.gui.preprocess.PreprocessingTab;
 import plt.plalgorithm.neruoevolution.GA.GeneticAlgorithmConfigurator;
-import plt.plalgorithm.neruoevolution.PLNeuroEvolution;
-import plt.plalgorithm.svm.libsvm_plt.PLRankSvm;
 
 /**
  *
@@ -266,7 +269,7 @@ public class MasterGUI extends BorderPane
         				Label lblNextBtn = new Label("Next");
         				nextBtnInnerBPane.setCenter(lblNextBtn);
         				
-        				ImageView imgViewNextBtn = new ImageView(new Image(DataSetTab.class.getResourceAsStream("nxtButton.png")));
+        				ImageView imgViewNextBtn = new ImageView(new Image(MasterGUI.class.getResourceAsStream("nxtButton.png")));
         				nextBtnInnerBPane.setRight(imgViewNextBtn);
         			
         		final Button btnBack = new Button();
@@ -281,7 +284,7 @@ public class MasterGUI extends BorderPane
         			    Label lblBackBtn = new Label("Back");
         			    backBtnInnerBPane.setCenter(lblBackBtn);
         			    
-        			    ImageView imgViewBkBtn = new ImageView(new Image(DataSetTab.class.getResourceAsStream("bkButton.png")));
+        			    ImageView imgViewBkBtn = new ImageView(new Image(MasterGUI.class.getResourceAsStream("bkButton.png")));
         			    backBtnInnerBPane.setLeft(imgViewBkBtn);
         		
         			     			
@@ -289,7 +292,7 @@ public class MasterGUI extends BorderPane
             Button helpButton = new Button();
             bottomPane.setLeft(helpButton);
             helpButton.setVisible(true);
-            helpButton.setGraphic(new ImageView(new Image(DataSetTab.class.getResourceAsStream("helpButton.png"))));
+            helpButton.setGraphic(new ImageView(new Image(MasterGUI.class.getResourceAsStream("helpButton.png"))));
         	
             
             
@@ -326,7 +329,6 @@ public class MasterGUI extends BorderPane
         //tabPane.selectionModelProperty();
   
         
-        
         //Change label of 'next button' when at tab 4
         tab4.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
@@ -335,7 +337,7 @@ public class MasterGUI extends BorderPane
                 {
                     
                     Label lblNextBtn = new Label("Run experiment");
-                    ImageView imgViewNextBtn = new ImageView(new Image(DataSetTab.class.getResourceAsStream("runExperimentButton.png")));
+                    ImageView imgViewNextBtn = new ImageView(new Image(MasterGUI.class.getResourceAsStream("runExperimentButton.png")));
                     BorderPane nextBtnInnerBPane = new BorderPane();
                     nextBtnInnerBPane.setCenter(lblNextBtn);
                     nextBtnInnerBPane.setRight(imgViewNextBtn);
@@ -344,7 +346,7 @@ public class MasterGUI extends BorderPane
                 else
                 {
                     Label lblNextBtn = new Label("Next");
-                    ImageView imgViewNextBtn = new ImageView(new Image(DataSetTab.class.getResourceAsStream("nxtButton.png")));
+                    ImageView imgViewNextBtn = new ImageView(new Image(MasterGUI.class.getResourceAsStream("nxtButton.png")));
                     BorderPane nextBtnInnerBPane = new BorderPane();
                     nextBtnInnerBPane.setCenter(lblNextBtn);
                     nextBtnInnerBPane.setRight(imgViewNextBtn);
@@ -599,7 +601,7 @@ public class MasterGUI extends BorderPane
         disableTabs(new ArrayList<Integer>(Arrays.asList(1,2,3)));
         
         
-        
+        ((DataSetTab) tab1).testLoad();
         
         
         

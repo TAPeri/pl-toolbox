@@ -164,7 +164,7 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.gui;
+package plt.gui.preprocess;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -200,7 +200,10 @@ import plt.dataset.preprocessing.PreprocessingOperation;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * GUI to visualise the preprocessing of one feature
+ *
+ * @author Vincent Farrugia
+ * @author Hector P. Martinez
  */
 public class FeaturesPreview  {
     VBox content;
