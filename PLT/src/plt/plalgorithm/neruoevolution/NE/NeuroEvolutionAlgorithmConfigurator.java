@@ -166,6 +166,7 @@ Library.*/
 
 package plt.plalgorithm.neruoevolution.NE;
 
+import plt.featureselection.SelectedFeature;
 import plt.plalgorithm.neruoevolution.GA.GeneticAlgorithmConfigurator;
 
 /**
@@ -180,7 +181,7 @@ public abstract class NeuroEvolutionAlgorithmConfigurator  {
         this.geneticAlgorithmConfigurator = geneticAlgorithmConfigurator;
     }
     
-    public abstract int[] getTopology();
+    public abstract int[] getTopology(SelectedFeature features);
 
     public GeneticAlgorithmConfigurator getGeneticAlgorithmConfigurator() {
         return this.geneticAlgorithmConfigurator;

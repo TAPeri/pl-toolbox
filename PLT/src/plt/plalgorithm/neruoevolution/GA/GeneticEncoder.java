@@ -166,6 +166,9 @@ Library.*/
 
 package plt.plalgorithm.neruoevolution.GA;
 
+import plt.dataset.TrainableDataSet;
+import plt.featureselection.SelectedFeature;
+
 /**
  *
  * @author Institute of Digital Games, UoM Malta
@@ -173,6 +176,6 @@ package plt.plalgorithm.neruoevolution.GA;
 public interface GeneticEncoder {
     
     public Object decode(DNA dna);
-    public double evaluationFunction(DNA dna);
+    public double evaluationFunction(DNA dna,TrainableDataSet dataset,SelectedFeature featureSelection);
     public int dnaSize();
 }

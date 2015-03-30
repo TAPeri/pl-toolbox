@@ -169,7 +169,7 @@ package plt.plalgorithm.svm.libsvm_plt;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
  */
 public interface IPLRankSvmConfigurator
 {

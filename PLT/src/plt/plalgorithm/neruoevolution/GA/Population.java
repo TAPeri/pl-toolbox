@@ -170,6 +170,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+
+import plt.dataset.TrainableDataSet;
+import plt.featureselection.SelectedFeature;
 import plt.plalgorithm.neruoevolution.GA.genticaloperators.CrossOver;
 import plt.plalgorithm.neruoevolution.GA.genticaloperators.GaussianMutation;
 import plt.plalgorithm.neruoevolution.GA.genticaloperators.Invertion;
@@ -208,13 +211,13 @@ public class Population {
 
     }
 
-    protected void evaluate() {
+    protected void evaluate(TrainableDataSet dataset,SelectedFeature featureSelection) {
 
         this.maxFitness = Double.NEGATIVE_INFINITY;
 
 
         for (int i = 0; i < this.getSize(); i++) {
-            double currentFitness = this.getIndividual(i).getFitness();
+            double currentFitness = this.getIndividual(i).getFitness(dataset,featureSelection);
             if (currentFitness > this.maxFitness) {
                 this.maxFitness = currentFitness;
                 this.bestGene = this.getIndividual(i);
@@ -235,10 +238,10 @@ public class Population {
 
     protected void produceNextGeneration(ParentSelection parentSelection,
             int numberOfParents, int eliteSize,
-            CrossOver crossOver, Invertion invertion, GaussianMutation mutation) {
+            CrossOver crossOver, Invertion invertion, GaussianMutation mutation,TrainableDataSet dataset,SelectedFeature featureSelection) {
 
         if (!this.evaluated) {
-            this.evaluate();
+            this.evaluate(dataset,featureSelection);
         }
 
         if (numberOfParents > this.elements.size()) {
@@ -280,24 +283,17 @@ public class Population {
     }
 
     protected Object getBestPhenotype() {
-        if (!this.evaluated) {
-            this.evaluate();
-        }
+
         return bestGene.getPhenotype();
     }
     
    protected Object getBestDNA() {
-        if (!this.evaluated) {
-            this.evaluate();
-        }
+
         return bestGene.getDna();
     }
 
     protected double getMaxFitness() {
 
-        if (!this.evaluated) {
-            this.evaluate();
-        }
         return maxFitness;
     }
 

@@ -164,116 +164,122 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.dataset.preprocessing;
+package plt.plalgorithm.svm;
+
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashMap;
 
-import plt.dataset.DataSet;
+
+import plt.dataset.TrainableDataSet;
+import plt.featureselection.SelectedFeature;
+
+import plt.gui.algorithms.PLRankSvmConfigurator;
+
+import plt.model.Model;
+import plt.plalgorithm.PLAlgorithm;
+import plt.plalgorithm.svm.libsvm_plt.RankSvmManager;
+
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
  */
-public class NumericBinary extends PreprocessingOperation {
-    private List<Double> possibleValues;
-    /*private List<Double> ignore;
+public class PLRankSvm extends PLAlgorithm
+{
+    private PLRankSvmConfigurator configurator;
+    private RankSvmManager svmMang;
     
-    public NumericBinary(DataSet d, int feature, List<Double> ignore) {
-        super(d, feature);
-        
-        if (!d.isNumeric(feature))
-            throw  new IllegalArgumentException();
-        
-        this.ignore = ignore;
-
-    }*/
-
-    @Override
-    public int numberOfOutput(DataSet d,int feature) {
-        if (possibleValues == null) preparePossibleValues(d,feature);
-        
-        return possibleValues.size();
+    
+    public PLRankSvm(){
+    	
+    	this(new PLRankSvmConfigurator());
     }
     
-    public List<Double> getPossibleValues(){
-    	return possibleValues;
-    }
-
-    @Override
-    public double value(DataSet d,int feature,int object, int output) {
-        if (output > this.numberOfOutput( d, feature))
-            throw new IllegalArgumentException();
-        
-        if (possibleValues == null) preparePossibleValues( d, feature);
-
-        Double value = Double.parseDouble(d.getFeature(object, feature));
-        
-        if (possibleValues.get(output).equals(value))
-            return 1;
-        else
-            return 0;
-        
+    public PLRankSvm( PLRankSvmConfigurator para_svmConfig)
+    {
+        super();
+        configurator = para_svmConfig;
     }
     
-    private void preparePossibleValues(DataSet d,int feature) {
-        possibleValues = new LinkedList<>();
-        for (int i=0; i<d.getNumberOfObjects(); i++) {
-            Double value = Double.parseDouble(d.getFeature(i, feature));
-            if (!possibleValues.contains(value))// && (ignore == null || !ignore.contains(value)))
-                possibleValues.add(value);
-        }
-
-        Collections.sort(possibleValues);
-    }
     
     @Override
-    public String toString() {
-        if (possibleValues == null)
-            return "{Binary - numberOfOutput: null}";
+    protected Model run(TrainableDataSet dataset,SelectedFeature featureSelection) throws InterruptedException
+    {
+        //Logger.getLogger("plt.logger").log(Level.INFO, "run PLRankSvm");
 
-        else{
-        return "{Binary - numberOfOutput: "+ this.possibleValues.size() +"}";
-    
-        }
+        svmMang.runRankSVM();
+        
+        return new ModelSVM(svmMang,dataset,featureSelection);
     }
 
     @Override
-    public String getOperationName() {
-        return "Binary";
+    protected Model beforeRun(TrainableDataSet dataset,SelectedFeature featureSelection)
+    {
+        HashMap<String,Object> userConfig = new HashMap<>();
+        userConfig.put("kernel", configurator.getKernelType());
+        userConfig.put("gamma", configurator.getGamma());
+        userConfig.put("degree", configurator.getDegree());     
+        
+        svmMang = new RankSvmManager();
+        svmMang.performSetup(dataset,featureSelection,userConfig);
+        
+        
+        return new ModelSVM(svmMang, dataset,featureSelection);
     }
 
-	@Override
-	public List<Number> values(DataSet d, int feature, int object) {
-		List<Number> outputs = new ArrayList<Number>();
-		
-        if (possibleValues == null) {
-            preparePossibleValues(d,feature);
+    @Override
+    public ArrayList<Object[]> getProperties() 
+    {
+        
+        // Multilayer Perceptron Properties:
+        
+        String subSec1_header = "Rank SVM";
+        ArrayList<String[]> subSec1_content = new ArrayList<>();
+        
+        String[] cPair1 = new String[2];
+        cPair1[0] = "Kernel:";
+        cPair1[1] = ""+configurator.getKernelType();
+        subSec1_content.add(cPair1);
+        
+        if(configurator.gammaRequired())
+        {
+            String[] cPair2 = new String[2];
+            cPair2[0] = "Gamma:";
+            cPair2[1] = ""+configurator.getGamma();
+            subSec1_content.add(cPair2);
         }
-
-        Double value = Double.parseDouble(d.getFeature(object, feature));
+        
+        if(configurator.degreeRequired())
+        {
+            String[] cPair3 = new String[2];
+            cPair3[0] = "Degree:";
+            cPair3[1] = ""+configurator.getDegree();
+            subSec1_content.add(cPair3);
+        }
+                
+        
+        
+        Object[] wrapper1 = new Object[2];
+        wrapper1[0] = subSec1_header;
+        wrapper1[1] = subSec1_content;
+        
+        
+        ArrayList<Object[]> retData = new ArrayList<>();
+        retData.add(wrapper1);
+        
+        return retData;
+    }
+    
+    @Override
+    public PLRankSvmConfigurator getConfigurator()
+    {
+        return configurator;
+    }
+    
 
         
-        for(Double x : possibleValues )
-        	if (x.equals(value)) {
-        		outputs.add(1);
-        	} else {
-        		outputs.add(0);
-        	}
 
-        return outputs;
-	}
-	
-	@Override
-	public String featureName(DataSet dataSet, int originalFeature, int j) {
-		
-        if (possibleValues == null) {
-            preparePossibleValues(dataSet,originalFeature);
-        }
-		
-		return dataSet.getFeatureName(originalFeature)+" = "+possibleValues.get(j);
-	}
-	
+
+    
 }

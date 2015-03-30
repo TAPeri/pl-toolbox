@@ -273,8 +273,8 @@ public class ModalPopup {
             @Override
             public void handle(MouseEvent t) {
                 s.close();
-                
-                eventHandler.handle(null);
+                if(eventHandler!=null)
+                	eventHandler.handle(null);
             }
         });
 

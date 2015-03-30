@@ -182,7 +182,7 @@ public class Linear implements ActivationFunction {
     }
 
     @Override
-    public double evalueDerivative(double input) {
+    public double evalueDerivative(double input,double output) {
         return 1;
     }
 }

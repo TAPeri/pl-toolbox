@@ -164,27 +164,31 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.gui.configurators;
+package plt.gui.algorithms;
 
 import java.util.ArrayList;
+
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import plt.gui.Main;
 import plt.gui.component.AdvanceTextField;
+import plt.plalgorithm.PLAlgorithm;
+import plt.plalgorithm.neruoevolution.PLNeuroEvolution;
 import plt.plalgorithm.neruoevolution.GA.GeneticAlgorithmConfigurator;
 import plt.plalgorithm.neruoevolution.GA.ParentSelection;
 import plt.plalgorithm.neruoevolution.GA.genticaloperators.CrossOver;
@@ -199,9 +203,11 @@ import plt.plalgorithm.neruoevolution.NE.Sigmond;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * GUI to set up the parameters for neuroevolution
+ *
+ * @author Vincent Farrugia
  */
-public class PLNeuroEvolutionConfigurator{// implements plt.plalgorithm.neruoevolution.PLNeuroEvolutionConfigurator {
+public class PLNeuroEvolutionConfigurator implements GUIConfigurator{// implements plt.plalgorithm.neruoevolution.PLNeuroEvolutionConfigurator {
 
     
     private ArrayList<TextField> topology;
@@ -386,8 +392,16 @@ public class PLNeuroEvolutionConfigurator{// implements plt.plalgorithm.neruoevo
             }
         };
     }
+    
+    
+    private Node ui;
+    
+	@Override
+    public Node ui() {
+    	
+    	
+        ui = new HBox(5);
 
-    public TitledPane[] ui() {
 
         annGridPane = new GridPane();
         annGridPane.setPadding(new Insets(20));
@@ -629,11 +643,47 @@ public class PLNeuroEvolutionConfigurator{// implements plt.plalgorithm.neruoevo
         gaPropPane.getStyleClass().add("modulePane1Child");
         
         
-        annPane.setPrefSize(490, 470);
-        gaPropPane.setPrefSize(470, 470);
+       // annPane.setPrefSize(490, 470);
+       // gaPropPane.setPrefSize(470, 470);
         
-        return new TitledPane[]{new TitledPane("Artificial neural network", annPane), new TitledPane("Genetic Algorithm", gaPropPane)};
-    }
+        
+        TitledPane tmp=		new TitledPane("Artificial neural network", annPane);
+        ((HBox)ui).getChildren().add(tmp.getContent());
+        HBox.setHgrow(tmp.getContent(), Priority.ALWAYS);
+        TitledPane tmp2=		new TitledPane("Genetic Algorithm", gaPropPane);
+        ((HBox)ui).getChildren().add(tmp2.getContent());
+        HBox.setHgrow(tmp2.getContent(), Priority.ALWAYS);
+
+        
+        return ui;
+	}
+	
+
+	@Override
+	public String testParameters() {
+
+
+        GeneticAlgorithmConfigurator gaConfig = this.getGeneticAlgorithmConfigurator();
+        
+        int numParents = gaConfig.getNumberOfParents();
+        int popSize = gaConfig.getPopulationSize();
+        if(numParents > popSize)
+        {
+            return "GA error: The number of parents is greater than the GA population size.";
+
+        }
+        
+        if(gaConfig.getElitSize() > gaConfig.getPopulationSize())
+        {
+            return "GA error: The elitism size is greater than the GA population size.";
+
+        } 
+		
+		return "";
+		
+		
+	}
+
     
     
 
@@ -804,5 +854,10 @@ public class PLNeuroEvolutionConfigurator{// implements plt.plalgorithm.neruoevo
             refreshANNLayerPane();
         }
     }
+
+	@Override
+	public PLAlgorithm algorithm() {
+		return new PLNeuroEvolution(this);
+	}
         
 }

@@ -164,188 +164,97 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.validator.examples;
+package plt.validator;
 
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
+import java.util.HashSet;
+import java.util.Set;
+
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import plt.dataset.TrainableDataSet;
-import plt.gui.ExecutionProgress;
-import plt.gui.algorithms.PLAlgorithm;
-import plt.gui.component.AdvanceTextField;
+import plt.featureselection.SelectedFeature;
 import plt.model.Model;
+import plt.plalgorithm.PLAlgorithm;
 import plt.report.Report;
 import plt.utils.Preference;
-import plt.validator.Validator;
 
 /**
  *
  * @author Institute of Digital Games, UoM Malta
  */
-public class KFoldCV extends Validator {
-    public int k;
-    private StringProperty kProperty;
+public class SplitValidation extends Validator {
     
-    public KFoldCV(){
-    	this(3);
-    }
+    private int ratio;
     
-    public KFoldCV(int _k) {
-        this.k = _k;
+    public SplitValidation(int validationRatio) {
+        if (validationRatio < 0 || validationRatio > 100)
+            throw  new IllegalArgumentException();
         
-
-        kProperty = new SimpleStringProperty(""+k);
-        kProperty.addListener(new ChangeListener<String>(){
-
-			@Override
-			public void changed(ObservableValue<? extends String> arg0, String arg1, String arg2) {
-				try{
-					k = Integer.parseInt(arg2);
-				}catch(Exception ex){
-					k = 3;
-					kProperty.set("3");
-				}
-				
-			}
-        	
-        });
+        this.ratio = validationRatio;
     }
-    
 
     @Override
-    public Report runWithValidation(PLAlgorithm algorithm) {
+    public Report runWithValidation(PLAlgorithm algorithm,TrainableDataSet originalDataSet,SelectedFeature features) {
         Report report = new Report();
-
         
-        TrainableDataSet originalDataSet = algorithm.getDataset();
-        List<Set<Integer>> groups = KFoldCV.createGroups(originalDataSet, this.k);
+        Set<Integer> trainingPreferences = new HashSet<>();
+        Set<Integer> validationPreferences = new HashSet<>();
                 
-        for (int i=0; i<this.k;i++) {
-            Logger.getLogger("plt.logger").log(Level.INFO, "KFoldCV ["+(i+1)+"/"+k+"]");
-            ExecutionProgress.signalBeginTask("KFold "+(i+1),(1.0f/(this.k * 1.0f)) * (i+1));
-            
-            TrainableDataSet validationDataSet = originalDataSet.subSet(groups.get(i));
-            
-            Set<Integer> inputSet = new HashSet<>();
-            for (int j=0; j<this.k;j++) {
-                if (j!=i) {
-                    inputSet.addAll(groups.get(j));
-                }
-            }
-            
-           TrainableDataSet candidateDataSet = originalDataSet.subSet(inputSet);
-           
-           algorithm.setDataSet(candidateDataSet);
-           Model model = algorithm.createModel();
-           if(model == null) { return null; }
-           
-           double correctness = 0;
-           for (int z=0; z<validationDataSet.getNumberOfPreferences(); z++) {
-               Preference instance = validationDataSet.getPreference(z);
-               if (model.preference(instance.getPreferred(), instance.getOther())) {
-                   correctness++;
-               }
-           }
-           correctness /= validationDataSet.getNumberOfPreferences();
-           
-           report.addExperimentResult(model, correctness);
-           ExecutionProgress.signalTaskComplete();
+        
+        int splitPoint = (originalDataSet.getNumberOfPreferences()*ratio)/100;
+        
+        for (int i=0;i < originalDataSet.getNumberOfPreferences(); i++) {
+            if (i < splitPoint)
+                validationPreferences.add(i);
+            else
+                trainingPreferences.add(i);
         }
 
+
+        
+        TrainableDataSet validationDataSet = originalDataSet.subSet(trainingPreferences);
+        TrainableDataSet trainingDataSet = originalDataSet.subSet(validationPreferences);
+
+        
+        Model model = algorithm.createModel(trainingDataSet,features);
+        Model before = algorithm.getUntrainedModel();
+
+        double beforeCorrectness = 0;
+        for (int z = 0; z < validationDataSet.getNumberOfPreferences(); z++) {
+            Preference instance = validationDataSet.getPreference(z);
+            if (before.preference(instance.getPreferred(), instance.getOther())) {
+                beforeCorrectness++;
+            }
+        }
+        beforeCorrectness /= validationDataSet.getNumberOfPreferences();
+        
+        if(model == null) { return null; }
+        
+        double correctness = 0;
+        for (int z = 0; z < validationDataSet.getNumberOfPreferences(); z++) {
+            Preference instance = validationDataSet.getPreference(z);
+            if (model.preference(instance.getPreferred(), instance.getOther())) {
+                correctness++;
+            }
+        }
+        correctness /= validationDataSet.getNumberOfPreferences();
+
+        double trainingAccuracy = 0.0;
+        report.addExperimentResult(model, trainingAccuracy,0.0);
+
+        report.addTestAccuracy(correctness, beforeCorrectness);
+        
         return report;
-        
     }
-    
-    protected static List<Set<Integer>> createGroups(TrainableDataSet t, int k) {
-        List<Set<Integer>> atomicGroups = t.atomicGroups();
-        
-        System.err.println("atomicGroups not sorted");
-       /* Collections.sort(atomicGroups, new Comparator<Set<Integer>>() {
 
-            @Override
-            public int compare(Set<Integer> t, Set<Integer> t1) {
-                return t.size() - t1.size();
-            }
-        });*/
-        
-        List<Set<Integer>> groups = new ArrayList<>();
-        int[] groupsSize = new int[k];        
-
-        for (int i=0;i<k; i++)
-            groups.add(new HashSet<Integer>());
-
-        
-        for (Set<Integer> s : atomicGroups) {
-            int candidate = 0;
-            for (int i=0; i<k; i++)
-                if (groupsSize[i] < groupsSize[candidate]) candidate = i;
-            
-            groupsSize[candidate] += s.size();
-            groups.get(candidate).addAll(s);
-        }
-        
-        
-        return groups;
-    }
-    
     @Override
     public String toString() {
-        return "KFoldCV: {k:"+this.k+"}";
+        return "NoValidation";
     }
-
 
 	@Override
 	public Node getUI() {
-		
-		BorderPane kBPane = new BorderPane();
-          
-      	Label lblCrossValidationHeader = new Label("k-fold cross validation");
-      	kBPane.setLeft(lblCrossValidationHeader);
-      
-      	HBox cntentBx = new HBox(20);
-      	kBPane.setRight(cntentBx); 
-      	
-      		GridPane validatorContentGPane = new GridPane();
-      		cntentBx.getChildren().add(validatorContentGPane);
-      	
-      			Label kLabel = new Label("k:");
-      			validatorContentGPane.add(kLabel, 0, 0);
-      			//kLabel.visibleProperty().bind(validatorMPane.choiceBox.getSelectionModel().selectedIndexProperty().isEqualTo(1));
-	
-      			TextField k  = new AdvanceTextField("[0-9]", "3");
-      			//k.visibleProperty().bind(kLabel.visibleProperty());
-      			validatorContentGPane.add(k, 1, 0);
-		
-      			this.kProperty.bind(k.textProperty());
-		
-		//cntentBx.getChildren().addAll(kLabel,k);		
-			
-//Should move this to CSS   	
-kBPane.getStyleClass().add("modulePane2Child");
-Font headerFont = Font.font("BirchStd", FontWeight.BOLD, 15);
-lblCrossValidationHeader.setFont(headerFont);
-BorderPane.setAlignment(lblCrossValidationHeader, Pos.CENTER);        
-k.setPrefWidth(30);     			
-validatorContentGPane.setPadding(new Insets(20));
-validatorContentGPane.setHgap(15);
-validatorContentGPane.setVgap(12);
-			
-		return kBPane;
+		// TODO Auto-generated method stub
+		return null;
 	}
-
 }

@@ -187,7 +187,7 @@ public class Sigmond implements ActivationFunction {
     }
 
     @Override
-    public double evalueDerivative(double input) {
-        return input*(1 -input);
+    public double evalueDerivative(double input,double output) {
+        return output*(1 -output);
     }
 }

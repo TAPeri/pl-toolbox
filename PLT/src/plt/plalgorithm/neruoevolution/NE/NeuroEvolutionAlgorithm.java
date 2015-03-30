@@ -166,8 +166,11 @@ Library.*/
 
 package plt.plalgorithm.neruoevolution.NE;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+
+import plt.dataset.TrainableDataSet;
+
+import plt.featureselection.SelectedFeature;
 import plt.plalgorithm.neruoevolution.GA.DNA;
 import plt.plalgorithm.neruoevolution.GA.GeneticAlgorithm;
 import plt.plalgorithm.neruoevolution.GA.GeneticEncoder;
@@ -183,13 +186,15 @@ public class NeuroEvolutionAlgorithm {
     private NetworkEvalutaor evaluator;
 
      
-    public NeuroEvolutionAlgorithm(NeuroEvolutionAlgorithmConfigurator configurator,NetworkEvalutaor networkEvaluator) {
+    public NeuroEvolutionAlgorithm(NeuroEvolutionAlgorithmConfigurator configurator,NetworkEvalutaor networkEvaluator,SelectedFeature features) {
         
         this.configurator = configurator;
         this.evaluator = networkEvaluator;
         
-        final SimpleNeuralNetwork n = new SimpleNeuralNetwork(this.configurator.getTopology(), this.configurator.getActivationsFunctions());
+        final SimpleNeuralNetwork n = new SimpleNeuralNetwork(this.configurator.getTopology(features), this.configurator.getActivationsFunctions());
+        
         final NetworkEvalutaor e = this.evaluator;
+        
         this.ga = new GeneticAlgorithm(this.configurator.getGeneticAlgorithmConfigurator(), new GeneticEncoder() {
 
             @Override
@@ -204,7 +209,7 @@ public class NeuroEvolutionAlgorithm {
             }
 
             @Override
-            public double evaluationFunction(DNA dna) {
+            public double evaluationFunction(DNA dna,TrainableDataSet dataset,SelectedFeature featureSelection ) {
                 double[] weights = new double[dna.vector.length];
                 for (int i=0; i<weights.length;i++) {
                     weights[i] = (dna.vector[i]*10)-5;
@@ -213,7 +218,7 @@ public class NeuroEvolutionAlgorithm {
                 n.setWeights(weights);
                 
                 try {
-                    return e.evaluate((SimpleNeuralNetwork)n.clone());
+                    return e.evaluate((SimpleNeuralNetwork)n.clone(),dataset,featureSelection);
                 } catch (CloneNotSupportedException ex) {
                     throw new RuntimeException();
                 }
@@ -227,16 +232,20 @@ public class NeuroEvolutionAlgorithm {
     }
     
         
-    public void runUntillReach(double threshold) {
-        Logger.getLogger("plt.logger").log(Level.INFO, "run NeuroEvolution with threshold "+ threshold);
-        ga.runUntillReach(threshold);
+    public void runUntillReach(double threshold,TrainableDataSet dataset,SelectedFeature featureSelection) {
+        //Logger.getLogger("plt.logger").log(Level.INFO, "run NeuroEvolution with threshold "+ threshold);
+        ga.runUntillReach(threshold,dataset,featureSelection);
     }
     
-    public void runFor(int times) throws InterruptedException {
-        Logger.getLogger("plt.logger").log(Level.INFO, "run NeuroEvolution for "+ times+" iterations ");
-        ga.runFor(times);
+    public void runFor(int times,TrainableDataSet dataset,SelectedFeature featureSelection) throws InterruptedException {
+        //Logger.getLogger("plt.logger").log(Level.INFO, "run NeuroEvolution for "+ times+" iterations ");
+        ga.runFor(times,dataset,featureSelection);
     }
     
+    /**
+     * 
+     * @return current result; if untrained, return the first phenotype (not the best)
+     */
     public SimpleNeuralNetwork getNeuralNetuork() {
         return (SimpleNeuralNetwork)ga.getResult();
     }

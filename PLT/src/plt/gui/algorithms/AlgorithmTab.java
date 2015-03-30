@@ -172,17 +172,16 @@ import java.util.Arrays;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-
 import javafx.scene.control.*;
-
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-
 import javafx.stage.Stage;
 import plt.gui.Experiment;
-
 import plt.gui.customcomponents.ModulePane;
+import plt.validator.SupportedValidations;
+import plt.validator.Validator;
 
 
 /**
@@ -192,7 +191,7 @@ import plt.gui.customcomponents.ModulePane;
  */
 public class AlgorithmTab extends Tab {
 
-    final private Stage stage;
+   // final private Stage stage;
     private Experiment experiment;
     
     VBox moduleHBox;
@@ -201,7 +200,7 @@ public class AlgorithmTab extends Tab {
     public AlgorithmTab(Stage s, Experiment e) {
         super();
         this.experiment = e;
-        this.stage = s;
+       // this.stage = s;
 
         setup();
     }
@@ -210,9 +209,9 @@ public class AlgorithmTab extends Tab {
     private void setup()
     {
     	
-        final ScrollPane sPane = new ScrollPane();  
-        this.setContent(sPane);
-        stage.heightProperty().addListener(new ChangeListener<Number>() {
+    	    	
+       // this.setContent(sPane);
+        /*stage.heightProperty().addListener(new ChangeListener<Number>() {
         
         	
             @Override
@@ -221,32 +220,38 @@ public class AlgorithmTab extends Tab {
                 sPane.setPrefHeight(t1.doubleValue() * 0.7);
             }
             
-        });
+        });*/
         
-sPane.setStyle("-fx-background-color: transparent;"); // Hide the scrollpane gray border.
-sPane.setPrefSize(880,600);
+//sPane.setStyle("-fx-background-color: transparent;"); // Hide the scrollpane gray border.
+//sPane.setPrefSize(880,600);
         
         
-        final Pane nestedBp = new Pane();
-        nestedBp.setPrefHeight(400);
-        nestedBp.setPrefWidth(650);
+       // final Pane nestedBp = new Pane();
+        //nestedBp.setPrefHeight(400);
+        //nestedBp.setPrefWidth(650);
         
-        	moduleHBox = new VBox(30);
-        	sPane.setContent(moduleHBox);
-        	nestedBp.getChildren().add(moduleHBox); 
+        	moduleHBox = new VBox(1);
+        	
+        	//nestedBp.getChildren().add(moduleHBox); 
         
         	
-        	Pane tmpParentPane2 = new Pane();
-        	moduleHBox.getChildren().add(tmpParentPane2);
+        	//Pane tmpParentPane2 = new Pane();
+        	//moduleHBox.getChildren().add(tmpParentPane2);
             	
         		final ModulePane algorithmMPane = new ModulePane("Algorithm", new ArrayList<String>(Arrays.asList(SupportedAlgorithms.labels)), new Pane(), "modulePane1",850);
-        		tmpParentPane2.getChildren().add(algorithmMPane);
-        	
-        	Pane tmpParentPane3 = new Pane();
-        	moduleHBox.getChildren().add(tmpParentPane3);
+        		//tmpParentPane2.getChildren().add(algorithmMPane);
+                ScrollPane sPane = new ScrollPane();  
+
+        		sPane.setContent(moduleHBox);
+            	this.setContent(sPane);
+
+            	moduleHBox.getChildren().add(algorithmMPane);
+
+        	//Pane tmpParentPane3 = new Pane();
+        	//moduleHBox.getChildren().add(tmpParentPane3);
         
         		final ModulePane validatorMPane = new ModulePane("Cross Validation", new ArrayList<String>(Arrays.asList(SupportedValidations.labels)),new Pane(),"modulePane2",850);
-        		tmpParentPane3.getChildren().add(validatorMPane);
+        		moduleHBox.getChildren().add(validatorMPane);
 
             	this.experiment.algorithmProperty().set(null);
         	
@@ -257,13 +262,13 @@ sPane.setPrefSize(880,600);
                     public void changed(ObservableValue<? extends String> ov, String t, String t1) {
                          
                             int i =  algorithmMPane.choiceBox.getSelectionModel().getSelectedIndex();
-                            
-                            if(SupportedAlgorithms.classes[i]==null){
+                            GUIConfigurator tmp = SupportedAlgorithms.getClass(i);
+                            if(tmp==null){
                             	algorithmMPane.setMainContent(new HBox());
                             	
                             }else{
-                            	algorithmMPane.setMainContent(SupportedAlgorithms.classes[i].getUI());
-                            	experiment.algorithmProperty().set(SupportedAlgorithms.classes[i]);
+                            	algorithmMPane.setMainContent(tmp.ui());
+                            	experiment.algorithmProperty().set(tmp.algorithm());
                             }
 
                     }
@@ -274,9 +279,9 @@ sPane.setPrefSize(880,600);
                     @Override
                     public void changed(ObservableValue<? extends String> ov, String t, String t1) {
                         int i =  validatorMPane.choiceBox.getSelectionModel().getSelectedIndex();
-                        
-                        experiment.validatorProperty().set(SupportedValidations.classes[i]);
-                        validatorMPane.setMainContent(SupportedValidations.classes[i].getUI());   
+                        Validator tmp = SupportedValidations.getClass(i);
+                        experiment.validatorProperty().set(tmp);
+                        validatorMPane.setMainContent(tmp.getUI());   
                     }
                 });
     	

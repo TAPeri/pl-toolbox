@@ -166,7 +166,8 @@ Library.*/
 
 package plt.plalgorithm.neruoevolution.NE;
 
-import java.util.Arrays;
+import java.util.Random;
+
 
 /**
  *
@@ -179,7 +180,12 @@ public class SimpleNeuralNetwork implements Cloneable {
     public double[] outputs;
     public double[] inputs;
     public ActivationFunction[] activationFunctions;
+    
+    protected double[][] sums;
+    protected double[][] activations;
+    
 
+    
     public SimpleNeuralNetwork(int[] topology, ActivationFunction[] activationFunctions) {
 
         if (topology.length < 2) {
@@ -199,6 +205,21 @@ public class SimpleNeuralNetwork implements Cloneable {
         this.topology = topology;
         this.weights = new double[this.getNumberOfWeights()];
         this.activationFunctions = activationFunctions;
+        
+        this.sums = new double[this.topology.length-1][];
+        this.activations = new double[this.topology.length-1][];
+
+        
+        for(int i = 0;i<topology.length-1;i++){
+        	sums[i] = new double[topology[i+1]];
+        	activations[i] = new double[topology[i+1]];
+        }
+        
+        Random r = new Random();
+        for (int i=0; i< this.weights.length; i++) {
+           this.weights[i] = (r.nextDouble()*2)-1;
+
+        }
 
 
     }
@@ -224,7 +245,11 @@ public class SimpleNeuralNetwork implements Cloneable {
     public void setInputs(double[] inputs) {
         this.inputs = inputs;
         this.outputs = null;
+
     }
+    
+    
+
 
     public void setWeights(double[] weights) {
         if (weights.length != getNumberOfWeights()) {
@@ -241,15 +266,43 @@ public class SimpleNeuralNetwork implements Cloneable {
         }
         return this.outputs;
     }
+    
+        
+    
 
     protected void activate() {
-        outputs = new double[topology[topology.length - 1]];
-        for (int i = 0; i < outputs.length; i++) {
-            outputs[i] = getValueOf(topology.length - 1, i);
+    	
+    	for(int i=0;i<sums.length;i++)
+    		for(int j=0;j<sums[i].length;j++){
+    			sums[i][j] = 0;
+    			activations[i][j] = 0;
+    		}
+    	
+        int weightPointer = 0;
+        
+        for(int i=0;i<topology[1];i++){
+        	sums[0][i] = -weights[weightPointer++];
+        	for(double x : inputs)
+        		sums[0][i] += (x*weights[weightPointer++]);
+        	activations[0][i] = activationFunctions[0].evalue(sums[0][i]);
         }
+        
+        for(int j = 2;j<topology.length;j++){
+        	
+            for(int i=0;i<topology[j];i++){
+            	sums[j-1][i] = -weights[weightPointer++];
+            	for(double x : activations[j-2])
+            		sums[j-1][i] += (x*weights[weightPointer++]);
+            	activations[j-1][i] = activationFunctions[j-1].evalue(sums[j-1][i]);
+            }
+        }
+        
+        outputs = activations[activations.length-1];
+        
+
     }
     
-    protected double getValueOf(int layer, int neuron) {
+   /*protected double getValueOf(int layer, int neuron) {
         if (layer == 0) {
             return inputs[neuron];
         }
@@ -257,23 +310,14 @@ public class SimpleNeuralNetwork implements Cloneable {
     }
 
     protected double getSValueOf(int layer, int neuron) {
-        if (layer == 0) {
-            throw new IllegalArgumentException();
-        }
 
-        int weightPointer = weightPointer(layer, neuron);
-        double result = -weights[weightPointer++];
-        for (int i = 0; i < topology[layer - 1]; i++) {
-            result += getValueOf(layer - 1, i) * weights[weightPointer++];
-        }
-        
-        return result;
+    	return this.sums[layer-2][neuron];
         
     }
     protected double getAValueOf(int layer, int neuron) {
 
-        return activationFunctions[layer - 1].evalue(getSValueOf(layer, neuron));
-    }
+        return this.activations[layer-2][neuron];//  activationFunctions[layer - 1].evalue(getSValueOf(layer, neuron));
+    }*/
 
     protected int weightPointer(int layer, int neuron) {
         int result = 0;

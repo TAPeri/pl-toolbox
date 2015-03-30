@@ -172,5 +172,5 @@ package plt.plalgorithm.neruoevolution.NE;
  */
 public interface ActivationFunction {
     public double evalue(double input);
-    public double evalueDerivative(double input);
+    public double evalueDerivative(double input,double output);
 }

@@ -171,16 +171,18 @@ import java.util.Arrays;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import plt.featureselection.FeatureSelection;
 import plt.gui.Experiment;
+import plt.gui.algorithms.GUIConfigurator;
 import plt.gui.algorithms.SupportedAlgorithms;
-import plt.gui.algorithms.SupportedValidations;
 import plt.gui.customcomponents.ModulePane;
+import plt.validator.SupportedValidations;
+import plt.validator.Validator;
 
 
 /**
@@ -272,9 +274,10 @@ sPane.setPrefSize(880,600);
                                                         
                 int i =  featureSelection.choiceBox.getSelectionModel().getSelectedIndex();
                 
-                experiment.featureSelectionProperty().set(SupportedFeatureSelection.classes[i]);
+                FeatureSelection tmp = SupportedFeatureSelection.getClass(i);
+                experiment.featureSelectionProperty().set(tmp);
                 
-                if(SupportedFeatureSelection.classes[i]==null){
+                if(tmp==null){
                 	featureSelection.setMainContent(new Pane());
                 	
                 	 algorithmMPane.disableMPane();
@@ -283,9 +286,17 @@ sPane.setPrefSize(880,600);
                      //algorithmMPane.setChoiceBoxOptions(new ArrayList<String>(Arrays.asList(SupportedAlgorithms.labels)));
                 	
                 }else{
-                	featureSelection.setMainContent(SupportedFeatureSelection.classes[i].getUI());
+                	featureSelection.setMainContent(tmp.getUI());
                     algorithmMPane.enableMPane();
                     validatorMPane.enableMPane();
+                    
+                    //Trigger selector value change
+                    
+                    algorithmMPane.choiceBox.getSelectionModel().select(1);
+                    validatorMPane.choiceBox.getSelectionModel().select(1);
+                    
+                    algorithmMPane.choiceBox.getSelectionModel().select(0);
+                    validatorMPane.choiceBox.getSelectionModel().select(0);
                 }
                 
                 //experiment.algorithmForFeatureSelectionProperty().set(null);
@@ -321,13 +332,15 @@ sPane.setPrefSize(880,600);
                     }*/
                     
                 	
-
-                    if(SupportedAlgorithms.classes[i]==null){
+                    GUIConfigurator tmp = SupportedAlgorithms.getClass(i);
+                    
+                    if(tmp==null){
                     	algorithmMPane.setMainContent(new HBox());
-                    	
+                    	experiment.algorithmForFeatureSelectionProperty().set(null);
+
                     }else{
-                    	algorithmMPane.setMainContent(SupportedAlgorithms.classes[i].getUI());
-                    	experiment.algorithmForFeatureSelectionProperty().set(SupportedAlgorithms.classes[i]);
+                    	algorithmMPane.setMainContent(tmp.ui());
+                    	experiment.algorithmForFeatureSelectionProperty().set(tmp.algorithm());
                     }
                 }
             }
@@ -339,14 +352,14 @@ sPane.setPrefSize(880,600);
             public void changed(ObservableValue<? extends String> ov, String t, String t1) {
                 int i =  validatorMPane.choiceBox.getSelectionModel().getSelectedIndex();
                 
-                experiment.validatorForFeatureSelectionProperty().set(SupportedValidations.classes[i]);
-                validatorMPane.setMainContent(SupportedValidations.classes[i].getUI());   
+                Validator tmp = SupportedValidations.getClass(i);
+                experiment.validatorForFeatureSelectionProperty().set(tmp);
+                validatorMPane.setMainContent(tmp.getUI());   
             }
         });
         
-        //featureSelection.choiceBox.getSelectionModel().select(0);
-        //algorithmMPane.choiceBox.getSelectionModel().select(0);
-        //validatorMPane.choiceBox.getSelectionModel().select(0);
+        featureSelection.choiceBox.getSelectionModel().select(0);
+
     }
     
     

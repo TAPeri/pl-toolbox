@@ -192,7 +192,12 @@ import plt.utils.TimeHelper;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * Creates a window that launches the execution
+ * of the experiment and displays the progress
+ *
+ * @author Vincent Farrugia
+ * @author Hector P. Martinez
+ * 
  */
 public class Execution  {
 
@@ -224,73 +229,97 @@ public class Execution  {
     public void show(final Stage stage) {
 
         final Parent parent = stage.getScene().getRoot();
+        
+        final ExecutionModalPopup emp = new ExecutionModalPopup();
+        
+        	ListView<String> list = new ListView<>();
+
+        		final ObservableList<String> items = FXCollections.observableArrayList();
+        		list.setItems(items);
+        		
+        		//Add logs to the observable list of items
+                logger.addHandler(new Handler() {
+
+                    @Override
+                    public void publish(LogRecord lr) {
+                        final String log = lr.getMessage();
+                        Platform.runLater(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                items.add(log);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void flush() {
+                    }
+
+                    @Override
+                    public void close() throws SecurityException {
+                    }
+                });
+        		
+        
+        	final VBox progressUpdateBotBox = new VBox(2);        
+        
+        		final BorderPane progressUpdateFirstHBox = new BorderPane();
+        		progressUpdateBotBox.getChildren().add(progressUpdateFirstHBox);
+        
+        
+        			Text txtCurrTask = new Text(""); 
+        			progressUpdateFirstHBox.setLeft(txtCurrTask);
+        			txtCurrTask.textProperty().bind(ExecutionProgress.currTaskTextIndicator);
+        	
+        		
+        			txtCurrDuration = new Text("");// WARNING: Using Label instead of Text hangs the program.
+        			progressUpdateFirstHBox.setRight(txtCurrDuration);
+        
+            	final HBox progressUpdateHBox = new HBox(10);
+            	progressUpdateBotBox.getChildren().add(progressUpdateHBox);       			
+        			
+        			
+        			ProgressBar pBar = new ProgressBar(0);
+        			progressUpdateHBox.getChildren().add(pBar);
+            			pBar.progressProperty().bind(ExecutionProgress.totProgress);
+            	
+            		ProgressIndicator pIndi = new ProgressIndicator(-1);
+            		progressUpdateHBox.getChildren().add(pIndi);
+            	
+            		final Button btnAbort = new Button("Abort");
+            		progressUpdateHBox.getChildren().add(btnAbort);        
+        
+                    	EventHandler<MouseEvent> abortHandler = new EventHandler<MouseEvent>() {
+                    		@Override
+                    		public void handle(MouseEvent t) {
+                    			terminatedFlag = true;
+                    			if(execThread != null)
+                    			{
+                    				execThread.interrupt();
+                    				ExecutionProgress.requestThreadInterrupt(1); // Algorithm thread.
+                    				ExecutionProgress.requestThreadInterrupt(2); // Timer thread.
+                    			}
+                    		}
+                    	};
+            		
+         emp.show(parent, list, progressUpdateBotBox, btnAbort, abortHandler, 400, 600);		
+            		
+            		
+pBar.setPrefSize(460,20);        
+pIndi.setPrefSize(20, 20);
+btnAbort.setPrefSize(150, 20);
+list.setMaxHeight(300);
+list.setMaxWidth(450);
+
+
+        
         final Execution self = this;
+                
         final Button button = new Button("Running..");
         button.disableProperty().set(true);
         
-        ListView<String> list = new ListView<>();
-        list.setMaxHeight(300);
-        list.setMaxWidth(450);
-        final ObservableList<String> items = FXCollections.observableArrayList();
-        list.setItems(items);
         
-        final VBox progressUpdateBotBox = new VBox(2);
-        final BorderPane progressUpdateFirstHBox = new BorderPane();
-        Text txtCurrTask = new Text("");                // WARNING: Using Label instead of Text hangs the program.
-        txtCurrTask.textProperty().bind(ExecutionProgress.currTaskTextIndicator);
-        txtCurrDuration = new Text("");
-        final HBox progressUpdateHBox = new HBox(10);
-        ProgressBar pBar = new ProgressBar(0);
-        pBar.progressProperty().bind(ExecutionProgress.totProgress);
-        pBar.setPrefSize(460,20);
-        ProgressIndicator pIndi = new ProgressIndicator(-1);
-        pIndi.setPrefSize(20, 20);
-        final Button btnAbort = new Button("Abort");
-        btnAbort.setPrefSize(150, 20);
-        //btnAbort.setGraphic(new ImageView(new Image(Execution.class.getResourceAsStream("halt_icon.gif"))));
-        EventHandler<MouseEvent> abortHandler = new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent t) {
-                terminatedFlag = true;
-                if(execThread != null)
-                {
-                    execThread.interrupt();
-                    ExecutionProgress.requestThreadInterrupt(1); // Algorithm thread.
-                    ExecutionProgress.requestThreadInterrupt(2); // Timer thread.
-                }
-            }
-        };
-        progressUpdateFirstHBox.setLeft(txtCurrTask);
-        progressUpdateFirstHBox.setRight(txtCurrDuration);
-        progressUpdateHBox.getChildren().addAll(pBar,pIndi,btnAbort);
-        progressUpdateBotBox.getChildren().addAll(progressUpdateFirstHBox,progressUpdateHBox);
-        
-        
-        final ExecutionModalPopup emp = new ExecutionModalPopup();
-        emp.show(parent, list, progressUpdateBotBox, btnAbort, abortHandler, 400, 600);
-
-        logger.addHandler(new Handler() {
-
-            @Override
-            public void publish(LogRecord lr) {
-                final String log = lr.getMessage();
-                Platform.runLater(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        items.add(log);
-                    }
-                });
-            }
-
-            @Override
-            public void flush() {
-            }
-
-            @Override
-            public void close() throws SecurityException {
-            }
-        });
         
         Task<Report> task = new Task<Report>() 
         {
@@ -316,7 +345,6 @@ public class Execution  {
                     latestReport = t1;
                     
                     haltTimerThread = true;
-                    
                     
                     progressUpdateBotBox.getChildren().clear();
                     progressUpdateFirstHBox.getChildren().clear();
@@ -383,8 +411,8 @@ public class Execution  {
                 
                 if(!prevTime.equals(""+TimeHelper.calculateDuration(cStart, currTStamp))){
                 	prevTime = ""+TimeHelper.calculateDuration(cStart, currTStamp);
-                	System.err.println("Removed "+TimeHelper.calculateDuration(cStart, currTStamp));
                 }
+                //REMOVED
                 //txtCurrDuration.setText( TimeHelper.calculateDuration(cStart, currTStamp) );
             }
             

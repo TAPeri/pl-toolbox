@@ -257,6 +257,19 @@ public class DumpDataSet implements DataSet {
     public boolean isNumeric(int n) {
         return true;
     }
+
+	@Override
+	public List<Preference> getPreferences() {
+		return preferences;
+	}
+
+	@Override
+	public int[] getIDs() {
+		int[] tmp = new int[features.length];
+		for(int i=0;i<tmp.length;i++)
+			tmp[i] = i;
+		return tmp;
+	}
         
     
 }

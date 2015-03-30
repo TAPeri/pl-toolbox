@@ -210,5 +210,10 @@ public class Numeric extends PreprocessingOperation {
 	public List<Number> values(DataSet d, int feature, int object) {
 		 return new ArrayList<Number>(Arrays.asList(Double.parseDouble(d.getFeature(object, feature))));
 	}
-    
+ 
+	@Override
+	public String featureName(DataSet dataSet, int originalFeature, int j) {
+		return dataSet.getFeatureName(originalFeature);
+	}
+	
 }

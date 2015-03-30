@@ -164,34 +164,28 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.gui.algorithms;
+package plt.plalgorithm.neruoevolution;
 
-import java.io.File;
-import java.io.IOException;
+
 import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+//import java.util.logging.Level;
+//import java.util.logging.Logger;
 
-import javafx.scene.Node;
-import javafx.scene.control.TitledPane;
-import javafx.scene.layout.HBox;
 import plt.dataset.TrainableDataSet;
 import plt.featureselection.SelectedFeature;
-import plt.gui.Experiment;
-import plt.gui.configurators.PLNeuroEvolutionConfigurator;
-import plt.json.JsonObjIO;
+
+import plt.gui.algorithms.PLNeuroEvolutionConfigurator;
+
 import plt.model.Model;
+import plt.plalgorithm.PLAlgorithm;
 import plt.plalgorithm.neruoevolution.GA.GeneticAlgorithmConfigurator;
 import plt.plalgorithm.neruoevolution.GA.genticaloperators.CrossOverType;
 import plt.plalgorithm.neruoevolution.NE.*;
-import plt.report.NNModelFileData;
-import plt.utils.Preference;
 
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
  */
 public class PLNeuroEvolution extends PLAlgorithm {
     private PLNeuroEvolutionConfigurator configurator;
@@ -203,22 +197,22 @@ public class PLNeuroEvolution extends PLAlgorithm {
     
     public PLNeuroEvolution() {
 
-    	this(null,new PLNeuroEvolutionConfigurator());
+    	this(new PLNeuroEvolutionConfigurator());
     	
     }
     
     
 
-    public PLNeuroEvolution(TrainableDataSet n, PLNeuroEvolutionConfigurator configurator) {
-        super(n);
+    public PLNeuroEvolution( PLNeuroEvolutionConfigurator configurator) {
+        super();
         final PLNeuroEvolution self = this;
 
         this.configurator = configurator;
         this.nec = new NeuroEvolutionAlgorithmConfigurator(this.configurator.getGeneticAlgorithmConfigurator()) {
 
             @Override
-            public int[] getTopology() {
-                return self.configurator.getTopology(self.getFeatureSelection().getSize());
+            public int[] getTopology(SelectedFeature features) {
+                return self.configurator.getTopology(features.getSize());
             }
 
             @Override
@@ -227,115 +221,29 @@ public class PLNeuroEvolution extends PLAlgorithm {
             }
         };
         
-        this.nee = new NetworkEvalutaor() {
-            @Override
-            public double evaluate(SimpleNeuralNetwork network) {
-                
-                double fitness = 0;
-
-                TrainableDataSet dataSet = self.getDataset();
-                
-                Hashtable<Integer,Double> h = new Hashtable<>();
-                for (int i=0; i<dataSet.getNumberOfObjects(); i++) {
-                    double[] featuresOther = self.getFeatureSelection().select( dataSet.getFeatures(i));
-                    network.setInputs(featuresOther);
-                    h.put(i,network.getOutputs()[0]);
-                }
-                    
-                for (int i =0; i< dataSet.getNumberOfPreferences() ; i++) {
-                    Preference instance = self.getDataset().getPreference(i);
-                    double fPreferred = h.get(instance.getPreferred());
-                    double fOther = h.get(instance.getOther());
-                    
-                    int epsilon = fOther > fPreferred ? 5 : 30;
-                    double delta= plt.utils.Math.sigmoid(1, epsilon*(fPreferred-fOther)); 
-                    
-                    
-                    fitness += delta;
-                }
-                                
-                
-                return fitness;
-            }
-        };
-
+        this.nee = new NetworkEvalutaor();
+        
     }
 
     @Override
-    public Model run() throws InterruptedException {
-       Logger.getLogger("plt.logger").log(Level.INFO, "run PLNeuroEvolution");
-       this.ne.runFor(this.configurator.iterations());
+    public Model run(TrainableDataSet dataSet,SelectedFeature features) throws InterruptedException {
+      // Logger.getLogger("plt.logger").log(Level.INFO, "run PLNeuroEvolution");
+       this.ne.runFor(this.configurator.iterations(),dataSet,features);
         final SimpleNeuralNetwork resultNetwork = ne.getNeuralNetuork();
-        return modelForNetwork(resultNetwork, this.getDataset(), this.getFeatureSelection());
+        return new ModelNeuroEvolution(resultNetwork, dataSet, features);
 
     }
 
     @Override
-    protected Model beforeRun() {
-        this.ne = new NeuroEvolutionAlgorithm(this.nec, nee);
-        return modelForNetwork(ne.getNeuralNetuork(), this.getDataset(), this.getFeatureSelection());
+    protected Model beforeRun(TrainableDataSet dataSet,SelectedFeature features) {
+        this.ne = new NeuroEvolutionAlgorithm(this.nec, nee,features);
+        return new ModelNeuroEvolution(ne.getNeuralNetuork(), dataSet, features);
     }
     
     
-    static private Model modelForNetwork(final SimpleNeuralNetwork network, TrainableDataSet dataSet, final SelectedFeature selection) {
-        
-        Model model = new Model(dataSet, selection) {
 
-            @Override
-            protected double calculatePreference(double[] features) {
 
-                network.setInputs(features);
-                double a = network.getOutputs()[0];
-                return a;
-            
-            }
-
-            /*@Override
-            public void save(File file) throws IOException{
-                try {
-                    Date date=new Date() ;  
-                    //BufferedWriter out = new BufferedWriter( new FileWriter (new File(file, "NE"+date.getTime())));
-                    BufferedWriter out = new BufferedWriter(new FileWriter(file));
-                    out.write("NE#"+ Arrays.toString(network.weights)+ "#" +Arrays.toString(network.topology));
-                    out.close();
-                } catch (IOException ex) {
-                    Logger.getLogger(PLNeuroEvolution.class.getName()).log(Level.SEVERE, null, ex);
-                    
-                    throw ex;
-                }
-            }*/
-            
-            
-            
-            @Override
-            public void save(File file, Experiment experiment, double accResult_specificModel, double accResult_averageOverFolds) throws IOException{
-                try {
-                 
-                    // Construct file data for chosen model.
-                    NNModelFileData objToStore = new NNModelFileData(file.getName(),
-                                                                     "NeuroEvolution",
-                                                                     network,
-                                                                     this.getDataSet(),
-                                                                     this.selectedFeature(),
-                                                                     experiment,
-                                                                     accResult_specificModel,
-                                                                     accResult_averageOverFolds);        
-                    
-                    // Store data to file as JSON.
-                    JsonObjIO jsonRW = new JsonObjIO();
-                    jsonRW.writeObjToFile(file.getAbsolutePath(), objToStore);
-                }
-                catch (Exception ex) {
-                   Logger.getLogger(PLNeuroEvolution.class.getName()).log(Level.SEVERE,null,ex);
-                   
-                   throw ex;
-                }
-            }
-        };
-        
-        return model;        
-    }
-
+    @Override
     public PLNeuroEvolutionConfigurator getConfigurator()
     {
         return configurator;
@@ -346,18 +254,26 @@ public class PLNeuroEvolution extends PLAlgorithm {
     {
         // Multilayer Perceptron Properties:
         
+        //int inputSize = this.getFeatureSelection().getSize();
+    	
+    	if(ne==null)
+    		System.err.println("Not ready");
+        int[] fullTopology = ne.getNeuralNetuork().topology;//configurator.getTopology(inputSize);
+        
+    	
         String subSec1_header = "Multilayer Perceptron";
         ArrayList<String[]> subSec1_content = new ArrayList<>();
+
+
         
         String[] inpLayerContentPair = new String[3];
         inpLayerContentPair[0] = "Input Layer:";
-        inpLayerContentPair[1] = ""+this.getFeatureSelection().getSize();
+        inpLayerContentPair[1] = ""+fullTopology[0];
         inpLayerContentPair[2] = "N/A";
         subSec1_content.add(inpLayerContentPair);
         
         
-        int inputSize = this.getFeatureSelection().getSize();
-        int[] fullTopology = configurator.getTopology(inputSize);
+
         
         for(int i=1; i<fullTopology.length-1; i++)
         {
@@ -452,18 +368,7 @@ public class PLNeuroEvolution extends PLAlgorithm {
     }
 
 
-    TitledPane[] ui;
-    
-	@Override
-	public Node getUI() {
-		ui  = configurator.ui();
-		HBox output = new HBox(5);
-         for(int counter=0; counter<ui.length; counter++)
-         {
-             Node tmpContentNode = ui[counter].getContent();
-             output.getChildren().add(tmpContentNode);
-         }
 
-		return output;
-	}
+
+
 }

@@ -182,8 +182,8 @@ public class HyperbolicTangent implements ActivationFunction {
     }
 
     @Override
-    public double evalueDerivative(double input) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public double evalueDerivative(double input,double output) {
+        return 1-(output*output);
     }
 
 }

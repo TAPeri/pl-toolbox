@@ -164,91 +164,86 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.gui.configurators;
+package plt.plalgorithm;
 
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TitledPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import plt.gui.component.AdvanceTextField;
+import java.util.ArrayList;
+
+
+import plt.dataset.TrainableDataSet;
+import plt.featureselection.SelectedFeature;
+import plt.gui.algorithms.GUIConfigurator;
+import plt.model.Model;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
+ * @author Hector P. Martinez
+ * 
  */
-public class NBestConfigurator {//implements plt.featureselection.examples.NBestConfigurator {
-    private TextField n;
-    
-    private static int parseOrFailWithZero(TextField t) {
+public abstract class PLAlgorithm {
+
+
+    private Model result;
+    private Model untrainedModel;
+
+
+    public PLAlgorithm() {
+        this.result = null;
+        this.untrainedModel = null;
+    }
+
+
+    public abstract GUIConfigurator getConfigurator();
+
+  /*  public TrainableDataSet getDataset() {
+        return dataSet;
+    }*/
+
+ 
+    public Model getUntrainedModel(){
+    	return this.untrainedModel;
+    }
+
+    public Model createModel(TrainableDataSet dataSet,SelectedFeature features) {
+        //Logger.getLogger("plt.logger").log(Level.INFO, "create a new model");
+
+        if (this.untrainedModel == null || this.result != null) {
+        	prepareToRun(dataSet,features);
+        }
+
+        if (this.result == null) {
+            try
+            {
+                this.result = run(dataSet,features);
+            }
+            catch(InterruptedException ex)
+            {
+                return null;
+            }
+        }
+
+        return this.result;
+
+    }
+
+    private void prepareToRun(TrainableDataSet dataSet,SelectedFeature features) {
+
+
+        
+        this.result = null;
         try {
-            return Integer.parseInt(t.getText());
-        } catch (NumberFormatException e) {
-            return 0;
-        } 
+			this.untrainedModel = this.beforeRun(dataSet,features).clone();
+		} catch (CloneNotSupportedException e) {
+			this.untrainedModel = null;
+		}
+        
     }
-    
-    public NBestConfigurator() {
-        n = new AdvanceTextField("[0-9.]","1");
-        n.setPrefWidth(30);
-    }        
 
-    //@Override
-    public int getN() {
-         return parseOrFailWithZero(this.n);
-    }
+    protected abstract Model run(TrainableDataSet dataSet,SelectedFeature features) throws InterruptedException;
+    protected abstract Model beforeRun(TrainableDataSet dataSet,SelectedFeature features);
+    
+    public abstract ArrayList<Object[]> getProperties();
     
         
-    public TitledPane[] ui() {
-        
-       
-        GridPane grid1 = new GridPane();
-        grid1.setPadding(new Insets(20));
-        grid1.setHgap(10);
-        grid1.setVgap(12);
-        
-        
-        Label nLabel = new Label("N:");
-        
 
-        grid1.add(nLabel, 0, 0);
-        grid1.add(n, 1, 0);
-        
-        
-        
-        Font headerFont = Font.font("BirchStd", FontWeight.BOLD, 15);
-        
-        
-
-        
-        Label lblNBestHeader = new Label("N-Best Feature Selection");
-        lblNBestHeader.setFont(headerFont);
-        
-        
-        
-        
-        HBox cntentBx = new HBox(20);
-        cntentBx.getChildren().addAll(nLabel,n);
-        
-        
-        
-        BorderPane nBestSelPane = new BorderPane();
-        nBestSelPane.setLeft(lblNBestHeader);
-        nBestSelPane.setRight(cntentBx);
-        
-        
-
-        nBestSelPane.getStyleClass().add("modulePane3Child");
-        
-        
-        return new TitledPane[] {new TitledPane("nBest", nBestSelPane)};
-        
-
-    }
-    
 }

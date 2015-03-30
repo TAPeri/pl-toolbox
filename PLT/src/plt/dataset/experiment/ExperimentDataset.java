@@ -166,7 +166,10 @@ Library.*/
 
 package plt.dataset.experiment;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+
 import plt.dataset.DataSet;
 import plt.functions.MathematicalFunction;
 import plt.utils.Preference;
@@ -280,6 +283,25 @@ public class ExperimentDataset implements DataSet {
         
         
     }
+
+	@Override
+	public List<Preference> getPreferences() {
+		
+		List<Preference> tmp = new ArrayList<>();
+		for(int i=0;i<this.getNumberOfPreferences();i++){
+			tmp.add(this.getPreference(i));
+		}
+		
+		return tmp;
+	}
+
+	@Override
+	public int[] getIDs() {
+		int[] tmp = new int[features.length];
+		for(int i=0;i<tmp.length;i++)
+			tmp[i] = i;
+		return tmp;
+	}
 
     
 }

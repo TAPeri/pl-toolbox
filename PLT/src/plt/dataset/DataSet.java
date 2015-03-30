@@ -166,6 +166,8 @@ Library.*/
 
 package plt.dataset;
 
+import java.util.List;
+
 import plt.utils.Preference;
 
 /**
@@ -193,6 +195,8 @@ public interface DataSet {
     */
     public int getNumberOfPreferences();
     
+    
+    public int[] getIDs();
     
     /**
      * Returns the number of the feature for the objects in the dataset
@@ -239,6 +243,13 @@ public interface DataSet {
     public Preference getPreference(int n); 
     
         
+    /**
+     * Return all pairwise preferences in this dataset
+     * A preference is defined between two objects.
+     * @return all pairwise preferences. 
+     */
+    public List<Preference> getPreferences(); 
+    
     /**
      * Given an instance n, it return its own "atomic group".
      * An atomic group is a set of instance that can not be divided in subset 

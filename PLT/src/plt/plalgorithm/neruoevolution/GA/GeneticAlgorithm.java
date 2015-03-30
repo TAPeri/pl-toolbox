@@ -169,11 +169,14 @@ package plt.plalgorithm.neruoevolution.GA;
 import java.lang.InterruptedException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import plt.dataset.TrainableDataSet;
+import plt.featureselection.SelectedFeature;
 import plt.gui.ExecutionProgress;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
  */
 public class GeneticAlgorithm {
     private GeneticAlgorithmConfigurator configurator;
@@ -192,7 +195,7 @@ public class GeneticAlgorithm {
         return result;
     }
     
-    public void runUntillReach(double threshold) {
+    public void runUntillReach(double threshold,TrainableDataSet dataset,SelectedFeature featureSelection) {
         
       Logger.getLogger("plt.logger").log(Level.INFO, "run GeneticAlgorithm with threshold"+threshold);
 
@@ -209,15 +212,17 @@ public class GeneticAlgorithm {
                     configurator.getElitSize(), 
                     configurator.getCrossOver(), 
                     configurator.getInvertion(),
-                    configurator.getMutation());
+                    configurator.getMutation(),
+                    dataset,
+                    featureSelection);
         }
               
         result = population.getBestPhenotype();
                     
     }
     
-    public void runFor(int times) throws InterruptedException {
-        Logger.getLogger("plt.logger").log(Level.INFO, "run GeneticAlgorithm for "+times+" iterations");
+    public void runFor(int times,TrainableDataSet dataset,SelectedFeature featureSelection) throws InterruptedException {
+       // Logger.getLogger("plt.logger").log(Level.INFO, "run GeneticAlgorithm for "+times+" iterations");
 
         for (int i=0; i<times; i++) {
             ExecutionProgress.setTaskSubHeader("GA Generation "+(i+1));
@@ -227,7 +232,9 @@ public class GeneticAlgorithm {
                     configurator.getElitSize(), 
                     configurator.getCrossOver(), 
                     configurator.getInvertion(),
-                    configurator.getMutation());
+                    configurator.getMutation(),
+                    dataset,
+                    featureSelection);
             
             //Logger.getLogger("plt.logger").log(Level.INFO, "generation ["+(i+1)+"/"+times+"]");
             //Logger.getLogger("plt.logger").log(Level.INFO, "max fitness:"+population.getMaxFitness());
@@ -240,7 +247,7 @@ public class GeneticAlgorithm {
             }
         }
          
-        System.out.println("pop:"+population.getMaxFitness());
+       // System.out.println("pop:"+population.getMaxFitness());
 
         result = population.getBestPhenotype();
     }

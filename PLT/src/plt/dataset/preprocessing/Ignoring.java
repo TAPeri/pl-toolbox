@@ -208,5 +208,10 @@ public class Ignoring extends PreprocessingOperation {
 		return new ArrayList<Number>();
 
 	}
-    
+	@Override
+	public String featureName(DataSet dataSet, int originalFeature, int j) {
+		
+		return dataSet.getFeatureName(originalFeature);
+	}
+	
 }

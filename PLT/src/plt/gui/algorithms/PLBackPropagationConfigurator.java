@@ -164,14 +164,16 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.gui.configurators;
+package plt.gui.algorithms;
 
 import java.util.ArrayList;
+
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -179,18 +181,14 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import plt.gui.Main;
 import plt.gui.component.AdvanceTextField;
-import plt.plalgorithm.neruoevolution.GA.GeneticAlgorithmConfigurator;
-import plt.plalgorithm.neruoevolution.GA.ParentSelection;
-import plt.plalgorithm.neruoevolution.GA.genticaloperators.CrossOver;
-import plt.plalgorithm.neruoevolution.GA.genticaloperators.CrossOverType;
-import plt.plalgorithm.neruoevolution.GA.genticaloperators.GaussianMutation;
-import plt.plalgorithm.neruoevolution.GA.genticaloperators.Invertion;
-import plt.plalgorithm.neruoevolution.GA.parentselections.RouletteWheelSelection;
+import plt.plalgorithm.PLAlgorithm;
+import plt.plalgorithm.backpropagation.PLBackPropagation;
 import plt.plalgorithm.neruoevolution.NE.ActivationFunction;
 import plt.plalgorithm.neruoevolution.NE.HyperbolicTangent;
 import plt.plalgorithm.neruoevolution.NE.Linear;
@@ -198,10 +196,12 @@ import plt.plalgorithm.neruoevolution.NE.Sigmond;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * GUI to set up backpropagation parameters
+ *
+ * @author Vincent Farrugia
  */
 
-public class PLBackPropagationConfigurator{// implements plt.plalgorithm.backpropagation.PLBackPropagationConfigurator {
+public class PLBackPropagationConfigurator implements GUIConfigurator{// implements plt.plalgorithm.backpropagation.PLBackPropagationConfigurator {
     
     private ArrayList<TextField> topology;
     private ArrayList<ChoiceBox> choiceBoxTopology;
@@ -283,9 +283,17 @@ public class PLBackPropagationConfigurator{// implements plt.plalgorithm.backpro
     }
     
 
-    
-    public TitledPane[] ui() {
+    private Node ui;
 
+    @Override
+    public Node ui() {
+
+        ui = new HBox(5);
+
+    	
+    	
+    	
+    	
         annGridPane = new GridPane();
         annGridPane.setPadding(new Insets(20));
         annGridPane.setHgap(15);
@@ -437,10 +445,26 @@ public class PLBackPropagationConfigurator{// implements plt.plalgorithm.backpro
         annPane.setPrefSize(490, 470);
         backpropPane.setPrefSize(470, 470);
         
-        return new TitledPane[]{new TitledPane("Artificial neural network", annPane), new TitledPane("Genetic Algorithm", backpropPane)};
+		
+TitledPane tmp=		new TitledPane("Artificial neural network", annPane);
+((HBox)ui).getChildren().add(tmp.getContent());
+HBox.setHgrow(tmp.getContent(), Priority.ALWAYS);
+TitledPane tmp2=		new TitledPane("Backpropagation", backpropPane);
+((HBox)ui).getChildren().add(tmp2.getContent());
+HBox.setHgrow(tmp2.getContent(), Priority.ALWAYS);
+
+
+
+return ui;
+        
     }
    
-    
+
+	@Override
+	public String testParameters() {
+		// TODO Auto-generated method stub
+		return "";
+	}
     
     
     
@@ -627,6 +651,11 @@ public class PLBackPropagationConfigurator{// implements plt.plalgorithm.backpro
             refreshANNLayerPane();
         }
     }
+
+	@Override
+	public PLAlgorithm algorithm() {
+		return new PLBackPropagation(this);
+	}
     
     
 }

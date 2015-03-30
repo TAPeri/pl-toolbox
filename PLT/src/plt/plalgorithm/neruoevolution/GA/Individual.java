@@ -166,11 +166,14 @@ Library.*/
 
 package plt.plalgorithm.neruoevolution.GA;
 
+import plt.dataset.TrainableDataSet;
+import plt.featureselection.SelectedFeature;
+
 /**
  *
  * @author Institute of Digital Games, UoM Malta
  */
-public class Individual implements Comparable {
+public class Individual implements Comparable<Individual>{
     private DNA dna;
     private GeneticEncoder geneticEncoder;
     private boolean evalueted;
@@ -198,10 +201,8 @@ public class Individual implements Comparable {
         return result;
     }
 
-
-    @Override
-    public int compareTo(Object o) {
-        Individual other = (Individual) o;
+	@Override
+    public int compareTo(Individual other) {
 
         if (this.getFitness() > other.getFitness()) {
             return -1;
@@ -212,13 +213,20 @@ public class Individual implements Comparable {
         }
     }
     
-     public double getFitness() {
+
+    
+     public double getFitness(TrainableDataSet dataset,SelectedFeature featureSelection) {
         if (!evalueted) 
-            this.fitness = this.geneticEncoder.evaluationFunction(this.getDna());
+            this.fitness = this.geneticEncoder.evaluationFunction(this.getDna(),dataset,featureSelection);
         
         evalueted = true;
         return fitness;
     }
+     
+     public double getFitness() {
+
+         return fitness;
+     }
      
     public Object getPhenotype() {
         try {
@@ -227,5 +235,7 @@ public class Individual implements Comparable {
             throw new RuntimeException();
         }
     }
+
+
     
 }

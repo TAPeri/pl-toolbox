@@ -184,13 +184,11 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import plt.featureselection.examples.NBest;
+
 import plt.gui.algorithms.AlgorithmTab;
-import plt.gui.algorithms.PLNeuroEvolution;
-import plt.gui.algorithms.PLRankSvm;
+
 import plt.gui.component.ModalPopup;
-import plt.gui.configurators.PLNeuroEvolutionConfigurator;
-import plt.gui.configurators.PLRankSvmConfigurator;
+
 import plt.gui.dataset.DataSetTab;
 import plt.gui.featureselection.FeatureSelectionTab;
 import plt.gui.help.Tab1Help;
@@ -198,7 +196,6 @@ import plt.gui.help.Tab2Help;
 import plt.gui.help.Tab3Help;
 import plt.gui.help.Tab4Help;
 import plt.gui.preprocess.PreprocessingTab;
-import plt.plalgorithm.neruoevolution.GA.GeneticAlgorithmConfigurator;
 
 /**
  *
@@ -244,9 +241,6 @@ public class MasterGUI extends BorderPane
         
         	tabPane.tabClosingPolicyProperty().set(TabPane.TabClosingPolicy.UNAVAILABLE);
         	tabPane.getTabs().addAll(tab1, tab2, tab3 ,tab4);
-
-        
-        
         
         //Next, back and help buttons
         BorderPane bottomPane = new BorderPane();
@@ -257,6 +251,23 @@ public class MasterGUI extends BorderPane
         	HBox navBtnBox = new HBox(10);
         	bottomPane.setRight(navBtnBox);
 
+        	
+       		final Button btnBack = new Button();
+    		navBtnBox.getChildren().add(btnBack);
+
+    		btnBack.setPrefSize(200, 20);
+    		btnBack.setVisible(false);
+    		
+    			BorderPane backBtnInnerBPane = new BorderPane();
+    			btnBack.setGraphic(backBtnInnerBPane); 
+    			
+    			    Label lblBackBtn = new Label("Back");
+    			    backBtnInnerBPane.setCenter(lblBackBtn);
+    			    
+    			    ImageView imgViewBkBtn = new ImageView(new Image(MasterGUI.class.getResourceAsStream("bkButton.png")));
+    			    backBtnInnerBPane.setLeft(imgViewBkBtn);
+  
+        	
         		btnNext = new Button();
         		navBtnBox.getChildren().add(btnNext);
 
@@ -272,21 +283,7 @@ public class MasterGUI extends BorderPane
         				ImageView imgViewNextBtn = new ImageView(new Image(MasterGUI.class.getResourceAsStream("nxtButton.png")));
         				nextBtnInnerBPane.setRight(imgViewNextBtn);
         			
-        		final Button btnBack = new Button();
-        		navBtnBox.getChildren().add(btnBack);
-
-        		btnBack.setPrefSize(200, 20);
-        		btnBack.setVisible(false);
-        		
-        			BorderPane backBtnInnerBPane = new BorderPane();
-        			btnBack.setGraphic(backBtnInnerBPane); 
-        			
-        			    Label lblBackBtn = new Label("Back");
-        			    backBtnInnerBPane.setCenter(lblBackBtn);
-        			    
-        			    ImageView imgViewBkBtn = new ImageView(new Image(MasterGUI.class.getResourceAsStream("bkButton.png")));
-        			    backBtnInnerBPane.setLeft(imgViewBkBtn);
-        		
+ 	
         			     			
         	
             Button helpButton = new Button();
@@ -375,9 +372,6 @@ public class MasterGUI extends BorderPane
         
         
         
-        
-
-        
         helpButton.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -433,8 +427,6 @@ public class MasterGUI extends BorderPane
         });*/
         
         
-        
-        
         btnNext.setOnAction(new EventHandler<ActionEvent>() {//Next tab or start experiment
 
             @Override
@@ -447,165 +439,26 @@ public class MasterGUI extends BorderPane
                 else if(tab4.selectedProperty().get())
                 {
                 	
-                	System.err.println("These checks should be moved somewhere else");
-                    // Perform safety checks.
-                    boolean allClear = true;
+                	String errorMessage = experiment.testParameters();
 
-
-                    int numOfIgnoredFeatures = 0;
-
-                    for(int i=0; i<experiment.getPreprocessingOperations().size(); i++)
-                    {
-                        if(!experiment.getPreprocessingOperations().get(i).getIncludeFlag()) { numOfIgnoredFeatures++; }
-                    }
-
-
-                    if(numOfIgnoredFeatures == experiment.getDataset().getNumberOfFeatures())
-                    {
-                        // You must include at least one feature.
-
-                        ModalPopup notification = new ModalPopup();
-                        notification.show(new Label("ERROR: You must include at least one feature from the dataset."), parentStage.getScene().getRoot(),null,new Button("OK"), 200,550,false);  
-
-                        allClear = false;
-                    }
-                    else if(experiment.featureSelectionProperty().get() != null)
-                    {
-                        if(experiment.featureSelectionProperty().get() instanceof NBest)
-                        {
-                            NBest castNBest = (NBest) experiment.featureSelectionProperty().get();
-
-                            int numOfUserIncludedFeatures = (experiment.getDataset().getNumberOfFeatures() - numOfIgnoredFeatures);
-
-                            if(castNBest.getN() > numOfUserIncludedFeatures)
-                            {
-                                // N val should always be less than or equal to the number of user included features.
-
-                                ModalPopup notification = new ModalPopup();
-                                notification.show(new Label("ERROR: N-Best N value cannot be greater than the number of included features. \n Current N Value = "+castNBest.getN()+" \n Current Num of Included Features = "+numOfUserIncludedFeatures), parentStage.getScene().getRoot(),null,new Button("OK"), 200,600,false);  
-
-                                allClear = false;
-                            }
-                        }
-
-
-                        if(experiment.algorithmForFeatureSelectionProperty().get() == null)
-                        {
-                            // You cannot select a feature selection type without stating an algorithm.
-
-                            ModalPopup notification = new ModalPopup();
-                            notification.show(new Label("ERROR: You must state an algorithm to work with "+experiment.featureSelectionProperty().get().getFSelName()+"."), parentStage.getScene().getRoot(),null,new Button("OK"), 200,550,false);  
-
-                            allClear = false;
-                        }
-
-                    }
-
-                    if(experiment.algorithmForFeatureSelectionProperty().get() != null)
-                    {
-                        if(experiment.algorithmForFeatureSelectionProperty().get() instanceof PLNeuroEvolution)
-                        {
-                            PLNeuroEvolution castPLNE = (PLNeuroEvolution) experiment.algorithmForFeatureSelectionProperty().get();
-                            PLNeuroEvolutionConfigurator neConfig = castPLNE.getConfigurator();
-                            GeneticAlgorithmConfigurator gaConfig = neConfig.getGeneticAlgorithmConfigurator();
-                            
-                            if(gaConfig.getNumberOfParents() > gaConfig.getPopulationSize())
-                            {
-                                ModalPopup notification = new ModalPopup();
-                                notification.show(new Label("GA ERROR: The number of parents is greater than the GA population size."), parentStage.getScene().getRoot(),null,new Button("OK"), 200,550,false);  
-
-                                allClear = false;
-                            }
-
-                            if(gaConfig.getElitSize() > gaConfig.getPopulationSize())
-                            {
-                                ModalPopup notification = new ModalPopup();
-                                notification.show(new Label("GA ERROR: The elitism size is greater than the GA population size."), parentStage.getScene().getRoot(),null,new Button("OK"), 200,550,false);  
-
-                                allClear = false;
-                            }
-                        }
-                        
-                        if(experiment.algorithmProperty().get() instanceof PLRankSvm)
-                        {
-                            PLRankSvm castPLRS = (PLRankSvm) experiment.algorithmProperty().get();
-                            PLRankSvmConfigurator svmConfig = castPLRS.getConfigurator();
-
-                            if((svmConfig.gammaRequired())
-                            &&(svmConfig.getGamma() == 0))
-                            {
-                                ModalPopup notification = new ModalPopup();
-                                notification.show(new Label("SVM ERROR: Gamma cannot be set to 0."), parentStage.getScene().getRoot(),null,new Button("OK"), 200,550,false);  
-                                
-                                allClear = false;
-                            }        
-                        }
-                    }
-                    
-                    if(experiment.algorithmProperty().get() instanceof PLNeuroEvolution)
-                    {
-                        PLNeuroEvolution castPLNE = (PLNeuroEvolution) experiment.algorithmProperty().get();
-                        PLNeuroEvolutionConfigurator neConfig = castPLNE.getConfigurator();
-                        GeneticAlgorithmConfigurator gaConfig = neConfig.getGeneticAlgorithmConfigurator();
-                        
-                        int numParents = gaConfig.getNumberOfParents();
-                        int popSize = gaConfig.getPopulationSize();
-                        if(numParents > popSize)
-                        {
-                            ModalPopup notification = new ModalPopup();
-                            notification.show(new Label("GA ERROR: The number of parents is greater than the GA population size."), parentStage.getScene().getRoot(),null,new Button("OK"), 200,550,false);  
-
-                            allClear = false;
-                        }
-                        
-                        if(gaConfig.getElitSize() > gaConfig.getPopulationSize())
-                        {
-                            ModalPopup notification = new ModalPopup();
-                            notification.show(new Label("GA ERROR: The elitism size is greater than the GA population size."), parentStage.getScene().getRoot(),null,new Button("OK"), 200,550,false);  
-
-                            allClear = false;
-                        } 
-                    }
-                    
-                    if(experiment.algorithmProperty().get() instanceof PLRankSvm)
-                    {
-                        PLRankSvm castPLRS = (PLRankSvm) experiment.algorithmProperty().get();
-                        PLRankSvmConfigurator svmConfig = castPLRS.getConfigurator();
-                        
-                        if((svmConfig.gammaRequired())
-                        &&(svmConfig.getGamma() == 0))
-                        {
-                            ModalPopup notification = new ModalPopup();
-                            notification.show(new Label("SVM ERROR: Gamma cannot be set to 0."), parentStage.getScene().getRoot(),null,new Button("OK"), 200,550,false);  
-                            
-                            allClear = false;
-                        }        
-                    }
-                    
-
-                    if(allClear)
+                    if(errorMessage.length()==0)
                     {
                         Execution e = new Execution(experiment);
                         e.show(parentStage);
+                    }else{
+                        ModalPopup notification = new ModalPopup();
+                        notification.show(new Label(errorMessage), parentStage.getScene().getRoot(),null,new Button("Ok"), 200,550,false);                      	
                     }
                 }
             }
-        });
-        
-        
-        
+        });        
         
         //helpButton.visibleProperty().bind(tab1.selectedProperty().or(tab2.selectedProperty()));
   
-        
         disableTabs(new ArrayList<Integer>(Arrays.asList(1,2,3)));
         
         
         ((DataSetTab) tab1).testLoad();
-        
-        
-        
-        
         
         
     }

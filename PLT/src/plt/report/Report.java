@@ -176,34 +176,37 @@ import plt.model.Model;
  */
 public class Report {
 
-    private List<Double> after;
-    private List<Double> before;
+    private List<Double> afterValidation;
+    private List<Double> beforeValidation;
+    
+    private List<Double> afterTraining;
+    private List<Double> beforeTraining;
+    
     private List<Model> models;
 
     public Report() {
         this.models = new LinkedList<>();
-        this.after = new LinkedList<>();
-        this.before = new LinkedList<>();
+        this.afterValidation = new LinkedList<>();
+        this.beforeValidation = new LinkedList<>();
+        this.afterTraining = new LinkedList<>();
+        this.beforeTraining = new LinkedList<>();
     }
 
     @Override
     public String toString() {
         String result = "";
-        for (int i = 0; i < this.after.size(); i++) {
+        for (int i = 0; i < this.afterValidation.size(); i++) {
             
-            result += "|" + this.before.get(i) + "->" + this.after.get(i) + "|";
+            result += "|" + this.beforeValidation.get(i) + "->" + this.afterValidation.get(i) + "|";
         }
 
         return result;
 
     }
 
-    public void addExperimentResult(Model model, double after) {
-        this.addExperimentResult(model, after, 0);
-    }
 
     public int numberOfResults() {
-        return this.after.size();
+        return this.afterValidation.size();
     }
 
     public double resultAccurancy(int i) {
@@ -211,16 +214,16 @@ public class Report {
             throw new IllegalArgumentException();
         }
 
-        return this.after.get(i);
+        return this.afterValidation.get(i);
     }
 
     public double getAVGAccuracy() {
         double result = 0;
-        for (double d : after) {
+        for (double d : afterValidation) {
             result += d;
         }
 
-        return result / after.size();
+        return result / afterValidation.size();
     }
 
     public Model getBestModel() {
@@ -228,9 +231,9 @@ public class Report {
         Model best = null;
         double maxAccuracies = Double.MIN_VALUE;
 
-        for (int i = 0; i < this.after.size(); i++) {
-            if (maxAccuracies < this.after.get(i)) {
-                maxAccuracies = this.after.get(i);
+        for (int i = 0; i < this.afterValidation.size(); i++) {
+            if (maxAccuracies < this.afterValidation.get(i)) {
+                maxAccuracies = this.afterValidation.get(i);
                 best = this.models.get(i);
             }
 
@@ -243,9 +246,24 @@ public class Report {
         return models.get(n);
     }
 
-    public void addExperimentResult(Model model, double after, double before) {
+    public void addExperimentResult(Model model, double afterT, double beforeT) {
         this.models.add(model);
-        this.after.add(after);
-        this.before.add(before);
+        this.afterTraining.add(afterT);
+        this.beforeTraining.add(beforeT);
     }
+    
+    public void addExperimentResult(Model model, double afterT) {
+        this.addExperimentResult(model, afterT, 0);
+    }
+
+    
+    
+    public void addTestAccuracy(double after, double before){
+    	this.afterValidation.add(after);
+    	this.beforeValidation.add(before);
+    }
+
+	public double resultTrainingAccuracy(int i) {
+		return afterTraining.get(i);
+	}
 }

@@ -195,19 +195,17 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import plt.dataset.preprocessing.Ignoring;
-import plt.dataset.preprocessing.PreprocessingOperation;
-import plt.featureselection.examples.NBest;
-import plt.featureselection.examples.SFS;
+import plt.featureselection.NBest;
+import plt.featureselection.SFS;
 import plt.gui.component.ModalPopup;
 import plt.model.Model;
 import plt.report.Report;
-import plt.validator.examples.KFoldCV;
-import plt.validator.examples.NoValidation;
+import plt.validator.KFoldCV;
+import plt.validator.NoValidation;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
  */
 public class ResultViewer {
     Experiment experiment;
@@ -245,27 +243,6 @@ public class ResultViewer {
          VBox innerPaneDatasetUsed = new VBox();
          innerPaneDatasetUsed.setPadding(new Insets(20,10,10,10));
          
-         
-         /*  GridPane gPaneDatasetUsed = new GridPane();
-         gPaneDatasetUsed.setHgap(20);
-         gPaneDatasetUsed.setVgap(5);
-         Label lblObjFileName = new Label("Object File Name:");
-         Label lblObjFilePath = new Label("Object File Path:");
-         Label lblRankFileName = new Label("Rank File Name:");
-         Label lblRankFilePath = new Label("Rank File Path:");
-         gPaneDatasetUsed.add(lblObjFileName, 0, 0);
-         
-         gPaneDatasetUsed.add(, 1, 0);
-         
-         gPaneDatasetUsed.add(lblRankFileName, 0, 1);
-         
-        gPaneDatasetUsed.add(new Label(adjustPathStrSpacing(""+experiment.orderProperty().get().getName(),maxPathStrWidth)), 1, 1);
-         gPaneDatasetUsed.add(lblObjFilePath, 0, 2);
-         gPaneDatasetUsed.add(new Label(adjustPathStrSpacing(""+experiment.idataProperty().get().getAbsolutePath(),maxPathStrWidth)), 1, 2);
-         gPaneDatasetUsed.add(lblRankFilePath, 0, 3);
-         gPaneDatasetUsed.add(new Label(adjustPathStrSpacing(""+experiment.orderProperty().get().getAbsolutePath(),maxPathStrWidth)), 1, 3);
-         
-         innerPaneDatasetUsed.getChildren().add(gPaneDatasetUsed);*/
          innerPaneDatasetUsed.getChildren().add(new Label(experiment.getDataset().getParsingDetails()));
          
          
@@ -352,9 +329,9 @@ public class ResultViewer {
             gPaneSelections.setVgap(5);
             
             int[] selFeatures = experiment.featureSelectionProperty().get().getResult().getSelectedFeatures();
-            for(int i=0; i<selFeatures.length; i++)
+            for(int i = 0; i<selFeatures.length;i++)
             {
-                String tmpFName = experiment.getDataset().getFeatureName(i);
+                String tmpFName = experiment.getTrainableDataset().getFeatureName(selFeatures[i]);
                 gPaneSelections.add(new Label(tmpFName), 0, i);
             }
             
@@ -413,13 +390,22 @@ public class ResultViewer {
                 validationGPane.add(new Label("K-Fold"), 1, 0);
                 validationGPane.add(new Label("# Folds:"), 0, 1);
                 validationGPane.add(new Label(  ""+((KFoldCV)experiment.validatorForFeatureSelectionProperty().get()).k)  , 1, 1);
+                validationGPane.add(new Label("Fold size:"), 0, 2);
+                
+                String foldSizes = "";
+                
+                for(int f : ((KFoldCV)experiment.validatorForFeatureSelectionProperty().get()).getFolds())
+                	foldSizes+= f+" ";
+                	
+                validationGPane.add(new Label(foldSizes), 1, 2);          
+                
                 
                 validationBPane.setCenter(validationGPane);
             }
             else
             {
                 validationGPane.add(lblValidationHeader, 0, 0);
-                validationGPane.add(new Label("NONE"), 1, 0);
+                validationGPane.add(new Label("Training set"), 1, 0);
                 
                 validationBPane.setCenter(validationGPane);
             }
@@ -505,13 +491,21 @@ public class ResultViewer {
                  validationGPane.add(new Label("K-Fold"), 1, 0);
                  validationGPane.add(new Label("# Folds:"), 0, 1);
                  validationGPane.add(new Label(   ""+((KFoldCV)experiment.validatorProperty().get()).k  ), 1, 1);
+                 validationGPane.add(new Label("Fold size:"), 0, 2);
+                 String foldSizes = "";
+                 
+                 for(int f : ((KFoldCV)experiment.validatorProperty().get()).getFolds())
+                 	foldSizes+= f+" ";
+                 validationGPane.add(new Label(foldSizes), 1, 2);
+
+                 
                  
                  validationBPane.setCenter(validationGPane);
              }
              else
              {
                  validationGPane.add(lblValidationHeader, 0, 0);
-                 validationGPane.add(new Label("None"), 1, 0);
+                 validationGPane.add(new Label("Training set"), 1, 0);
                  
                  validationBPane.setCenter(validationGPane);
              }
@@ -543,7 +537,7 @@ public class ResultViewer {
          double averageAccuracy = 0;
          if( experiment.validatorProperty().get() instanceof NoValidation)
          {
-             data.add(new ModelTableDataRow(0, "Training Accuracy", this.report.resultAccurancy(0)));
+             data.add(new ModelTableDataRow(0, "Training Accuracy", this.report.resultAccurancy(0),0.0));
              averageAccuracy = this.report.resultAccurancy(0);
          }
          else
@@ -551,25 +545,31 @@ public class ResultViewer {
             double tmpSum = 0;
             for (int i=0; i<this.report.numberOfResults();i++)
             {
-               data.add(new ModelTableDataRow(i, "Fold "+(i+1), this.report.resultAccurancy(i) * 100));
+               data.add(new ModelTableDataRow(i, "Fold "+(i+1), this.report.resultAccurancy(i) * 100, this.report.resultTrainingAccuracy(i)*100 ));
                tmpSum += this.report.resultAccurancy(i);
             }
             
             averageAccuracy = (tmpSum/this.report.numberOfResults());
          }
-         averageAccuracy = ((Math.round(averageAccuracy * 100) * 1000) / 1000);
+         averageAccuracy = ((averageAccuracy * 100)  );
          
          
-         TableColumn col1 = new TableColumn("Model Name");
+         TableColumn col1 = new TableColumn("Model name");
          col1.setPrefWidth(100);
          col1.setCellValueFactory(new PropertyValueFactory("modelName"));
-         TableColumn col2 = new TableColumn("Accuracy (%)");
+         TableColumn col2 = new TableColumn("Test accuracy (%)");
          col2.setPrefWidth(350); // Since ScrollPane width is 450.
          col2.setCellValueFactory(new PropertyValueFactory("modelAccuracy"));
+
+         TableColumn col3 = new TableColumn("Training accuracy (%)");
+         col3.setPrefWidth(350); // Since ScrollPane width is 450.
+         col3.setCellValueFactory(new PropertyValueFactory("modelTrainingAccuracy"));
+                  
+         
          
          final TableView modelTView = new TableView(data);
          modelTView.setPrefHeight((this.report.numberOfResults() + 1) * 30);
-         modelTView.getColumns().addAll(col1,col2);
+         modelTView.getColumns().addAll(col1,col2,col3);
          
          GridPane gPaneAvrgAccuracy = new GridPane();
          gPaneAvrgAccuracy.setHgap(20);
@@ -620,12 +620,12 @@ public class ResultViewer {
                     m.save(file,experiment,report.resultAccurancy(index),report.getAVGAccuracy());
                     
                     ModalPopup notification = new ModalPopup();
-                    notification.show(new Label("SUCCESS: The selected model has been saved."), stage.getScene().getRoot(),null,new Button("OK"), 200,550,false);  
+                    notification.show(new Label("The selected model has been saved."), stage.getScene().getRoot(),null,new Button("Ok"), 200,550,false);  
                }
                catch(IOException ex)
                {
                    ModalPopup notification = new ModalPopup();
-                   notification.show(new Label("FAILED: The selected model COULD NOT be saved!"), stage.getScene().getRoot(),null,new Button("OK"), 200,550,false);  
+                   notification.show(new Label("The selected model COULD NOT be saved!"), stage.getScene().getRoot(),null,new Button("Ok"), 200,550,false);  
                }
                
             }
@@ -695,14 +695,17 @@ public class ResultViewer {
         private final SimpleIntegerProperty rowID;
         private final SimpleStringProperty modelName;
         private final SimpleDoubleProperty modelAccuracy;
+        private final SimpleDoubleProperty modelTrainingAccuracy;
         
         public ModelTableDataRow(int para_rowID,
                                  String para_modelName,
-                                 double para_modelAccuracy)
+                                 double para_modelAccuracy,
+                                 double para_modelTrainingAccuracy)
         {
             this.rowID = new SimpleIntegerProperty(para_rowID);
             this.modelName = new SimpleStringProperty(para_modelName);
             this.modelAccuracy = new SimpleDoubleProperty(para_modelAccuracy);
+            this.modelTrainingAccuracy = new SimpleDoubleProperty(para_modelTrainingAccuracy);
         }
         
         public int getRowID()
@@ -719,7 +722,10 @@ public class ResultViewer {
         {
             return modelAccuracy.get();
         }
-        
+        public double getModelTrainingAccuracy()
+        {
+            return modelTrainingAccuracy.get();
+        }
         
         
         public void setRowID(int para_rowID)
@@ -735,6 +741,11 @@ public class ResultViewer {
         public void setModelAccuracy(double para_modelAccuracy)
         {
             modelAccuracy.set(para_modelAccuracy);
+        }
+        
+        public void setModelTrainingAccuracy(double para_modelAccuracy)
+        {
+            modelTrainingAccuracy.set(para_modelAccuracy);
         }
         
     }

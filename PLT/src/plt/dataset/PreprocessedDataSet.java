@@ -166,6 +166,12 @@ Library.*/
 
 package plt.dataset;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import plt.dataset.preprocessing.PreprocessingOperation;
 import plt.utils.Preference;
 
@@ -173,33 +179,51 @@ import plt.utils.Preference;
  * a PreprocessedDataSet is a TrainableDataSet, created from a DataSet and list of operation to be
  * applied to the object's features. Any operation define a transformation that will be applied to a feature.
  * 
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
+ * @author Hector P. Martinez
  */
 public class PreprocessedDataSet extends TrainableDataSet {
 
-    private DataSet dataSet;
-    private PreprocessingOperation[] preprocessingOperations;
-    private int numberOfFeature;
-    private int[] operationForFeature;
-    private int[] cacheStatus;
+   // private DataSet dataSet;
+   // private PreprocessingOperation[] preprocessingOperations;
+
+   // private int[] operationForFeature;
+   // private int[] cacheStatus;
     private double[][] cache;
 
+    private List<String> featureNames;
+    
+    private int[] objectIDs;
+    
+    private List<Set<Preference>> atomicGroups;
+    private List<Preference> preferences;
+    
+    
+    
+    public PreprocessedDataSet(double[][] cache, List<Set<Preference>> atomicGroups,List<Preference> preferences,List<String> featureNames, int[] objectIDs) {
 
+    	this.cache = cache;
+    	this.atomicGroups = atomicGroups;
+    	this.preferences = preferences;
+    	this.featureNames = featureNames;
+    	this.objectIDs = objectIDs;
+    	
+    }
     /**
      * Constructor for the PreprocessedDataSet
      * @param dataSet used as source for the PreprocessedDataSet
      * @param preprocessingOperations set of operation to be applied to the dataSet
      */
     public PreprocessedDataSet(DataSet dataSet, PreprocessingOperation[] preprocessingOperations) {
-        super(dataSet);
-        this.dataSet = dataSet;
-        this.preprocessingOperations = preprocessingOperations;
+       // super(dataSet);
+      //  this.dataSet = dataSet;
+       // this.preprocessingOperations = preprocessingOperations;
 
-        if (this.preprocessingOperations.length != dataSet.getNumberOfFeatures()) {
+        if (preprocessingOperations.length != dataSet.getNumberOfFeatures()) {
             throw new IllegalArgumentException();
         }
 
-        this.numberOfFeature = 0;
+        int numberOfFeature = 0;
         for (int i = 0; i < dataSet.getNumberOfFeatures(); i++) {
             if (preprocessingOperations[i].numberOfOutput(dataSet,i) < 0) {
                 throw new IllegalArgumentException();
@@ -209,16 +233,75 @@ public class PreprocessedDataSet extends TrainableDataSet {
                 throw  new IllegalArgumentException();
             }*/
             
-            this.numberOfFeature += preprocessingOperations[i].numberOfOutput(dataSet,i);
+            numberOfFeature += preprocessingOperations[i].numberOfOutput(dataSet,i);
         }
 
-        this.operationForFeature = new int[this.numberOfFeature];
-        int counter =0;
-        for (int i = 0; i < dataSet.getNumberOfFeatures(); i++) {
-            for (int j = 0; j < preprocessingOperations[i].numberOfOutput(dataSet,i); j++) {
-                this.operationForFeature[counter++] = i;
+        
+        
+        this.cache = new double[dataSet.getNumberOfObjects()][numberOfFeature];
+        for (int i = 0; i < cache.length; i++) {
+            this.cache[i] = new double[numberOfFeature];
+            for (int j = 0; j < this.cache[i].length; j++) {
+                this.cache[i][j] = Double.NaN;
             }
         }
+
+        objectIDs = dataSet.getIDs();
+        
+        preferences = dataSet.getPreferences();
+        
+        featureNames = new ArrayList<String>();
+        
+        int feature = 0;
+        for (int originalFeature = 0; originalFeature < dataSet.getNumberOfFeatures(); originalFeature++) {
+            for (int j = 0; j < preprocessingOperations[originalFeature].numberOfOutput(dataSet,originalFeature); j++) {
+            	
+            	for(int sample=0;sample<dataSet.getNumberOfObjects();sample++){
+            		cache[sample][feature] = preprocessingOperations[originalFeature].value(dataSet,originalFeature, sample, j);
+            	}
+        		featureNames.add( preprocessingOperations[originalFeature].featureName(dataSet,originalFeature, j) );
+
+            	feature++;
+                //this.operationForFeature[counter++] = i;
+            }
+        }
+        
+        //Group together all preferences with the same groupID
+        HashMap<Integer,Set<Preference>> hash = new HashMap<>();
+        for (int i=0; i<dataSet.getNumberOfPreferences(); i++) {
+            int groupID = dataSet.atomicGroup(i);
+            Set<Preference> set = hash.get(groupID);
+            if (set == null) {
+                set = new HashSet<>();
+                hash.put(groupID, set);
+            }
+            set.add(dataSet.getPreference(i));
+        }
+        
+        //Sort the atomic groups by size (from larger to lower) in order
+        //to facilitate equal size folds
+        HashMap<Integer,Set<Integer>> sizeOrder = new HashMap<>();
+
+        int max = 0;
+        for(int ID : hash.keySet()){
+        	int size = hash.get(ID).size();
+        	if (size>max)
+        		max = size;
+        	if(!sizeOrder.containsKey(size)){
+        		sizeOrder.put(size, new HashSet<Integer>());
+        	}
+        	sizeOrder.get(size).add(ID);
+        }
+                
+        atomicGroups = new ArrayList<Set<Preference>>();
+        
+        for(int i = max; i>0;i--){
+        	if(sizeOrder.containsKey(i))
+        		for(int ID : sizeOrder.get(i))
+        			atomicGroups.add(hash.get(ID));
+        	
+        }
+        		
 
     }
 
@@ -230,7 +313,7 @@ public class PreprocessedDataSet extends TrainableDataSet {
      */
     @Override
     public Preference getPreference(int n) {
-        return this.dataSet.getPreference(n);
+        return preferences.get(n);
     }
 
     /**
@@ -242,7 +325,7 @@ public class PreprocessedDataSet extends TrainableDataSet {
      */
     @Override
     public int getNumberOfFeatures() {
-        return this.numberOfFeature;
+        return this.cache[0].length;
     }
 
      /**
@@ -254,8 +337,9 @@ public class PreprocessedDataSet extends TrainableDataSet {
      */
     @Override
     public double getFeature(int n, int f) {
-
-        if (n < 0 || n > this.dataSet.getNumberOfObjects() - 1) {
+    	
+    	
+        /*if (n < 0 || n > this.dataSet.getNumberOfObjects() - 1) {
             throw new IllegalArgumentException();
         }
 
@@ -279,7 +363,7 @@ public class PreprocessedDataSet extends TrainableDataSet {
             
             cache[n][f] = this.preprocessingOperations[this.operationForFeature[f]].value(this.dataSet,f, n, value);
             cacheStatus[n] += 1;
-        }
+        }*/
 
         return cache[n][f];
     }
@@ -292,7 +376,7 @@ public class PreprocessedDataSet extends TrainableDataSet {
     @Override
     public double[] getFeatures(int n) {
 
-        if (n < 0 || n > this.dataSet.getNumberOfObjects() - 1) {
+       /* if (n < 0 || n > this.dataSet.getNumberOfObjects() - 1) {
             throw new IllegalArgumentException();
         }
 
@@ -302,7 +386,7 @@ public class PreprocessedDataSet extends TrainableDataSet {
             for (int i = 0; i < this.getNumberOfFeatures(); i++) {
                 getFeature(n, i);
             }
-        }
+        }*/
 
         return cache[n];
     }
@@ -315,42 +399,65 @@ public class PreprocessedDataSet extends TrainableDataSet {
     */
     @Override
     public int getNumberOfPreferences() {
-        return this.dataSet.getNumberOfPreferences();
+        return this.preferences.size();
     }
 
-    private void initCache() {
-        if (this.cache != null) {
-            return;
-        }
 
-        this.cache = new double[this.dataSet.getNumberOfObjects()][this.getNumberOfFeatures()];
-        for (int i = 0; i < cache.length; i++) {
-            this.cache[i] = new double[this.getNumberOfFeatures()];
-            for (int j = 0; j < this.cache[i].length; j++) {
-                this.cache[i][j] = Double.NaN;
-            }
-        }
-
-        this.cacheStatus = new int[this.dataSet.getNumberOfObjects()];
-        for (int i = 0; i < cacheStatus.length; i++) {
-            cacheStatus[i] = 0;
-        }
-    }
-
-    /**
-     * Given an instance n, it return is own "atomic group".
-     * An atomic group is a set of instance that can not be divided in subset 
-     * @param n a number that identify the instance.
-     * @return a number that identify the atomic group.
-    */
     @Override
-    public int atomicGroup(int n) {
-        return this.dataSet.atomicGroup(n);
+    public int getID(int i) {
+        return this.objectIDs[i];
     }
+
 
     @Override
     public String toString() {
-        return "{PreprocessedDataSet: "+ super.toString() +"}";
+        
+        return "{PreprocessedDataSet - number of feature(s): " + this.getNumberOfFeatures() +
+                " number of istance(s): " + this.getNumberOfPreferences() + "}";
     }
+
+	
+    
+    /**
+     * @return all the atomicsGropus of the trainableDataSet
+     * an atomic group is a set of pairwise preferences that
+     * should not be separated during k-fold cross-validation
+     * e.g. pairs that are created from a ranking
+     * or all ratings from the same user
+     */
+    @Override
+    public List<Set<Preference>> atomicGroups () {
+    	
+    	return atomicGroups;
+
+    }
+
+	@Override
+	public TrainableDataSet subSet(Set<Integer> subset) {
+		
+
+		List<Preference> subsetPreferences = new ArrayList<Preference>();
+		List<Set<Preference>> subsetAtomicGroups = new ArrayList<Set<Preference>>();
+		for(int groupID : subset){
+			subsetAtomicGroups.add(this.atomicGroups.get(groupID));
+			subsetPreferences.addAll(this.atomicGroups.get(groupID));
+		}
+		
+		return new PreprocessedDataSet(cache,subsetAtomicGroups,subsetPreferences,this.featureNames,this.objectIDs);
+	}
+	
+	
+	
+
+	@Override
+	public int getNumberOfObjects() {
+		return cache.length;
+	}
+	@Override
+	public String getFeatureName(int i) {
+		return this.featureNames.get(i);
+	}
+	
+	
    
 }

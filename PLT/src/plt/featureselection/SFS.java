@@ -164,108 +164,109 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.gui.algorithms;
+package plt.featureselection;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javafx.scene.Node;
+import javafx.scene.layout.Pane;
 import plt.dataset.TrainableDataSet;
-import plt.featureselection.SelectedFeature;
-import plt.model.Model;
+import plt.plalgorithm.PLAlgorithm;
 import plt.report.Report;
 import plt.validator.Validator;
 
 /**
  *
+ * Sequential Forward Feature Selection
+ *
  * @author Vincent Farrugia
  * @author Hector P. Martinez
- * 
  */
-public abstract class PLAlgorithm {
+public class SFS extends FeatureSelection {
 
-    private SelectedFeature featureSelection;
-    private TrainableDataSet dataSet;
-    private Model result;
-    private Model untrainedModel;
-
-
-    public PLAlgorithm(TrainableDataSet dataSet) {
-        this.result = null;
-        this.dataSet = dataSet;
-    }
-
-    public SelectedFeature getFeatureSelection() {
-        return featureSelection;
-    }
-
-    public void setSelectedFeature(SelectedFeature f) {
-        this.featureSelection = f;
-        this.result = null;
-    }
-
-    public TrainableDataSet getDataset() {
-        return dataSet;
-    }
-
-    public void setDataSet(TrainableDataSet n) {
-        this.result = null;
-        this.dataSet = n;
-    }
+    private SelectedFeature result;
     
 
-
-    public Report createModelWithValidation(Validator v) {
-        Logger.getLogger("plt.logger").log(Level.INFO, "create new model(s) using: " + v);
-        prepareToRun();
-
-        return v.runWithValidation(this);
+    public SFS() {
     }
 
-    public Model createModel() {
-        Logger.getLogger("plt.logger").log(Level.INFO, "create a new model");
 
-        if (this.untrainedModel == null || this.result != null) {
-           throw new IllegalStateException("preapte to run not called");
-        }
+    @Override
+    public void run(Validator v, PLAlgorithm algorithm,TrainableDataSet dataSet) {
+        
+        Logger.getLogger("plt.logger").log(Level.INFO, "running SFS");
 
-        if (this.result == null) {
-            try
-            {
-                this.result = run();
+        //TrainableDataSet t = algorithm.getDataset();
+        SelectedFeature selected = new SelectedFeature();
+        HashSet<Integer> candidate = new HashSet<>();
+        for (int i=0; i<dataSet.getNumberOfFeatures(); i++)
+            candidate.add(i);
+        
+        boolean finished = false;
+        double goodness = Double.MIN_VALUE;
+
+        while (!finished && candidate.size() > 0) {   
+            int toAdd = -1;
+
+            for (Integer i: candidate) {
+                SelectedFeature test = null;
+
+                try { test = (SelectedFeature) selected.clone();} 
+                catch (CloneNotSupportedException ex) {Logger.getLogger(SFS.class.getName()).log(Level.SEVERE, null, ex);}
+                test.setSelected(i);
+
+                Report report = v.runWithValidation(algorithm, dataSet, test);
+                double result = report.getAVGAccuracy();
+
+                Logger.getLogger("plt.logger").log(Level.INFO, "Test" + test+": "+result*100);
+
+                
+                if (result > goodness) {
+                    goodness = result;
+                    toAdd = i;
+                }
             }
-            catch(InterruptedException ex)
-            {
-                return null;
-            }
+            
+            
+            if (toAdd != -1) {
+                selected.setSelected(toAdd);
+                candidate.remove(toAdd);
+            } else
+                finished = true;
         }
+        
+        this.result = selected;
+        
+    }
 
+    @Override
+    public SelectedFeature getResult() {
         return this.result;
-
     }
 
-    public Model prepareToRun() {
-        if (this.dataSet == null) {
-            throw new IllegalStateException("missing dataSet");
-        }
-
-        if (this.featureSelection == null) {
-            this.featureSelection = new SelectedFeature();
-            this.featureSelection.setSelected(0, this.dataSet.getNumberOfFeatures() - 1);
-        }
-        
-        this.result = null;
-        this.untrainedModel = this.beforeRun();
-        
-        return this.untrainedModel;
+    @Override
+    public String getFSelName() {
+        return "SFS";
     }
 
-    protected abstract Model run() throws InterruptedException;
-    protected abstract Model beforeRun();
-    
-    public abstract ArrayList<Object[]> getProperties();
-    
-    public abstract Node getUI();
 
+    /*
+     * Return empty pane as there are no options
+     * @see plt.featureselection.FeatureSelection#getUI()
+     */
+	@Override
+	public Node getUI() {
+		
+		return new Pane();
+	}
+
+
+	@Override
+	public String testParameters(int numFeatures) {
+		// TODO Auto-generated method stub
+		return "";
+	}
+   
 }

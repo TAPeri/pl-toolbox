@@ -173,20 +173,20 @@ import plt.dataset.TrainableDataSet;
 import plt.dataset.experiment.ExperimentDataset;
 import plt.dataset.preprocessing.Numeric;
 import plt.dataset.preprocessing.PreprocessingOperation;
+import plt.featureselection.NBest;
 import plt.featureselection.SelectedFeature;
-import plt.featureselection.examples.NBest;
 import plt.functions.LinearFunction;
 import plt.functions.MathematicalFunction;
-import plt.gui.algorithms.PLBackPropagation;
-import plt.gui.configurators.NBestConfigurator;
-import plt.gui.configurators.PLBackPropagationConfigurator;
+import plt.gui.algorithms.PLBackPropagationConfigurator;
+import plt.gui.featureselection.NBestConfigurator;
+import plt.plalgorithm.backpropagation.PLBackPropagation;
 import plt.plalgorithm.neruoevolution.NE.ActivationFunction;
 import plt.plalgorithm.neruoevolution.NE.Linear;
 import plt.plalgorithm.neruoevolution.NE.Sigmond;
 import plt.report.Report;
+import plt.validator.NoValidation;
+import plt.validator.SplitValidation;
 import plt.validator.Validator;
-import plt.validator.examples.NoValidation;
-import plt.validator.examples.SplitValidation;
 
 /**
  *
@@ -338,10 +338,10 @@ public class nBESTExperiments extends Application {
             SelectedFeature selection = new SelectedFeature();
             selection.setSelected(0, 5);
 
-            nbest.run(new NoValidation(), new PLBackPropagation(trainableDataSet, AFSbpC));
+            nbest.run(new NoValidation(), new PLBackPropagation(AFSbpC),trainableDataSet);
             SelectedFeature selectedFeatures = nbest.getResult();
             
-            if (selection.equals(selection))
+            if (selection.equals(selectedFeatures))
                 correctness += 1;
             
             System.out.println((i + 1) + " of " + traials + "complited");

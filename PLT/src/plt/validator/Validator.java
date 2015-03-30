@@ -167,7 +167,9 @@ Library.*/
 package plt.validator;
 
 import javafx.scene.Node;
-import plt.gui.algorithms.PLAlgorithm;
+import plt.dataset.TrainableDataSet;
+import plt.featureselection.SelectedFeature;
+import plt.plalgorithm.PLAlgorithm;
 import plt.report.Report;
 
 /**
@@ -176,7 +178,7 @@ import plt.report.Report;
  */
 public abstract class Validator {
 
-    public abstract Report runWithValidation(PLAlgorithm algorithm);
+    public abstract Report runWithValidation(PLAlgorithm algorithm,TrainableDataSet originalDataSet,SelectedFeature features);
     
     public abstract Node getUI();
     

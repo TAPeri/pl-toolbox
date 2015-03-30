@@ -168,6 +168,7 @@ package plt.model;
 
 import java.io.File;
 import java.io.IOException;
+
 import plt.dataset.TrainableDataSet;
 import plt.featureselection.SelectedFeature;
 import plt.gui.Experiment;
@@ -175,7 +176,8 @@ import plt.gui.Experiment;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
+ * @author Hector P. Martinez
  */
 public abstract class Model {
     private TrainableDataSet dataSet;
@@ -183,7 +185,7 @@ public abstract class Model {
 
     public Model(TrainableDataSet n, SelectedFeature c) {
         this.dataSet = n;
-        this.selectedFeature = selectedFeature;
+        this.selectedFeature = c;
     }
     
     public TrainableDataSet getDataSet() {
@@ -215,6 +217,8 @@ public abstract class Model {
         return calculatePreference(featuresX);
 
     }
+    
+    public abstract Model clone() throws CloneNotSupportedException;
     
     protected abstract double calculatePreference(double[] features);
 

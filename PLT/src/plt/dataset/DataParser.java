@@ -12,7 +12,6 @@ import java.util.Scanner;
 import plt.dataset.datareader.DataFileParseStatus;
 
 public class DataParser {
-
 	
 	private File file;
 	private DataFileParseStatus status;
@@ -293,12 +292,5 @@ public class DataParser {
 		}
 			
 	}
-		
-	
-	public String getDetails(){
-		//TODO
-		return this.toString();
-	}
 
-	
 }

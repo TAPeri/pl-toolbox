@@ -164,98 +164,108 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.validator.examples;
+package plt.featureselection;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javafx.scene.Node;
 import plt.dataset.TrainableDataSet;
-import plt.gui.algorithms.PLAlgorithm;
-import plt.model.Model;
+import plt.gui.featureselection.NBestConfigurator;
+import plt.plalgorithm.PLAlgorithm;
 import plt.report.Report;
-import plt.utils.Preference;
 import plt.validator.Validator;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * N-best feature selection
+ *
+ * @author Vincent Farrugia
+ * @author Hector P. Martinez
  */
-public class SplitValidation extends Validator {
+public class NBest extends FeatureSelection {
+    private NBestConfigurator configurator;
+    private SelectedFeature result;
     
-    private int ratio;
     
-    public SplitValidation(int validationRatio) {
-        if (validationRatio < 0 || validationRatio > 100)
-            throw  new IllegalArgumentException();
-        
-        this.ratio = validationRatio;
+    public NBest(){
+    	
+    	this.configurator = new NBestConfigurator();
+    	
+    }
+    
+    public NBest(NBestConfigurator configurator) {
+        this.configurator = configurator;
+    }
+    
+    public int getN()
+    {
+        return configurator.getN();
     }
 
     @Override
-    public Report runWithValidation(PLAlgorithm algorithm) {
-        Report report = new Report();
+    public void run(Validator v, PLAlgorithm algorithm, TrainableDataSet t) {
         
-        Set<Integer> trainingPreferences = new HashSet<>();
-        Set<Integer> validationPreferences = new HashSet<>();
-        
-        TrainableDataSet originalDataSet = algorithm.getDataset();
-        
-        
-        int splitPoint = (originalDataSet.getNumberOfPreferences()*20)/100;
-        
-        for (int i=0;i < originalDataSet.getNumberOfPreferences(); i++) {
-            if (i < splitPoint)
-                validationPreferences.add(i);
-            else
-                trainingPreferences.add(i);
+        Logger.getLogger("plt.logger").log(Level.INFO, "running nBEST");
+
+        double[] results = new double[t.getNumberOfFeatures()];
+        for (int i=0; i<results.length; i++) {
+        	
+
+            SelectedFeature selection = new SelectedFeature();
+            selection.setSelected(i);
+            Report report = v.runWithValidation(algorithm,t,selection);
+            results[i] = report.getAVGAccuracy();
+            Logger.getLogger("plt.logger").log(Level.INFO, "Test " + i + ": "+results[i]*100);
+
         }
-
-
         
-        TrainableDataSet validationDataSet = originalDataSet.subSet(trainingPreferences);
-        TrainableDataSet trainingDataSet = originalDataSet.subSet(validationPreferences);
+        Logger.getLogger("plt.logger").log(Level.INFO, "selecting the "+this.configurator.getN() + " best\n between "+ Arrays.toString(results));
 
-        
-        Model before = algorithm.prepareToRun();
-
-        double beforeCorrectness = 0;
-        for (int z = 0; z < validationDataSet.getNumberOfPreferences(); z++) {
-            Preference instance = validationDataSet.getPreference(z);
-            if (before.preference(instance.getPreferred(), instance.getOther())) {
-                beforeCorrectness++;
+        this.result = new SelectedFeature();
+        for (int i=0; i<this.configurator.getN(); i++) {
+            int index = -1;
+            for (int j=0; j<results.length; j++) {
+            	
+            	if(this.result.isSelected(j))
+            		continue;
+            	
+                if (index == -1 || results[j] > results[index])
+                    index = j;
             }
+            
+            this.result.setSelected(index);
         }
-        beforeCorrectness /= validationDataSet.getNumberOfPreferences();
-        
-        algorithm.setDataSet(trainingDataSet);
-        Model model = algorithm.createModel();
-        if(model == null) { return null; }
-        
-        double correctness = 0;
-        for (int z = 0; z < validationDataSet.getNumberOfPreferences(); z++) {
-            Preference instance = validationDataSet.getPreference(z);
-            if (model.preference(instance.getPreferred(), instance.getOther())) {
-                correctness++;
-            }
-        }
-        correctness /= validationDataSet.getNumberOfPreferences();
-
-        report.addExperimentResult(model, correctness,beforeCorrectness);
-
-        return report;
     }
 
     @Override
-    public String toString() {
-        return "NoValidation";
+    public SelectedFeature getResult() {
+        return this.result;
+    }
+
+    @Override
+    public String getFSelName() {
+        return "N-Best";
     }
 
 	@Override
 	public Node getUI() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		return configurator.ui()[0].getContent();
 	}
+
+	@Override
+	public String testParameters(int numFeatures) {
+		
+        if(configurator.getN() > numFeatures)
+        {
+
+           return "Error: N-Best N value cannot be greater than the number of included features. \n Current N Value = "+configurator.getN()+" \n Current Num of Included Features = "+numFeatures;
+
+        }
+		
+		return "";
+	}
+    
 }

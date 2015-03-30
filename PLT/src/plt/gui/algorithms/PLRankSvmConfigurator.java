@@ -164,102 +164,231 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.featureselection.examples;
+package plt.gui.algorithms;
 
-import java.util.HashSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.layout.Pane;
-import plt.dataset.TrainableDataSet;
-import plt.featureselection.FeatureSelection;
-import plt.featureselection.SelectedFeature;
-import plt.gui.algorithms.PLAlgorithm;
-import plt.gui.configurators.NBestConfigurator;
-import plt.report.Report;
-import plt.validator.Validator;
+import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import plt.gui.component.AdvanceTextField;
+import plt.plalgorithm.PLAlgorithm;
+import plt.plalgorithm.svm.PLRankSvm;
+import plt.plalgorithm.svm.libsvm_plt.IPLRankSvmConfigurator;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * GUI to set up the parameters for Rank SVM
+ *
+ * @author Vincent Farrugia
  */
-public class SFS extends FeatureSelection {
-    private NBestConfigurator configurator;
-    private SelectedFeature result;
+
+public class PLRankSvmConfigurator implements IPLRankSvmConfigurator, GUIConfigurator
+{
+               
+    private ChoiceBox cbKernelType;
+    private TextField txtGamma;
+    private TextField txtDegree;
+    
+    private Label lblGamma;
+    private Label lblDegree;
     
 
-    public SFS() {
-    }
-
-
-    @Override
-    public void run(Validator v, PLAlgorithm algorithm) {
+    public PLRankSvmConfigurator()
+    {
+        ObservableList<String> availableKernelTypes = FXCollections.observableArrayList();
+        availableKernelTypes.addAll(new String[] {"Linear","Poly","RBF"});
+        cbKernelType = new ChoiceBox<>(availableKernelTypes);
+        cbKernelType.valueProperty().addListener(new KernelChangeListener());
         
-        Logger.getLogger("plt.logger").log(Level.INFO, "running SFS");
-
-        TrainableDataSet t = algorithm.getDataset();
-        SelectedFeature selected = new SelectedFeature();
-        HashSet<Integer> candidate = new HashSet();
-        for (int i=0; i<algorithm.getDataset().getNumberOfFeatures(); i++)
-            candidate.add(i);
+        txtGamma = new AdvanceTextField("[0-9.]","1");
+        txtDegree = new AdvanceTextField("[0-9.]","2");
         
-        boolean finished = false;
-        double goodness = Double.MIN_VALUE;
-
-        while (!finished && candidate.size() > 0) {   
-            int toAdd = -1;
-
-            for (Integer i: candidate) {
-                SelectedFeature test = null;
-
-                try { test = (SelectedFeature) selected.clone();} 
-                catch (CloneNotSupportedException ex) {Logger.getLogger(SFS.class.getName()).log(Level.SEVERE, null, ex);}
-                test.setSelected(i);
-
-                Logger.getLogger("plt.logger").log(Level.INFO, "testing features:\n" + test);
-
-                algorithm.setSelectedFeature(test);
-                Report report = algorithm.createModelWithValidation(v);
-                double result = report.getAVGAccuracy();
-                
-                if (result > goodness) {
-                    goodness = result;
-                    toAdd = i;
-                }
-            }
-            
-            
-            if (toAdd != -1) {
-                selected.setSelected(toAdd);
-                candidate.remove(toAdd);
-            } else
-                finished = true;
-        }
         
-        this.result = selected;
-        
+        float inputColWidth = 200;
+        cbKernelType.setPrefWidth(inputColWidth);
+        txtGamma.setPrefWidth(inputColWidth);
+        txtDegree.setPrefWidth(inputColWidth);
     }
-
-    @Override
-    public SelectedFeature getResult() {
-        return this.result;
-    }
-
-    @Override
-    public String getFSelName() {
-        return "SFS";
-    }
-
-
-    /*
-     * Return empty pane as there are no options
-     * @see plt.featureselection.FeatureSelection#getUI()
-     */
+    
+    private Node ui;
+  
 	@Override
-	public Node getUI() {
+    public Node ui()
+    {        
+    	
+        ui = new HBox(5);
+        
+
+        
+        Font headerFont = Font.font("BirchStd", FontWeight.BOLD, 15);
+                
+        Label lblRankSvmSectionHeader = new Label("Rank SVM");
+        Label lblKernelSelection = new Label("Kernel");
+        lblGamma = new Label("Gamma:");
+        lblDegree = new Label("Degree:");
+        
+        lblRankSvmSectionHeader.setFont(headerFont);
+               
+        
+        
+        GridPane innerGrid = new GridPane();
+        innerGrid.setAlignment(Pos.CENTER);
+        innerGrid.setPadding(new Insets(20));
+        innerGrid.setHgap(10);
+        innerGrid.setVgap(12);
+        
+        innerGrid.add(lblKernelSelection, 0, 0);
+        innerGrid.add(cbKernelType, 1, 0);
+        innerGrid.add(lblGamma,0,1);
+        innerGrid.add(txtGamma,1,1);
+        innerGrid.add(lblDegree,0,2);
+        innerGrid.add(txtDegree,1,2);
+        
+        
+        BorderPane svmPane = new BorderPane();
+        BorderPane.setAlignment(lblRankSvmSectionHeader, Pos.CENTER);
+        BorderPane.setAlignment(innerGrid, Pos.CENTER);
+        svmPane.setTop(lblRankSvmSectionHeader);
+        svmPane.setCenter(innerGrid);
+        svmPane.setPrefWidth(960);
+        
+        svmPane.getStyleClass().add("modulePane1Child");
+        
+        
+        cbKernelType.getSelectionModel().select(0);
+        
+        		
+        TitledPane tmp=		new TitledPane("Rank SVM", svmPane);
+        ((HBox)ui).getChildren().add(tmp.getContent());
+        HBox.setHgrow(tmp.getContent(), Priority.ALWAYS);
+        return ui;
+    }
+    
+
+	@Override
+	public String testParameters() {
 		
-		return new Pane();
+		
+        if((this.gammaRequired())
+        &&(this.getGamma() == 0))
+        {
+            return "SVM error: Gamma cannot be set to 0.";
+            
+        } else
+        	return "";
+
 	}
-   
+    
+    @Override
+    public String getKernelType()
+    {
+        return (String) cbKernelType.getSelectionModel().getSelectedItem();
+    }
+    
+    @Override
+    public double getGamma()
+    {
+        return parseDobuleOrFailWithZero(txtGamma);
+    }
+    
+    @Override
+    public double getDegree()
+    {
+        return parseDobuleOrFailWithZero(txtDegree);
+    }
+    
+    public boolean gammaRequired()
+    {
+        return txtGamma.isVisible();
+    }
+    
+    public boolean degreeRequired()
+    {
+        return txtDegree.isVisible();
+    }
+    
+    private static int parseIntegerOrFailWithZero(TextField t)
+    {
+        try
+        {
+            return Integer.parseInt(t.getText());
+        }
+        catch (NumberFormatException e)
+        {
+            return 0;
+        } 
+    }
+    
+    private static double parseDobuleOrFailWithZero(TextField t)
+    {
+        try
+        {
+            return Double.parseDouble(t.getText());
+        } 
+        catch (NumberFormatException e)
+        {
+            return 0;
+        } 
+    }
+
+    
+    class KernelChangeListener implements ChangeListener
+    {
+        
+        
+        @Override
+        public void changed(ObservableValue ov, Object t, Object t1)
+        {
+
+            
+            int i =  cbKernelType.getSelectionModel().getSelectedIndex();
+            switch (i)
+            {
+                // Linear Kernel.
+                case 0:  lblGamma.setVisible(false);
+                         txtGamma.setVisible(false);
+                         lblDegree.setVisible(false);
+                         txtDegree.setVisible(false);
+                         break;
+
+                // Poly Kernel.
+                case 1:  lblGamma.setVisible(true);
+                         txtGamma.setVisible(true);
+                         lblDegree.setVisible(true);
+                         txtDegree.setVisible(true);
+                         break;
+
+                // RBF Kernel.
+                case 2:  lblGamma.setVisible(true);
+                         txtGamma.setVisible(true);
+                         lblDegree.setVisible(false);
+                         txtDegree.setVisible(false);
+                         break;                   
+            }
+
+
+        }
+            
+         
+    }
+
+
+	@Override
+	public PLAlgorithm algorithm() {
+		return new PLRankSvm(this);
+	}
+    
+    
+    
+
 }

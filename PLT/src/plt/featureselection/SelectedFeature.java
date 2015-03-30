@@ -167,12 +167,12 @@ Library.*/
 package plt.featureselection;
 
 import java.util.*;
-import plt.plalgorithm.neruoevolution.GA.DNA;
 
 /**
  * This class represents a set of feature of a dataset selected to be used for a 
  * preference learning algorithm
- * @author Institute of Digital Games, UoM Malta
+ * 
+ * @author Vincent Farrugia
  */
 public class SelectedFeature implements Cloneable {
     List<Integer> features;
@@ -257,7 +257,7 @@ public class SelectedFeature implements Cloneable {
         
         for(int i=0; i<features.size(); i++)
         {
-            retArr[0] = features.get(i);
+            retArr[i] = features.get(i);
         }
         
         return retArr;

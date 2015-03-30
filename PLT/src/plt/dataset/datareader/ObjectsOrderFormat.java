@@ -196,8 +196,9 @@ public class ObjectsOrderFormat implements DataSet {
     private boolean[] numeric;
     private List<Integer> atomicGroups;
     
-    private HashMap<Integer, Integer> ID2feature;//ID -> feature Idx
-    private HashMap<Integer, Integer> feature2ID;//featyre Idx -> ID
+    private HashMap<Integer, Integer> ID2feature;//ID -> object Idx
+    //private HashMap<Integer, Integer> objectIdx2objectID;
+    private int[] objectIdx2objectID;//object Idx -> ID
     
     private HashMap<Integer, Object> featureToMinValMap;
     private HashMap<Integer, Object> featureToMaxValMap;
@@ -206,9 +207,15 @@ public class ObjectsOrderFormat implements DataSet {
 
     
     public int getID(int idx){
-    	return feature2ID.get(idx);
+    	return objectIdx2objectID[idx];
     
     }
+    
+    public int[] getIDs(){
+    	return objectIdx2objectID;
+    
+    }
+    
     
     public ObjectsOrderFormat() 
     {
@@ -246,16 +253,13 @@ public class ObjectsOrderFormat implements DataSet {
     
     
     public String getParsingDetails(){
-    	if(parsingOrderInformation.length()==0)
-    		return parsingObjectsInformation;
-    	else
+
     		return parsingObjectsInformation+"\n"+parsingOrderInformation;
     }
     
     
     public String setObjectData(DataParser parser){
     	
-    	parsingObjectsInformation = parser.getDetails();
     	
     	if(parser.getData().size()==0){
     		dataFilesValid.setValue(false);
@@ -289,15 +293,15 @@ public class ObjectsOrderFormat implements DataSet {
     		numeric[i] = true;
     	
     	ID2feature = new HashMap<Integer, Integer>();
-    	feature2ID = new HashMap<Integer, Integer>();
-    	
+    	//objectIdx2objectID = new HashMap<Integer, Integer>();
+    	objectIdx2objectID = new int[parser.getData().size()];
     	
     	for(int i = 0; i < parser.getData().size(); i++){
     		
     		int ID = Integer.valueOf(parser.getData().get(i).get(0));
     		ID2feature.put(ID, i);///ID -> index on features
-    		feature2ID.put(i, ID); //orderToActualObjID.put(entryNum, indentifier);//line number - comments - feature line -> ID (int)
-    		
+    		//objectIdx2objectID.put(i, ID); //orderToActualObjID.put(entryNum, indentifier);//line number - comments - feature line -> ID (int)
+    		objectIdx2objectID[i] = ID;
     		for(int j = 1; j < parser.getFeatureNames().size(); j++){
     			
     			features[i][j-1] = parser.getData().get(i).get(j);    	
@@ -313,6 +317,12 @@ public class ObjectsOrderFormat implements DataSet {
     	calculateMinNMaxForAllData();
     	dataFilesValid.setValue(false);//Need a new order file
 
+    	parsingObjectsInformation = "Object file: "+  parser.getStatus().getDescription()+"\n"
+    			+ "Number of samples: "+getNumberOfObjects()+"\n"
+    			+ "Number of features: "+getNumberOfFeatures();
+
+    	
+    	
     	return "Valid object file: "+  parser.getStatus().getDescription()+"\n"
 		+ "Number of samples: "+getNumberOfObjects()+"\n"
 		+ "Number of features: "+getNumberOfFeatures();
@@ -322,7 +332,6 @@ public class ObjectsOrderFormat implements DataSet {
     
     public String setOrderData(DataParser parser){
     	
-    	parsingOrderInformation = parser.getDetails();
     	
     	instances = new ArrayList<Preference>();
     	atomicGroups = new ArrayList<Integer>();
@@ -388,6 +397,10 @@ public class ObjectsOrderFormat implements DataSet {
     	
     	dataFilesValid.setValue(true);
     	
+    	parsingOrderInformation = "Order file: "+parser.getStatus().getDescription()+"\n"
+    			+ "Number of pairwise preferences: "+getNumberOfPreferences();
+
+    	
     	return  "Valid order file: "+parser.getStatus().getDescription()+"\n"
     			+ "Number of pairwise preferences: "+getNumberOfPreferences();
 
@@ -395,8 +408,6 @@ public class ObjectsOrderFormat implements DataSet {
     
     public String setSingleFile(DataParser parser) {
     	
-    	parsingObjectsInformation = parser.getDetails();
-    	parsingOrderInformation = "";
     	
     	features = new String[parser.getData().size()][parser.getFeatureNames().size()-2];//ID and ratings are removed
     	
@@ -421,14 +432,15 @@ public class ObjectsOrderFormat implements DataSet {
     		numeric[i] = true;
     	
     	ID2feature = new HashMap<Integer, Integer>();
-    	feature2ID = new HashMap<Integer, Integer>();
-    	
+    	//objectIdx2objectID = new HashMap<Integer, Integer>();
+    	objectIdx2objectID = new int[parser.getData().size()];
     	
     	for(int i = 0; i < parser.getData().size(); i++){
     		
     		int ID = Integer.valueOf(parser.getData().get(i).get(0));
     		ID2feature.put(ID, i);///ID -> index on features
-    		feature2ID.put(i, ID); //orderToActualObjID.put(entryNum, indentifier);//line number - comments - feature line -> ID (int)
+    		//objectIdx2objectID.put(i, ID); //orderToActualObjID.put(entryNum, indentifier);//line number - comments - feature line -> ID (int)
+    		objectIdx2objectID[i] = ID;
     		
     		for(int j = 1; j < parser.getFeatureNames().size()-1; j++){
     			
@@ -452,14 +464,14 @@ public class ObjectsOrderFormat implements DataSet {
     	for(int i=0;i<ratings.length-1;i++){
     		
     		for(int j=i+1;j<ratings.length;j++){
-    			
+    			//TODO using as object grouping just the object ID of the first object in the pair
     			if(ratings[i]>ratings[j]){
     				instances.add(new Preference(i,j));
-    				atomicGroups.add( feature2ID.get(i));
+    				atomicGroups.add( objectIdx2objectID[i]);
     			}
     			else if(ratings[i]<ratings[j]){
     				instances.add(new Preference(j,i));
-    				atomicGroups.add( feature2ID.get(i));
+    				atomicGroups.add( objectIdx2objectID[i]);
     			}
     			
     		}
@@ -472,6 +484,13 @@ public class ObjectsOrderFormat implements DataSet {
     	
     	dataFilesValid.setValue(true);
 
+    	parsingObjectsInformation = "Object file: "+  parser.getStatus().getDescription()+"\n"
+    			+ "Number of samples: "+getNumberOfObjects()+"\n"
+    			+ "Number of features: "+getNumberOfFeatures();
+    	
+    	parsingOrderInformation = "Number of pairwise preferences: "+getNumberOfPreferences();
+
+    	
     	
     	return "Valid object file: "+  parser.getStatus().getDescription()+"\n"
 		+ "Number of samples: "+getNumberOfObjects()+"\n"
@@ -481,11 +500,7 @@ public class ObjectsOrderFormat implements DataSet {
     	// TODO Auto-generated method stub
     	
     }
-    
-    public int getObjActualID(int para_objOrderID) {
-        return feature2ID.get(para_objOrderID);
-    }
-    
+
     @Override
     public int getNumberOfObjects() {
 
@@ -629,4 +644,9 @@ public class ObjectsOrderFormat implements DataSet {
             return null;
         }
     }
+
+	@Override
+	public List<Preference> getPreferences() {
+		return instances;
+	}
 }

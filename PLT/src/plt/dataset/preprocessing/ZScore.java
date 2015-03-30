@@ -274,4 +274,9 @@ public class ZScore extends PreprocessingOperation {
         
         return new ArrayList<Number>(Arrays.asList(value));
 	}
+
+	@Override
+	public String featureName(DataSet dataSet, int originalFeature, int j) {
+		return dataSet.getFeatureName(originalFeature);
+	}
 }

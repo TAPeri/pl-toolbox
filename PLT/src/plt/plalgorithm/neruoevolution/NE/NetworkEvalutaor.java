@@ -166,12 +166,44 @@ Library.*/
 
 package plt.plalgorithm.neruoevolution.NE;
 
+import java.util.Hashtable;
+
+import plt.dataset.TrainableDataSet;
+import plt.featureselection.SelectedFeature;
+import plt.utils.Preference;
+
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
  */
-public interface NetworkEvalutaor {
-    public double evaluate(SimpleNeuralNetwork network);
+public class NetworkEvalutaor {
 
+    public double evaluate(SimpleNeuralNetwork network,TrainableDataSet dataSet,SelectedFeature featureSelection) {
+        
+        double fitness = 0;
+
+        
+        Hashtable<Integer,Double> h = new Hashtable<>();
+        for (int i=0; i<dataSet.getNumberOfObjects(); i++) {
+            double[] featuresOther = featureSelection.select( dataSet.getFeatures(i));
+            network.setInputs(featuresOther);
+            h.put(i,network.getOutputs()[0]);
+        }
+            
+        for (int i =0; i< dataSet.getNumberOfPreferences() ; i++) {
+            Preference instance = dataSet.getPreference(i);
+            double fPreferred = h.get(instance.getPreferred());
+            double fOther = h.get(instance.getOther());
+            
+            int epsilon = fOther > fPreferred ? 5 : 30;
+            double delta= plt.utils.Math.sigmoid(1, epsilon*(fPreferred-fOther)); 
+            
+            
+            fitness += delta;
+        }
+                        
+        
+        return fitness;
+    }
     
 }

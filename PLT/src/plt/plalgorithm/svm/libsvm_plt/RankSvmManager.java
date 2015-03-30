@@ -171,8 +171,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import plt.dataset.TrainableDataSet;
-import plt.dataset.datareader.ObjectsOrderFormat;
 import plt.featureselection.SelectedFeature;
+import plt.plalgorithm.neruoevolution.NE.SimpleNeuralNetwork;
 import plt.plalgorithm.svm.libsvm.svm;
 import plt.plalgorithm.svm.libsvm.svm_model;
 import plt.plalgorithm.svm.libsvm.svm_node;
@@ -183,7 +183,7 @@ import plt.utils.Preference;
  *
  * @author Institute of Digital Games, UoM Malta
  */
-public class RankSvmManager implements IRankSvm
+public class RankSvmManager implements IRankSvm,Cloneable
 {
     PL_Object[] curr_objects;
     PL_Ranking[] curr_rankings;
@@ -300,8 +300,8 @@ public class RankSvmManager implements IRankSvm
                 PL_Object prefObj = curr_dataset.pl_objArr_orig[prefObj_internalID];
                 PL_Object nonPrefObj = curr_dataset.pl_objArr_orig[nonPrefObj_internalID];
                 
-                int prefObj_actualID = prefObj.objID_actual;
-                int nonPrefObj_actualID = nonPrefObj.objID_actual;
+                int prefObj_actualID = prefObj.getObjIDActual();
+                int nonPrefObj_actualID = nonPrefObj.getObjIDActual();
                 
                 if(! idsOfEncounteredObjs.contains(prefObj_actualID))
                 {
@@ -385,14 +385,13 @@ public class RankSvmManager implements IRankSvm
     
     private Object[] createPLObjects(TrainableDataSet para_tDataSet, SelectedFeature para_fSelected)
     {
-        ObjectsOrderFormat castDSet = (ObjectsOrderFormat) para_tDataSet.getDataSet();
         
         int numObjects = para_tDataSet.getNumberOfObjects();
         
         PL_Object[] plObjArr = new PL_Object[numObjects];
         for(int i=0; i<numObjects; i++)
         {
-            plObjArr[i] = new PL_Object(castDSet.getObjActualID(i), i, para_fSelected.select(para_tDataSet.getFeatures(i)));
+            plObjArr[i] = new PL_Object(para_tDataSet.getID(i), i, para_fSelected.select(para_tDataSet.getFeatures(i)));
         }
         
         Object[] retData = new Object[2];
@@ -503,5 +502,24 @@ public class RankSvmManager implements IRankSvm
         param.degree = (int) ((double) para_userConfig.get("degree"));
         
         return param;
+    }
+    
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+    
+
+        RankSvmManager copy = new RankSvmManager();
+        
+        copy.curr_objects = this.curr_objects;
+        copy.curr_rankings = this.curr_rankings;
+        copy.curr_numFeatures = this.curr_numFeatures;
+
+        
+        copy.curr_algParams = (svm_parameter)this.curr_algParams.clone();
+        copy.curr_dataset = this.curr_dataset;
+        if(this.curr_model!= null)
+        	copy.curr_model = (svm_model)this.curr_model.clone();        
+
+        return copy;
     }
 }

@@ -168,6 +168,7 @@ Library.*/
 package plt.dataset;
 
 import java.util.*;
+
 import plt.utils.Preference;
 
 /**
@@ -182,16 +183,16 @@ import plt.utils.Preference;
  */
 public abstract class TrainableDataSet {
     
-    private DataSet dataSet;
+   // protected DataSet dataSet;
     
-    public TrainableDataSet(DataSet d) {
+   /* public TrainableDataSet(DataSet d) {
         this.dataSet = d;
     } 
     
     public DataSet getDataSet()
     {
         return dataSet;
-    }
+    }*/
     
      /**
      * Given a number n in [0..this.getNumberOfObjects()-1] and a number f in [0..this.getNumberOfFeatures()-1]
@@ -224,7 +225,7 @@ public abstract class TrainableDataSet {
      * @param n a number that identify the instance.
      * @return a number that identify the atomic group.
      */
-    public abstract int atomicGroup(int n);
+   //public abstract int atomicGroup(int n);
 
     
     /**
@@ -250,7 +251,7 @@ public abstract class TrainableDataSet {
      * @param o
      * @return
      */
-    @Override
+  /*  @Override
     public boolean equals(Object o){
         TrainableDataSet other= (TrainableDataSet)o;
         
@@ -273,7 +274,7 @@ public abstract class TrainableDataSet {
         
         return true;
         
-    }
+    }*/
     
     
     /**
@@ -281,7 +282,7 @@ public abstract class TrainableDataSet {
      * @param subset
      * @return 
      */
-    public TrainableDataSet subSet(final int[] subset) {
+   /* public abstract TrainableDataSet subSet(int[] subset) ;/*{
 
         if (subset.length < 1) {
             throw new IllegalArgumentException();
@@ -290,11 +291,11 @@ public abstract class TrainableDataSet {
         HashMap<Integer,Set<Integer>> subHash = new HashMap<>();
         
         for (int i=0; i<subset.length; i++) {
-            int j = this.atomicGroup(subset[i]);
-            if (subHash.get(j) == null) {
-                subHash.put(j, new HashSet<Integer>());
+            int groupID = this.atomicGroup(subset[i]);
+            if (subHash.get(groupID) == null) {
+                subHash.put(groupID, new HashSet<Integer>());
             }
-            subHash.get(j).add(subset[i]);
+            subHash.get(groupID).add(subset[i]);
         }
         
         HashMap<Integer,Set<Integer>> hash = new HashMap<>();
@@ -355,50 +356,23 @@ public abstract class TrainableDataSet {
                 return father.getNumberOfFeatures();
             }
         };
-    }
+    }*/
     
     /**
      * create a subset of trainableDataSet given a set of instances
      * @param subset
      * @return 
      */
-    public TrainableDataSet subSet(Set<Integer> subset) {
-        int[] output = new int[subset.size()];
-        int counter=0;
-        for (Integer i: subset) {
-            output[counter++] = i;
-        }
-        
-        return this.subSet(output);
-    }
+    public abstract TrainableDataSet subSet(Set<Integer> subset) ;
     
-    /**
-     * @return all the atomicsGropus of the trainableDataSet
-     */
-    public List<Set<Integer>> atomicGroups () {
-        int n = this.getNumberOfPreferences();
-        HashMap<Integer,Set<Integer>> hash = new HashMap<>();
-        for (int i=0; i<n; i++) {
-            int atomicGroup = this.dataSet.atomicGroup(i);
-            Set<Integer> set = hash.get(atomicGroup);
-            if (set == null) {
-                set = new HashSet<>();
-            }
-            set.add(i);
-            hash.put(atomicGroup, set);
-        }
-        
-        return new LinkedList<>(hash.values());
-    }
- 
-    @Override
-    public String toString() {
-        return "{Trainable Dataset - number of feature(s): " + this.getNumberOfFeatures() +
-                " number of istance(s): " + this.getNumberOfPreferences() + "}";
-    }
+    public abstract List<Set<Preference>> atomicGroups ();
 
-    public int getNumberOfObjects() {
-        return this.dataSet.getNumberOfObjects();
-    }
-    
+
+    public abstract int getNumberOfObjects() ;
+
+
+	public abstract int getID(int i) ;
+
+
+	public abstract String getFeatureName(int i) ;
 }

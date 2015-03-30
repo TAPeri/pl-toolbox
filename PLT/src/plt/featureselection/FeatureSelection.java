@@ -167,20 +167,21 @@ Library.*/
 package plt.featureselection;
 
 import javafx.scene.Node;
-import plt.gui.algorithms.PLAlgorithm;
+import plt.dataset.TrainableDataSet;
+import plt.plalgorithm.PLAlgorithm;
 import plt.validator.Validator;
 
 /**
  * A FeatureSelection algorithm it's meant to select a number of features of a dataset
  * to be used in a preference learning algorithm
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
  */
 public abstract class FeatureSelection {
 
     /**
      * run the algorithm
      */
-    public abstract void run(Validator v, PLAlgorithm a);
+    public abstract void run(Validator v, PLAlgorithm a,TrainableDataSet dataSet);
     
     /**
      * 
@@ -198,5 +199,8 @@ public abstract class FeatureSelection {
      * @return UI elements to set up the algorithm. 
      */
     public abstract Node getUI();
+    
+    public abstract String testParameters(int numFeatures);
+    
 
 }

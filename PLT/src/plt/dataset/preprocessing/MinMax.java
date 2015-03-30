@@ -243,5 +243,12 @@ public class MinMax extends PreprocessingOperation{
 		
 		return new ArrayList<Number>(Arrays.asList(this.value(d,feature,object,0)));
 	}
+	
+	@Override
+	public String featureName(DataSet dataSet, int originalFeature, int j) {
+		
+		return dataSet.getFeatureName(originalFeature);
+	}
+	
 
 }

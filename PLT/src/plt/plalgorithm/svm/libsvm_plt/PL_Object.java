@@ -170,7 +170,7 @@ package plt.plalgorithm.svm.libsvm_plt;
 class PL_Object
 {
     int objID_actual;
-    int objID_order;
+   // int objID_order;
     double[] features;
 
     public PL_Object(int para_objIDActual,
@@ -178,7 +178,7 @@ class PL_Object
                      double[] para_features)
     {
         objID_actual = para_objIDActual;
-        objID_order = para_objIDOrder;
+      //  objID_order = para_objIDOrder;
         features = para_features;
     }
 

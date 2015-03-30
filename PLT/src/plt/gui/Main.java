@@ -192,7 +192,7 @@ public class Main extends Application
         
         MasterGUI mGUI = new MasterGUI(stage);
         
-        Scene mainScene2 = new Scene(mGUI, 1000, 600);
+        Scene mainScene2 = new Scene(mGUI, 500, 300);
         mainScene2.getStylesheets().add(Main.class.getResource("MainCSS.css").toExternalForm());
         stage.setScene(mainScene2);
         stage.setTitle("PLT: Preference Learning Toolbox");

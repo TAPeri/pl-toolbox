@@ -176,7 +176,10 @@ import javafx.beans.property.StringProperty;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * 
+ *
+ * @author Vincent Farrugia
+ * @author Hector P. Martinez
  */
 public class ExecutionProgress 
 {
@@ -262,10 +265,9 @@ public class ExecutionProgress
         taskHeader = para_taskMainHeader;
         if(currTaskTextIndicator == null) { currTaskTextIndicator = new SimpleStringProperty(""); }
         
-    	System.err.println("Removed "+taskHeader + " - " + taskSubHeader);
     	return;
         
-        /*
+        /* REMOVED
         currTaskTextIndicator.setValue(taskHeader + " - " + taskSubHeader);
         //currTaskTextIndicator.set("3");
         */
@@ -302,9 +304,8 @@ public class ExecutionProgress
     {
         taskSubHeader = para_taskSubHeader;
 
-    	System.err.println("Removed "+taskHeader + " - " + para_taskSubHeader);
     	return;
-    	/*
+    	/* REMOVED
         currTaskTextIndicator.setValue(taskHeader + " - " + taskSubHeader);
         //currTaskTextIndicator.setValue("4");
          
@@ -328,7 +329,7 @@ public class ExecutionProgress
         if(threadActiveStatus == null) { return true; }
         
         int numOfDeactivatedSubThreads = 0;
-        for (Map.Entry pairs : threadActiveStatus.entrySet())
+        for (Map.Entry<Integer,Boolean> pairs : threadActiveStatus.entrySet())
         {
         	
         	if(!threadActiveStatus.get(pairs))

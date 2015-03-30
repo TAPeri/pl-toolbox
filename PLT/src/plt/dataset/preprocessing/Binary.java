@@ -270,7 +270,15 @@ public class Binary extends PreprocessingOperation {
         return "Binary";
     }
 
-
+	@Override
+	public String featureName(DataSet dataSet, int originalFeature, int j) {
+		
+        if (possibleValues == null) {
+            preparePossibleValues(dataSet,originalFeature);
+        }
+		
+		return dataSet.getFeatureName(originalFeature)+" = "+possibleValues.get(j);
+	}
 
     
 }

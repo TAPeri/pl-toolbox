@@ -173,19 +173,19 @@ import plt.dataset.TrainableDataSet;
 import plt.dataset.experiment.ExperimentDataset;
 import plt.dataset.preprocessing.Numeric;
 import plt.dataset.preprocessing.PreprocessingOperation;
+import plt.featureselection.SFS;
 import plt.featureselection.SelectedFeature;
-import plt.featureselection.examples.SFS;
 import plt.functions.LinearFunction;
 import plt.functions.MathematicalFunction;
-import plt.gui.algorithms.PLBackPropagation;
-import plt.gui.configurators.PLBackPropagationConfigurator;
+import plt.gui.algorithms.PLBackPropagationConfigurator;
+import plt.plalgorithm.backpropagation.PLBackPropagation;
 import plt.plalgorithm.neruoevolution.NE.ActivationFunction;
 import plt.plalgorithm.neruoevolution.NE.Linear;
 import plt.plalgorithm.neruoevolution.NE.Sigmond;
-import plt.report.Report;
+
+import plt.validator.NoValidation;
+import plt.validator.SplitValidation;
 import plt.validator.Validator;
-import plt.validator.examples.NoValidation;
-import plt.validator.examples.SplitValidation;
 
 /**
  *
@@ -332,10 +332,10 @@ public class SFSExperiments extends Application {
             SelectedFeature selection = new SelectedFeature();
             selection.setSelected(0, 5);
 
-            sfs.run(new NoValidation(), new PLBackPropagation(trainableDataSet, AFSbpC));
+            sfs.run(new NoValidation(), new PLBackPropagation( AFSbpC),trainableDataSet);
             SelectedFeature selectedFeatures = sfs.getResult();
             
-            if (selection.equals(selection))
+            if (selection.equals(selectedFeatures))
                 correctness += 1;
             
             System.out.println((i + 1) + " of " + traials + "complited");

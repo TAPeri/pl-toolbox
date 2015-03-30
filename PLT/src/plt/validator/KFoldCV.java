@@ -164,191 +164,193 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.gui.configurators;
+package plt.validator;
 
+import java.util.*;
+
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.Node;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import plt.dataset.TrainableDataSet;
+import plt.featureselection.SelectedFeature;
+import plt.gui.ExecutionProgress;
 import plt.gui.component.AdvanceTextField;
-import plt.plalgorithm.svm.libsvm_plt.IPLRankSvmConfigurator;
+import plt.model.Model;
+import plt.plalgorithm.PLAlgorithm;
+import plt.report.Report;
+import plt.utils.Preference;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
  */
-
-public class PLRankSvmConfigurator implements IPLRankSvmConfigurator
-{
-               
-    private ChoiceBox cbKernelType;
-    private TextField txtGamma;
-    private TextField txtDegree;
+public class KFoldCV extends Validator {
+    public int k;
+    private StringProperty kProperty;
+    private int[] validationSizes;
     
-    private Label lblGamma;
-    private Label lblDegree;
-    
-
-    public PLRankSvmConfigurator()
-    {
-        ObservableList<String> availableKernelTypes = FXCollections.observableArrayList();
-        availableKernelTypes.addAll(new String[] {"Linear","Poly","RBF"});
-        cbKernelType = new ChoiceBox<>(availableKernelTypes);
-        cbKernelType.valueProperty().addListener(new KernelChangeListener());
-        
-        txtGamma = new AdvanceTextField("[0-9.]","1");
-        txtDegree = new AdvanceTextField("[0-9.]","2");
-        
-        
-        float inputColWidth = 200;
-        cbKernelType.setPrefWidth(inputColWidth);
-        txtGamma.setPrefWidth(inputColWidth);
-        txtDegree.setPrefWidth(inputColWidth);
+    public KFoldCV(){
+    	this(3);
     }
     
-  
-    public TitledPane[] ui()
-    {        
+    
+    public int[] getFolds(){
+    	return validationSizes;
+    }
+    
+    public KFoldCV(int _k) {
+        this.k = _k;
         
-        Font headerFont = Font.font("BirchStd", FontWeight.BOLD, 15);
+
+        kProperty = new SimpleStringProperty(""+k);
+        kProperty.addListener(new ChangeListener<String>(){
+
+			@Override
+			public void changed(ObservableValue<? extends String> arg0, String arg1, String arg2) {
+				try{
+					k = Integer.parseInt(arg2);
+				}catch(Exception ex){
+					k = 3;
+					kProperty.set("3");
+				}
+				
+			}
+        	
+        });
+    }
+    
+
+    @Override
+    public Report runWithValidation(PLAlgorithm algorithm,TrainableDataSet originalDataSet,SelectedFeature features) {
+        Report report = new Report();
+
+        validationSizes = new int[k];
+        
+        List<Set<Integer>> groups = KFoldCV.createGroups(originalDataSet, this.k);
                 
-        Label lblRankSvmSectionHeader = new Label("Rank SVM");
-        Label lblKernelSelection = new Label("Kernel");
-        lblGamma = new Label("Gamma:");
-        lblDegree = new Label("Degree:");
-        
-        lblRankSvmSectionHeader.setFont(headerFont);
-               
-        
-        
-        GridPane innerGrid = new GridPane();
-        innerGrid.setAlignment(Pos.CENTER);
-        innerGrid.setPadding(new Insets(20));
-        innerGrid.setHgap(10);
-        innerGrid.setVgap(12);
-        
-        innerGrid.add(lblKernelSelection, 0, 0);
-        innerGrid.add(cbKernelType, 1, 0);
-        innerGrid.add(lblGamma,0,1);
-        innerGrid.add(txtGamma,1,1);
-        innerGrid.add(lblDegree,0,2);
-        innerGrid.add(txtDegree,1,2);
-        
-        
-        BorderPane svmPane = new BorderPane();
-        BorderPane.setAlignment(lblRankSvmSectionHeader, Pos.CENTER);
-        BorderPane.setAlignment(innerGrid, Pos.CENTER);
-        svmPane.setTop(lblRankSvmSectionHeader);
-        svmPane.setCenter(innerGrid);
-        svmPane.setPrefWidth(960);
-        
-        svmPane.getStyleClass().add("modulePane1Child");
-        
-        
-        cbKernelType.getSelectionModel().select(0);
-        
-        return new TitledPane[]{new TitledPane("Rank SVM", svmPane)};
-    }
-    
-    @Override
-    public String getKernelType()
-    {
-        return (String) cbKernelType.getSelectionModel().getSelectedItem();
-    }
-    
-    @Override
-    public double getGamma()
-    {
-        return parseDobuleOrFailWithZero(txtGamma);
-    }
-    
-    @Override
-    public double getDegree()
-    {
-        return parseDobuleOrFailWithZero(txtDegree);
-    }
-    
-    public boolean gammaRequired()
-    {
-        return txtGamma.isVisible();
-    }
-    
-    public boolean degreeRequired()
-    {
-        return txtDegree.isVisible();
-    }
-    
-    private static int parseIntegerOrFailWithZero(TextField t)
-    {
-        try
-        {
-            return Integer.parseInt(t.getText());
-        }
-        catch (NumberFormatException e)
-        {
-            return 0;
-        } 
-    }
-    
-    private static double parseDobuleOrFailWithZero(TextField t)
-    {
-        try
-        {
-            return Double.parseDouble(t.getText());
-        } 
-        catch (NumberFormatException e)
-        {
-            return 0;
-        } 
-    }
-
-    
-    class KernelChangeListener implements ChangeListener
-    {
-        
-        
-        @Override
-        public void changed(ObservableValue ov, Object t, Object t1)
-        {
-
+        for (int i=0; i<this.k;i++) {
+           // Logger.getLogger("plt.logger").log(Level.INFO, "KFoldCV ["+(i+1)+"/"+k+"]");
+            ExecutionProgress.signalBeginTask("KFold "+(i+1),(1.0f/(this.k * 1.0f)) * (i+1));
             
-            int i =  cbKernelType.getSelectionModel().getSelectedIndex();
-            switch (i)
-            {
-                // Linear Kernel.
-                case 0:  lblGamma.setVisible(false);
-                         txtGamma.setVisible(false);
-                         lblDegree.setVisible(false);
-                         txtDegree.setVisible(false);
-                         break;
-
-                // Poly Kernel.
-                case 1:  lblGamma.setVisible(true);
-                         txtGamma.setVisible(true);
-                         lblDegree.setVisible(true);
-                         txtDegree.setVisible(true);
-                         break;
-
-                // RBF Kernel.
-                case 2:  lblGamma.setVisible(true);
-                         txtGamma.setVisible(true);
-                         lblDegree.setVisible(false);
-                         txtDegree.setVisible(false);
-                         break;                   
+            TrainableDataSet validationDataSet = originalDataSet.subSet(groups.get(i));
+            validationSizes[i] = validationDataSet.getNumberOfPreferences();
+            Set<Integer> inputSet = new HashSet<>();
+            for (int j=0; j<this.k;j++) {
+                if (j!=i) {
+                    inputSet.addAll(groups.get(j));
+                }
             }
-
-
-        }
             
-         
+           TrainableDataSet candidateDataSet = originalDataSet.subSet(inputSet);
+           
+           //algorithm.setDataSet(candidateDataSet);
+           Model model = algorithm.createModel(candidateDataSet,features);
+           
+           if(model == null) { return null; }
+           double trainingAccuracy = 0.0;
+           
+           for (int z=0; z<candidateDataSet.getNumberOfPreferences(); z++) {
+               Preference instance = candidateDataSet.getPreference(z);
+               if (model.preference(instance.getPreferred(), instance.getOther())) {
+            	   trainingAccuracy++;
+               }
+           }
+
+           trainingAccuracy/=candidateDataSet.getNumberOfPreferences();
+           
+           
+           double correctness = 0;
+           for (int z=0; z<validationDataSet.getNumberOfPreferences(); z++) {
+               Preference instance = validationDataSet.getPreference(z);
+               if (model.preference(instance.getPreferred(), instance.getOther())) {
+                   correctness++;
+               }
+           }
+           correctness /= validationDataSet.getNumberOfPreferences();
+           report.addExperimentResult(model, trainingAccuracy);
+           report.addTestAccuracy(correctness, 0.0);
+           ExecutionProgress.signalTaskComplete();
+        }
+
+        return report;
+        
     }
     
+    private static List<Set<Integer>> createGroups(TrainableDataSet t, int k) {
+    	
+        List<Set<Integer>> groupIDs = new ArrayList<>();
+        int[] groupsSize = new int[k];        
+
+        for (int i=0;i<k; i++)
+            groupIDs.add(new HashSet<Integer>());
+
+        List<Set<Preference>> atomicGroups = t.atomicGroups();
+        for (int i = 0; i< atomicGroups.size();i++) {
+            int candidate = 0;
+            for (int j=0; j<k; j++)
+                if (groupsSize[j] < groupsSize[candidate]) candidate = j;
+            
+            groupsSize[candidate] += atomicGroups.get(i).size();
+            groupIDs.get(candidate).add(i);
+        }
+        
+        return groupIDs;
+    }
+    
+    @Override
+    public String toString() {
+        return "KFoldCV: {k:"+this.k+"}";
+    }
+
+
+	@Override
+	public Node getUI() {
+		
+		BorderPane kBPane = new BorderPane();
+          
+      	Label lblCrossValidationHeader = new Label("k-fold cross validation");
+      	kBPane.setLeft(lblCrossValidationHeader);
+      
+      	HBox cntentBx = new HBox(20);
+      	kBPane.setRight(cntentBx); 
+      	
+      		GridPane validatorContentGPane = new GridPane();
+      		cntentBx.getChildren().add(validatorContentGPane);
+      	
+      			Label kLabel = new Label("k:");
+      			validatorContentGPane.add(kLabel, 0, 0);
+      			//kLabel.visibleProperty().bind(validatorMPane.choiceBox.getSelectionModel().selectedIndexProperty().isEqualTo(1));
+	
+      			TextField k  = new AdvanceTextField("[0-9]", "3");
+      			//k.visibleProperty().bind(kLabel.visibleProperty());
+      			validatorContentGPane.add(k, 1, 0);
+		
+      			this.kProperty.bind(k.textProperty());
+		
+		//cntentBx.getChildren().addAll(kLabel,k);		
+			
+//Should move this to CSS   	
+kBPane.getStyleClass().add("modulePane2Child");
+Font headerFont = Font.font("BirchStd", FontWeight.BOLD, 15);
+lblCrossValidationHeader.setFont(headerFont);
+BorderPane.setAlignment(lblCrossValidationHeader, Pos.CENTER);        
+k.setPrefWidth(30);     			
+validatorContentGPane.setPadding(new Insets(20));
+validatorContentGPane.setHgap(15);
+validatorContentGPane.setVgap(12);
+			
+		return kBPane;
+	}
 
 }

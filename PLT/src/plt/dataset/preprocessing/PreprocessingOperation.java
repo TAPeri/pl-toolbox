@@ -222,6 +222,8 @@ public abstract  class PreprocessingOperation {
     	}
     	
     }
+
+	public abstract String featureName(DataSet dataSet, int originalFeature, int j) ;
     
 
 }

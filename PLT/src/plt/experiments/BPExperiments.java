@@ -176,14 +176,14 @@ import plt.dataset.preprocessing.Numeric;
 import plt.dataset.preprocessing.PreprocessingOperation;
 import plt.functions.LinearFunction;
 import plt.functions.QuadraticFuncion;
-import plt.gui.algorithms.PLBackPropagation;
-import plt.gui.configurators.PLBackPropagationConfigurator;
+import plt.gui.algorithms.PLBackPropagationConfigurator;
+import plt.plalgorithm.backpropagation.PLBackPropagation;
 import plt.plalgorithm.neruoevolution.NE.ActivationFunction;
 import plt.plalgorithm.neruoevolution.NE.Linear;
 import plt.plalgorithm.neruoevolution.NE.Sigmond;
 import plt.report.Report;
+import plt.validator.SplitValidation;
 import plt.validator.Validator;
-import plt.validator.examples.SplitValidation;
 
 /**
  *
@@ -276,7 +276,7 @@ public class BPExperiments extends Application {
 
 
             Validator v = new SplitValidation(20);
-            PLBackPropagation bp = new PLBackPropagation(trainableDataSet, new PLBackPropagationConfigurator() {
+            PLBackPropagation bp = new PLBackPropagation(new PLBackPropagationConfigurator() {
                 @Override
                 public int[] getTopology(int inputSize) {
                     if (hiddenLayer > 0) {
@@ -313,7 +313,7 @@ public class BPExperiments extends Application {
                 }
             });
 
-            Report r = bp.createModelWithValidation(v);
+            Report r = v.runWithValidation(bp, trainableDataSet, null);
             System.out.println((i + 1) + " of " + traials + " accuracy:" + r.getAVGAccuracy());
 
         }

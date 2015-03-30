@@ -248,9 +248,9 @@ public class ModulePane extends BorderPane
         housingPane.getChildren().add(frameBox);
         
         
-        frameBox.setPrefWidth(prefWidth);
-        Pane castPane = (Pane) mainContent;
-        castPane.setPrefWidth(prefWidth);
+        //frameBox.setPrefWidth(prefWidth);
+        //Pane castPane = (Pane) mainContent;
+        //castPane.setPrefWidth(prefWidth);
         
         this.setCenter(housingPane);
     }

@@ -164,199 +164,207 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.gui.algorithms;
 
-import java.io.File;
-import java.io.IOException;
+package plt.plalgorithm.backpropagation;
+
+
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import javafx.scene.Node;
-import javafx.scene.control.TitledPane;
-import javafx.scene.layout.HBox;
 import plt.dataset.TrainableDataSet;
 import plt.featureselection.SelectedFeature;
-import plt.gui.Experiment;
-import plt.gui.configurators.PLRankSvmConfigurator;
-import plt.json.JsonObjIO;
+import plt.gui.ExecutionProgress;
+import plt.gui.algorithms.GUIConfigurator;
+import plt.gui.algorithms.PLBackPropagationConfigurator;
 import plt.model.Model;
-import plt.plalgorithm.svm.libsvm_plt.RankSvmManager;
-import plt.plalgorithm.svm.libsvm_plt.SVMDataStore;
-import plt.report.SvmModelFileData;
+import plt.plalgorithm.PLAlgorithm;
+import plt.utils.Preference;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
+ * @author Hector P. Martinez
  */
-public class PLRankSvm extends PLAlgorithm
-{
-    private PLRankSvmConfigurator configurator;
-    private RankSvmManager svmMang;
+public class PLBackPropagation extends PLAlgorithm {
+    private PLBackPropagationConfigurator configurator;
+    private NeuralNetwork network;
     
     
-    public PLRankSvm(){
+    public PLBackPropagation(){
     	
-    	this(null,new PLRankSvmConfigurator());
+    	this(new PLBackPropagationConfigurator());
     }
     
-    public PLRankSvm(TrainableDataSet para_tDataset, PLRankSvmConfigurator para_svmConfig)
-    {
-        super(para_tDataset);
-        configurator = para_svmConfig;
-    }
     
+    public PLBackPropagation(PLBackPropagationConfigurator configurator) {
+        super();
+        
+        this.configurator = configurator;
+        
+    }
     
     @Override
-    protected Model run() throws InterruptedException
-    {
-        Logger.getLogger("plt.logger").log(Level.INFO, "run PLRankSvm");
-
-        svmMang.runRankSVM();
+    protected Model run(TrainableDataSet dataSet,SelectedFeature featureSelection) throws InterruptedException {
         
-        return createModelForRankSVM(svmMang,this.getDataset(),this.getFeatureSelection());
+       // Logger.getLogger("plt.logger").log(Level.INFO, "run PLBackPropagation");
+
+        boolean trained = false;
+       
+        for (int i=0; i< this.configurator.getMaxNumberOfIterations() && !trained; i++) {
+            //ExecutionProgress.setTaskSubHeader("MLP Iteration "+(i+1));
+            
+            double error = 0;
+            
+            
+            for (int j =0; j< dataSet.getNumberOfPreferences() ; j++) {
+
+                Preference instance = dataSet.getPreference(j);
+                                
+                double[] featuresPreferred = featureSelection.select( dataSet.getFeatures(instance.getPreferred()));
+                double[] featuresOther= featureSelection.select( dataSet.getFeatures(instance.getOther()));
+
+                
+                network.setInputs(featuresPreferred);
+                double fPreferred = network.getOutputs()[0];
+                network.setInputs(featuresOther);
+                double fOther = network.getOutputs()[0];
+                
+                double errorPattern = Math.max(1- (fPreferred-fOther),0);
+
+                if(errorPattern>0){
+                	error += errorPattern;
+                    network.setInputs(featuresPreferred);
+                    network.backpropagate(new double[]{-1});
+                    network.setInputs(featuresOther);
+                    network.backpropagate(new double[]{1});
+                    
+                    
+                }
+                
+
+            }
+            
+            error /= dataSet.getNumberOfPreferences()*2;
+            trained =  error < this.configurator.getErrorThreeshold();
+            
+            network.applyDeltas(dataSet.getNumberOfPreferences()*2);
+            
+            
+            ExecutionProgress.incrementTaskProgByPerc(1.0f / (this.configurator.getMaxNumberOfIterations() * 1.0f));
+            
+            if((ExecutionProgress.needToShutdown())||(ExecutionProgress.hasInterruptRequest(1)))
+            {
+                ExecutionProgress.signalDeactivation(1);
+                throw new InterruptedException();
+            }
+        }
+        
+        
+        return new ModelBackpropagation(network, dataSet, featureSelection);
+
+    
     }
 
     @Override
-    protected Model beforeRun()
-    {
-        HashMap<String,Object> userConfig = new HashMap<>();
-        userConfig.put("kernel", configurator.getKernelType());
-        userConfig.put("gamma", configurator.getGamma());
-        userConfig.put("degree", configurator.getDegree());     
-        
-        svmMang = new RankSvmManager();
-        svmMang.performSetup(this.getDataset(),this.getFeatureSelection(),userConfig);
-        
-        
-        return createModelForRankSVM(svmMang, this.getDataset(), this.getFeatureSelection());
+    protected Model beforeRun(TrainableDataSet dataSet,SelectedFeature featureSelection) {
+        int inputSize = featureSelection.getSize();
+        this.network = new NeuralNetwork(
+                this.configurator.getTopology(inputSize), 
+                this.configurator.getActivationsFunctions(), 
+                this.configurator.getLearningRate()
+                );
+    
+        return new ModelBackpropagation(network, dataSet, featureSelection);
     }
-
+    
+    
     @Override
     public ArrayList<Object[]> getProperties() 
     {
-        
         // Multilayer Perceptron Properties:
+       // int inputSize = this.getFeatureSelection().getSize();
         
-        String subSec1_header = "Rank SVM";
+        if (network==null)
+        	System.err.println("Not ready");
+        
+        int[] fullTopology = network.topology;//configurator.getTopology(inputSize);
+        
+        String subSec1_header = "Multilayer Perceptron";
         ArrayList<String[]> subSec1_content = new ArrayList<>();
         
-        String[] cPair1 = new String[2];
-        cPair1[0] = "Kernel:";
-        cPair1[1] = ""+configurator.getKernelType();
-        subSec1_content.add(cPair1);
+        String[] inpLayerContentPair = new String[3];
+        inpLayerContentPair[0] = "Input Layer:";
+        inpLayerContentPair[1] = ""+fullTopology[0];
+        inpLayerContentPair[2] = "N/A";
+        subSec1_content.add(inpLayerContentPair);
         
-        if(configurator.gammaRequired())
-        {
-            String[] cPair2 = new String[2];
-            cPair2[0] = "Gamma:";
-            cPair2[1] = ""+configurator.getGamma();
-            subSec1_content.add(cPair2);
-        }
         
-        if(configurator.degreeRequired())
+
+        
+        for(int i=1; i<fullTopology.length-1; i++)
         {
-            String[] cPair3 = new String[2];
-            cPair3[0] = "Degree:";
-            cPair3[1] = ""+configurator.getDegree();
-            subSec1_content.add(cPair3);
-        }
+            if(fullTopology[i] > 0)
+            {
+                String[] nwContentPair = new String[3];
+                nwContentPair[0] = "Hidden Layer "+i+":";
+                nwContentPair[1] = ""+fullTopology[i];
+                nwContentPair[2] = configurator.getActivationsFunctions()[i-1].toString();
                 
+                subSec1_content.add(nwContentPair);
+            }
+        }
+        
+        String[] outLayerContentPair = new String[3];
+        outLayerContentPair[0] = "Output Layer:";
+        outLayerContentPair[1] = ""+1;
+        outLayerContentPair[2] = configurator.getActivationsFunctions()[fullTopology.length-2].toString();
+        subSec1_content.add(outLayerContentPair);
+        
+        
+        
+        // Backprop Properties:
+        String subSec2_header = "Backpropagation";
+        ArrayList<String[]> subSec2_content = new ArrayList<>();
+        
+        
+        String[] errorThresholdContentPair = new String[2];
+        errorThresholdContentPair[0] = "Error Threshold:";
+        errorThresholdContentPair[1] = ""+configurator.getErrorThreeshold();
+        subSec2_content.add(errorThresholdContentPair);
+        
+        String[] learningRateContentPair = new String[2];
+        learningRateContentPair[0] = "Learning Rate:";
+        learningRateContentPair[1] = ""+configurator.getLearningRate();
+        subSec2_content.add(learningRateContentPair);
+        
+        String[] maxIterationsContentPair = new String[2];
+        maxIterationsContentPair[0] = "Epochs:";
+        maxIterationsContentPair[1] = ""+configurator.getMaxNumberOfIterations();
+        subSec2_content.add(maxIterationsContentPair);
+        
+        
         
         
         Object[] wrapper1 = new Object[2];
         wrapper1[0] = subSec1_header;
         wrapper1[1] = subSec1_content;
         
+        Object[] wrapper2 = new Object[2];
+        wrapper2[0] = subSec2_header;
+        wrapper2[1] = subSec2_content;
         
         ArrayList<Object[]> retData = new ArrayList<>();
         retData.add(wrapper1);
+        retData.add(wrapper2);
         
         return retData;
     }
-    
-    public PLRankSvmConfigurator getConfigurator()
-    {
-        return configurator;
-    }
-    
-    private Model createModelForRankSVM(RankSvmManager para_rSVMMang, final TrainableDataSet para_dataSet, final SelectedFeature para_selection)
-    {        
-        Model model = new Model(para_dataSet, para_selection) {
 
-            @Override
-            protected double calculatePreference(double[] features)
-            {
-                return svmMang.calculateUtility(features);
-            }
 
-            /*@Override
-            public void save(File file) throws IOException
-            {    
-                try
-                {
-                    Date date=new Date() ;  
-                    //BufferedWriter out = new BufferedWriter( new FileWriter (new File(file, "SVM"+date.getTime())));
-                    BufferedWriter out = new BufferedWriter(new FileWriter(file));
-                    out.write("SVM");
-                    out.close();
-                } catch (IOException ex)
-                {
-                    Logger.getLogger(PLRankSvm.class.getName()).log(Level.SEVERE, null, ex);   
-                    throw ex;
-                }
-            }*/
-            
-            @Override
-            public void save(File file, Experiment experiment, double accResult_specificModel, double accResult_averageOverFolds) throws IOException
-            {
-                
-                try 
-                {
-                 
-                    SVMDataStore svmDStore = svmMang.getDataForSVsAndAlphas(para_dataSet);
-                    
-                    // Construct file data for chosen model.
-                    SvmModelFileData objToStore = new SvmModelFileData(file.getName(),
-                                                                       svmDStore,
-                                                                       this.getDataSet(),
-                                                                       this.selectedFeature(),
-                                                                       experiment,
-                                                                       accResult_specificModel,
-                                                                       accResult_averageOverFolds);
-                    
-                    // Store data to file as JSON.
-                    JsonObjIO jsonRW = new JsonObjIO();
-                    jsonRW.writeObjToFile(file.getAbsolutePath(), objToStore);
-                }
-                catch (Exception ex)
-                {
-                   Logger.getLogger(PLRankSvm.class.getName()).log(Level.SEVERE,null,ex);
-                   throw ex;
-                }
-            }
-            
-        };
-        
-        return model;
-    }
-
-    
-    TitledPane[] ui;
-    
 	@Override
-	public Node getUI() {
-        
-		ui = configurator.ui();
-        HBox output = new HBox(5);
-        for(int counter=0; counter<ui.length; counter++)
-        {
-            Node tmpContentNode = ui[counter].getContent();
-            output.getChildren().add(tmpContentNode);
-        } 
-		return output;
-		
+	public GUIConfigurator getConfigurator() {
+		return configurator;
 	}
-    
+
+
+
 }

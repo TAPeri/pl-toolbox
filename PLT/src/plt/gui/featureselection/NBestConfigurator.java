@@ -164,88 +164,90 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.featureselection.examples;
+package plt.gui.featureselection;
 
-import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javafx.scene.Node;
-import plt.dataset.TrainableDataSet;
-import plt.featureselection.FeatureSelection;
-import plt.featureselection.SelectedFeature;
-import plt.gui.algorithms.PLAlgorithm;
-import plt.gui.configurators.NBestConfigurator;
-import plt.report.Report;
-import plt.validator.Validator;
+import javafx.geometry.Insets;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TitledPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import plt.gui.component.AdvanceTextField;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
  */
-public class NBest extends FeatureSelection {
-    private NBestConfigurator configurator;
-    private SelectedFeature result;
+public class NBestConfigurator {//implements plt.featureselection.examples.NBestConfigurator {
+    private TextField n;
     
-    
-    public NBest(){
-    	
-    	this.configurator = new NBestConfigurator();
-    	
+    private static int parseOrFailWithZero(TextField t) {
+        try {
+            return Integer.parseInt(t.getText());
+        } catch (NumberFormatException e) {
+            return 0;
+        } 
     }
     
-    public NBest(NBestConfigurator configurator) {
-        this.configurator = configurator;
-    }
-    
-    public int getN()
-    {
-        return configurator.getN();
-    }
+    public NBestConfigurator() {
+        n = new AdvanceTextField("[0-9.]","1");
+        n.setPrefWidth(30);
+    }        
 
-    @Override
-    public void run(Validator v, PLAlgorithm algorithm) {
+    //@Override
+    public int getN() {
+         return parseOrFailWithZero(this.n);
+    }
+    
         
-        Logger.getLogger("plt.logger").log(Level.INFO, "running nBEST");
-
-        TrainableDataSet t = algorithm.getDataset();
-        double[] results = new double[t.getNumberOfFeatures()];
-        for (int i=0; i<results.length; i++) {
-            SelectedFeature selection = new SelectedFeature();
-            selection.setSelected(i);
-            algorithm.setSelectedFeature(selection);
-            Report report = algorithm.createModelWithValidation(v);
-            results[i] = report.getAVGAccuracy();
-        }
+    public TitledPane[] ui() {
         
-        Logger.getLogger("plt.logger").log(Level.INFO, "selecting the "+this.configurator.getN() + " best\n between "+ Arrays.toString(results));
+       
+        GridPane grid1 = new GridPane();
+        grid1.setPadding(new Insets(20));
+        grid1.setHgap(10);
+        grid1.setVgap(12);
+        
+        
+        Label nLabel = new Label("N:");
+        
 
-        this.result = new SelectedFeature();
-        for (int i=0; i<this.configurator.getN(); i++) {
-            int index = -1;
-            for (int j=0; j<results.length; j++) {
-                if (index == -1 || results[j] > results[index])
-                    index = j;
-            }
-            
-            this.result.setSelected(i);
-        }
+        grid1.add(nLabel, 0, 0);
+        grid1.add(n, 1, 0);
+        
+        
+        
+        Font headerFont = Font.font("BirchStd", FontWeight.BOLD, 15);
+        
+        
+
+        
+        Label lblNBestHeader = new Label("N-Best Feature Selection");
+        lblNBestHeader.setFont(headerFont);
+        
+        
+        
+        
+        HBox cntentBx = new HBox(20);
+        cntentBx.getChildren().addAll(nLabel,n);
+        
+        
+        
+        BorderPane nBestSelPane = new BorderPane();
+        nBestSelPane.setLeft(lblNBestHeader);
+        nBestSelPane.setRight(cntentBx);
+        
+        
+
+        nBestSelPane.getStyleClass().add("modulePane3Child");
+        
+        
+        return new TitledPane[] {new TitledPane("nBest", nBestSelPane)};
+        
+
     }
-
-    @Override
-    public SelectedFeature getResult() {
-        return this.result;
-    }
-
-    @Override
-    public String getFSelName() {
-        return "N-Best";
-    }
-
-	@Override
-	public Node getUI() {
-		
-		return configurator.ui()[0].getContent();
-	}
     
 }

@@ -233,4 +233,11 @@ public class Nominal extends PreprocessingOperation {
 		 return new ArrayList<Number>(Arrays.asList(this.possibleValues.indexOf(value)));
 	}
     
+	@Override
+	public String featureName(DataSet dataSet, int originalFeature, int j) {
+		
+		return dataSet.getFeatureName(originalFeature);
+	}
+	
+	
 }

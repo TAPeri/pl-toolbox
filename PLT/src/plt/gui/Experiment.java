@@ -180,7 +180,8 @@ import plt.dataset.preprocessing.FeaturePreprocessingInfo;
 import plt.dataset.preprocessing.Ignoring;
 import plt.dataset.preprocessing.PreprocessingOperation;
 import plt.featureselection.FeatureSelection;
-import plt.gui.algorithms.PLAlgorithm;
+import plt.featureselection.SelectedFeature;
+import plt.plalgorithm.PLAlgorithm;
 import plt.report.Report;
 import plt.utils.TimeHelper;
 import plt.validator.Validator;
@@ -196,7 +197,7 @@ import plt.validator.Validator;
 public class Experiment {
     
     
-    public class FeaturesDataModel {
+    /*public class FeaturesDataModel {
         private  SimpleStringProperty name;
         private SimpleBooleanProperty status;
 
@@ -208,32 +209,78 @@ public class Experiment {
         public SimpleStringProperty nameProperty() { return this.name; }
         public SimpleBooleanProperty statusProperty() { return this.status; }
 
+    }*/
+    
+    
+    
+    public String testParameters(){
+    	
+        int numOfIgnoredFeatures = 0;
+
+        for(int i=0; i<getPreprocessingOperations().size(); i++)
+        {
+            if(!getPreprocessingOperations().get(i).getIncludeFlag()) { 
+            	numOfIgnoredFeatures++; 
+            }
+        }
+
+        if(numOfIgnoredFeatures == getDataset().getNumberOfFeatures())
+        {
+
+            return "Error: You must include at least one feature from the dataset.";  
+
+        }
+        else if(featureSelectionProperty().get() != null)
+        {
+        	String FSerror = featureSelectionProperty().get().testParameters((getDataset().getNumberOfFeatures() - numOfIgnoredFeatures) );
+        	
+        	if(FSerror.length()>0)
+        		return FSerror;
+
+
+            if(algorithmForFeatureSelectionProperty().get() == null)
+            {
+                // You cannot select a feature selection type without stating an algorithm.
+
+                return "Error: You must state an algorithm to work with "+featureSelectionProperty().get().getFSelName()+".";
+
+            }else{
+            	
+            	FSerror = algorithmForFeatureSelectionProperty().get().getConfigurator().testParameters();
+            	if(FSerror.length()>0)
+            		return FSerror;
+            	
+            }
+            
+        }
+
+    	
+    	return algorithmProperty().get().getConfigurator().testParameters();
+    	
     }
+    
+    
+    
     
     /*dataSet & status*/
     private ObjectsOrderFormat dataSet;
+    private TrainableDataSet t;
+    
 //    private ObjectProperty<ObjectsOrderFormat> dataSet;
 
     
     /* algorithm*/
     private ObjectProperty<PLAlgorithm> algorithm;
-    
-    /* validation*/
     private ObjectProperty<Validator> validatorSelection;
-    //private BooleanProperty useValidator;
-    //private StringProperty k;
 
     
     /* preprocessing*/
     private ObservableList<FeaturePreprocessingInfo> preprocessingOperations;//observable because it is displayed on preprocessing tab
     
-    /* feature selection*/
-   // private BooleanProperty useValidatorForFeatureSelection;
-   // private StringProperty kForFeatureSelection;    
+    /* feature selection*/   
     private ObjectProperty<FeatureSelection> featureSelection;
     private ObjectProperty<PLAlgorithm> algorithmForFeatureSelection;
     private ObjectProperty<Validator> validatorForFeatureSelection;
-    
     
     /* meta-data */
     private ObjectProperty<Calendar> expStartTimestamp;
@@ -243,25 +290,16 @@ public class Experiment {
 
 
     public ObjectsOrderFormat getDataset() { return this.dataSet; }
-
-
-   
-    public ObjectProperty<PLAlgorithm> algorithmProperty() { return this.algorithm; }
-    //public BooleanProperty useValidatorProperty() { return this.useValidator; }
-    
+    public TrainableDataSet getTrainableDataset(){return this.t;}
+    public ObjectProperty<PLAlgorithm> algorithmProperty() { return this.algorithm; }    
     public ObjectProperty<Validator> validatorProperty(){return this.validatorSelection;}
     
     public ObjectProperty<Validator> validatorForFeatureSelectionProperty() { return this.validatorForFeatureSelection; }
-    
-    //public StringProperty kProperty() { return this.k; }
-   // public StringProperty kForFeatureSelectionProperty() {return this.kForFeatureSelection; }
     public ObjectProperty<PLAlgorithm> algorithmForFeatureSelectionProperty() { return this.algorithmForFeatureSelection; }
     public ObjectProperty<FeatureSelection> featureSelectionProperty() { return this.featureSelection; }
     public ObjectProperty<Calendar> expStartTimestampProperty() { return expStartTimestamp; }
     public ObjectProperty<Calendar> expCompleteTimestampProperty() { return expCompleteTimestamp; }
 
-    
-    
     
     public ObservableList<FeaturePreprocessingInfo> initialisePreprocessing()
     {
@@ -283,22 +321,10 @@ public class Experiment {
 
     
     public Experiment() {
-        
-      //  final Experiment self = this;
-        
 
-        
-       // this.dataSet = new SimpleObjectProperty<>();
-        //self.dataSet.set(new ObjectsOrderFormat());
         this.dataSet = new ObjectsOrderFormat();
         
-       // this.preprocessingOperations = new SimpleObjectProperty<>();
-       // this.ignoredFeatures = new SimpleObjectProperty<>();
         this.algorithm = new SimpleObjectProperty<>();
-       // this.useValidator = new SimpleBooleanProperty(false);
-       // this.useValidatorForFeatureSelection = new SimpleBooleanProperty(false);
-     //   this.k = new SimpleStringProperty();
-       // this.kForFeatureSelection = new SimpleStringProperty();
         this.validatorForFeatureSelection = new SimpleObjectProperty<>();
         this.featureSelection = new SimpleObjectProperty<>();
         this.algorithmForFeatureSelection = new SimpleObjectProperty<>();
@@ -308,139 +334,13 @@ public class Experiment {
         this.expStartTimestamp = new SimpleObjectProperty<>();
         this.expCompleteTimestamp = new SimpleObjectProperty<>();
         
-
         
-        
-        System.err.println("Removed parsing listeners from here");
-        /*this.isReadyToParseIdata.addListener(new ChangeListener<Boolean>() {
-                
-            @Override
-            public void changed(ObservableValue<? extends Boolean> ov, Boolean oldValue, Boolean newValue)
-            {
-                if(newValue)
-                {
-                    ObjectsOrderFormat internalDataSet = self.dataSet.get();
-                    internalDataSet.setIData(self.idata.getValue(),self.idataSeparator.getValue());
-                    
-                    DataFileParseStatus updatedParseStatus = internalDataSet.parseIData();
-                    
-                    if(internalDataSet.containsOrderData())
-                    {
-                        updatedParseStatus = internalDataSet.parseOrderData();
-                    }
-                    
-                    self.dataSetParseStatus.set(updatedParseStatus); 
-                    
-                    self.dataSet.set(internalDataSet);
-                    
-                    self.hasPerformedAParseStage.setValue(true);
-                    
-                    if((internalDataSet.containsIData())&&(internalDataSet.containsOrderData()))
-                    {
-                        self.hasParsedBothIdataNOrder.setValue(true);
-                    }
-                }
-            }
-        });
-        
-        this.isReadyToParseOrder.addListener(new ChangeListener<Boolean>() {
-            
-            @Override
-            public void changed(ObservableValue<? extends Boolean> ov, Boolean oldValue, Boolean newValue)
-            {
-                if(newValue)
-                {
-                    ObjectsOrderFormat internalDataSet = self.dataSet.get();
-                    internalDataSet.setOrderData(self.order.getValue(),
-                                                 self.orderSeparator.getValue(),
-                                                 self.orderSkipLines.getValue(),
-                                                 self.orderSkipColumns.getValue());
-                    
-                    DataFileParseStatus updatedParseStatus = internalDataSet.parseOrderData();
-                    self.dataSetParseStatus.set(updatedParseStatus);
-                    
-                    self.dataSet.set(internalDataSet);
-                    
-                    self.hasPerformedAParseStage.setValue(true);
-                    
-                    if((internalDataSet.containsIData())&&(internalDataSet.containsOrderData()))
-                    {
-                        self.hasParsedBothIdataNOrder.setValue(true);
-                    }
-                }
-            }
-        });
-        
-        
-        
-        
-        this.hasParsedBothIdataNOrder.addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> ov, Boolean oldValue, Boolean newValue) {
-                if (newValue) 
-                {
-                    self.hasParsedBothIdataNOrder.set(false);
-                    
-                    self.isReadyToUseDataSet.set(false);
-                    self.isParsing.set(true);
-                    
-                    Task<Boolean> task = new Task<Boolean>() {
-
-                        @Override
-                        protected Boolean call() throws Exception {
-
-                            boolean result;               
-                            
-                            
-                            // Assumes parsing has been done previously.
-                            // This part only checks if the parsing was successful.
-                            
-
-                            result = self.dataSetParseStatus.get().overallParseResult;
-                                
-
-                            if (result) {
-                                PreprocessingOperation[] po = new PreprocessingOperation[self.dataSet.get().getNumberOfFeatures()];
-                                boolean[] ignored = new boolean[self.dataSet.get().getNumberOfFeatures()];
-
-                                for (int i=0; i<po.length; i++) {
-                                    if (!self.dataSet.get().isNumeric(i)) 
-                                        po[i] = new Nominal(self.dataSet.get(),i);
-                                    else 
-                                        po[i] = new Numeric(self.dataSet.get(), i);
-                                    
-                                    ignored[i] = false;
-                                }
-                                
-                                self.preprocessingOperations.set(po);
-                                self.ignoredFeatures.set(ignored);
-                            }
-                            return result;
-                        }
-                    };
-                    
-                    task.valueProperty().addListener(new ChangeListener<Boolean>() {
-                        @Override
-                        public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
-                            self.isParsing.set(false);
-                            self.isReadyToUseDataSet.set(t1);
-                        }
-                    });
-                    new Thread(task).start();
-               }
-            }
-        });
-        */
    }
     
   
 
-    
-  
-    
-    
-   
    public Report start() {
+	   
        // Record Experiment Start Timestamp
        this.expStartTimestamp.setValue(Calendar.getInstance());
        Logger.getLogger("plt.logger").log(Level.INFO, "Execution Start: "+ TimeHelper.createTimestampStr(this.expStartTimestamp.get()));
@@ -450,40 +350,32 @@ public class Experiment {
                
        PreprocessingOperation[] ops = new PreprocessingOperation[this.preprocessingOperations.size()];
        
-       
        for (int i=0; i < ops.length ; i++)
            if (preprocessingOperations.get(i).getIncludeFlag()) 
                ops[i] = preprocessingOperations.get(i).getPreprocessingOptions().getSelected();
            else
                ops[i] = new Ignoring( i);
 
-       TrainableDataSet t = new PreprocessedDataSet(this.dataSet, ops);
+       t = new PreprocessedDataSet(this.dataSet, ops);
        
        
-       this.algorithm.get().setDataSet(t);
+      // this.algorithm.get().setDataSet(t);
 
        ExecutionProgress.incrementTaskProgByPerc(1.0f);
-       ExecutionProgress.signalTaskComplete();
-       
-       
-       
-      /* Validator validator = new NoValidation();
-          
-       if (this.useValidator.get()) {
-        int d = Integer.parseInt(this.k.get());
-        validator = new KFoldCV(d);
-       }*/
+       ExecutionProgress.signalTaskComplete();       
        
        String tmpTName = "";
        if(this.featureSelectionProperty().get() != null) { tmpTName = "Feature Selection"; }
        ExecutionProgress.signalBeginTask(tmpTName,1.0f/9.0f);
-      
-       if (this.featureSelectionProperty().get() != null) {
-           
-           
-           Logger.getLogger("plt.logger").log(Level.INFO, "running feature selection");
 
-           FeatureSelection f = this.featureSelectionProperty().get();
+       FeatureSelection f = this.featureSelectionProperty().get();
+       SelectedFeature features = null;
+       
+       if (f!= null) {
+           
+           
+           Logger.getLogger("plt.logger").log(Level.INFO, "Running feature selection");
+
           // Validator validatorForFS = new NoValidation();
           // if (this.useValidatorForFeatureSelection.get()) {
           //     int d = Integer.parseInt(this.kForFeatureSelection.get());
@@ -491,13 +383,19 @@ public class Experiment {
           // }
            
            PLAlgorithm algoFS = this.algorithmForFeatureSelection.get();
-           algoFS.setDataSet(t);
+          // algoFS.setDataSet(t);
            
-           f.run(validatorForFeatureSelection.get(), algoFS);
+           f.run(validatorForFeatureSelection.get(), algoFS,t);
            
             Logger.getLogger("plt.logger").log(Level.INFO, "selected feature: \n"+f.getResult());
+            features = f.getResult();
+           //this.algorithm.get().setSelectedFeature(f.getResult());
+       }else{
+    	   
 
-           this.algorithm.get().setSelectedFeature(f.getResult());
+    	   features = new SelectedFeature();
+    	   features.setSelected(0, t.getNumberOfFeatures() - 1);
+    	   
        }
        
        ExecutionProgress.incrementTaskProgByPerc(1.0f);
@@ -506,8 +404,8 @@ public class Experiment {
        
        
        ExecutionProgress.signalBeginTask("Experiment",1);
-       Logger.getLogger("plt.logger").log(Level.INFO, "running experiment - dataset: \n"+t);
-       Report retRep = this.algorithm.get().createModelWithValidation(validatorSelection.get());     
+       Logger.getLogger("plt.logger").log(Level.INFO, "Running experiment - dataset: \n"+t);
+       Report retRep = validatorSelection.get().runWithValidation(this.algorithm.get(),t,features);     
        ExecutionProgress.signalTaskComplete();
        
        
@@ -517,7 +415,7 @@ public class Experiment {
        
        Logger.getLogger("plt.logger").log(Level.INFO, "Execution End: "+TimeHelper.createTimestampStr(this.expCompleteTimestamp.get()));
        Logger.getLogger("plt.logger").log(Level.INFO, "Total Duration: "+TimeHelper.calculateDuration(this.expStartTimestamp.get(),this.expCompleteTimestamp.get()));
-       Logger.getLogger("plt.logger").log(Level.INFO, "Average Accuracy Over Folds: "+((Math.round(retRep.getAVGAccuracy() * 100) * 1000) / 1000)+"%");
+       Logger.getLogger("plt.logger").log(Level.INFO, "Average Accuracy Over Folds: "+(((retRep.getAVGAccuracy() * 100) ) )+"%");
        
        return retRep;
    }

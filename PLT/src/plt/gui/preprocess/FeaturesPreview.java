@@ -219,15 +219,16 @@ public class FeaturesPreview  {
         		tmpPane.setCenter(lblBlank);
         
         	table = new TableView<>();
-            table.setPrefSize(400, 400);
+            //table.setPrefSize(400, 400);
             HBox blankFooter = new HBox();
             
        content.getChildren().addAll(tmpPane,table,blankFooter);
        table.setPlaceholder(new Label("Select a feature to see the preview"));
       
        
-tmpPane.setPrefHeight(50);
-tmpPane.setPadding(new Insets(5,2,5,0));
+//tmpPane.setPrefHeight(50);
+tmpPane.setPadding(new Insets(2,2,2,2));
+//tmpPane.setPadding(new Insets(5,2,5,0));
 tmpPane.setStyle("-fx-border-radius: 1; -fx-border-color: black");
                 
 Font headerFont = Font.font("BirchStd", FontWeight.BOLD, 15);
@@ -235,9 +236,9 @@ Font headerFont = Font.font("BirchStd", FontWeight.BOLD, 15);
 lblBlank.setFont(headerFont);
 BorderPane.setAlignment(lblBlank, Pos.CENTER);   
         
-blankFooter.setSpacing(15);
-blankFooter.setAlignment(Pos.CENTER);
-blankFooter.setPadding(new Insets(10));
+//blankFooter.setSpacing(15);
+//blankFooter.setAlignment(Pos.CENTER);
+//blankFooter.setPadding(new Insets(10));
         
     }
     

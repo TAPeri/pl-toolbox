@@ -176,7 +176,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
-import javafx.stage.PopupWindow;
+
 import javafx.stage.Stage;
 import plt.dataset.DataParser;
 import plt.dataset.datareader.DataFileParseStatus;
@@ -324,7 +324,7 @@ public class DataSetTab extends Tab {
 		parser1.processData();
     	objectsStatusText.setText(this.dataset.setObjectData(parser1));	                    	
 		
-        DataParser parser2 = new DataParser(new File("/Users/hector/Downloads/adhoc_features/reports-challenge.csv"),",",0,0,false,false,false);
+        DataParser parser2 = new DataParser(new File("/Users/hector/Downloads/adhoc_features/reports-challenge.csv"),",",0,0,true,false,false);
 		parser2.processData();
     	orderStatusText.setText(this.dataset.setOrderData(parser2));
 
@@ -432,9 +432,6 @@ public class DataSetTab extends Tab {
     }
     
     private File chooseFile(){
-    	
-    	PopupWindow pw = new PopupControl();
-        pw.show(stage);
 
         FileChooser fc = new FileChooser();
         if(latestWorkingDir != null) { fc.setInitialDirectory(new File(latestWorkingDir)); }

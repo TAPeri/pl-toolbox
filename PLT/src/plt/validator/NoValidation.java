@@ -164,16 +164,16 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.validator.examples;
+package plt.validator;
 
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import plt.dataset.TrainableDataSet;
-import plt.gui.algorithms.PLAlgorithm;
+import plt.featureselection.SelectedFeature;
 import plt.model.Model;
+import plt.plalgorithm.PLAlgorithm;
 import plt.report.Report;
 import plt.utils.Preference;
-import plt.validator.Validator;
 
 /**
  *
@@ -182,15 +182,18 @@ import plt.validator.Validator;
 public class NoValidation extends Validator {
 
     @Override
-    public Report runWithValidation(PLAlgorithm algorithm) {
+    public Report runWithValidation(PLAlgorithm algorithm,TrainableDataSet originalDataSet,SelectedFeature features) {
         
         Report report = new Report();
         
         //System.out.println("dataset: " + algorithm.getDataset());
-        
-        Model before = algorithm.prepareToRun();
-        TrainableDataSet validationDataSet = algorithm.getDataset();
 
+        TrainableDataSet validationDataSet = originalDataSet;
+
+        
+        Model model = algorithm.createModel(validationDataSet,features);
+        Model before = algorithm.getUntrainedModel();
+        
         double beforeCorrectness = 0;
         for (int z = 0; z < validationDataSet.getNumberOfPreferences(); z++) {
             Preference instance = validationDataSet.getPreference(z);
@@ -201,7 +204,6 @@ public class NoValidation extends Validator {
         beforeCorrectness /= validationDataSet.getNumberOfPreferences();
         
         
-        Model model = algorithm.createModel();
         if(model == null) { return null; }
         double correctness = 0;
         for (int z = 0; z < validationDataSet.getNumberOfPreferences(); z++) {
@@ -212,9 +214,9 @@ public class NoValidation extends Validator {
         }
         
         correctness /= validationDataSet.getNumberOfPreferences();
-        
         report.addExperimentResult(model, correctness,beforeCorrectness);
-
+        report.addTestAccuracy(correctness, beforeCorrectness);//t
+        
         return report;
     }
 

@@ -176,8 +176,8 @@ import plt.dataset.preprocessing.Numeric;
 import plt.dataset.preprocessing.PreprocessingOperation;
 import plt.functions.LinearFunction;
 import plt.functions.QuadraticFuncion;
-import plt.gui.algorithms.PLNeuroEvolution;
-import plt.gui.configurators.PLNeuroEvolutionConfigurator;
+import plt.gui.algorithms.PLNeuroEvolutionConfigurator;
+import plt.plalgorithm.neruoevolution.PLNeuroEvolution;
 import plt.plalgorithm.neruoevolution.GA.GeneticAlgorithmConfigurator;
 import plt.plalgorithm.neruoevolution.GA.ParentSelection;
 import plt.plalgorithm.neruoevolution.GA.genticaloperators.CrossOver;
@@ -189,8 +189,8 @@ import plt.plalgorithm.neruoevolution.NE.ActivationFunction;
 import plt.plalgorithm.neruoevolution.NE.Linear;
 import plt.plalgorithm.neruoevolution.NE.Sigmond;
 import plt.report.Report;
+import plt.validator.SplitValidation;
 import plt.validator.Validator;
-import plt.validator.examples.SplitValidation;
 
 /**
  *
@@ -282,7 +282,7 @@ public class NEExperiments extends Application {
 
 
             Validator v = new SplitValidation(20);
-            PLNeuroEvolution bp = new PLNeuroEvolution(trainableDataSet, new PLNeuroEvolutionConfigurator() {
+            PLNeuroEvolution bp = new PLNeuroEvolution(new PLNeuroEvolutionConfigurator() {
                 @Override
                 public GeneticAlgorithmConfigurator getGeneticAlgorithmConfigurator() {
                     return new GeneticAlgorithmConfigurator() {
@@ -354,7 +354,7 @@ public class NEExperiments extends Application {
                 }
             });
 
-            Report r = bp.createModelWithValidation(v);
+            Report r =v.runWithValidation(bp, trainableDataSet, null);
             System.out.println((i + 1) + " of " + traials + " accuracy:" + r.getAVGAccuracy());
 
 

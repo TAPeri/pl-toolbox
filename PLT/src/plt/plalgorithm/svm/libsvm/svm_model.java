@@ -168,7 +168,7 @@ Library.*/
 // svm_model
 //
 package plt.plalgorithm.svm.libsvm;
-public class svm_model implements java.io.Serializable
+public class svm_model implements Cloneable,java.io.Serializable
 {
 	public svm_parameter param;	// parameter
 	public int nr_class;		// number of classes, = 2 in regression/one class svm
@@ -185,4 +185,15 @@ public class svm_model implements java.io.Serializable
 	public int[] label;		// label of each class (label[k])
 	public int[] nSV;		// number of SVs for each class (nSV[k])
 				// nSV[0] + nSV[1] + ... + nSV[k-1] = l
+	
+	
+	public Object clone() throws CloneNotSupportedException 
+	{
+		
+		svm_model copy = (svm_model)super.clone();
+		
+		return copy;
+	}
+	
+	
 };
