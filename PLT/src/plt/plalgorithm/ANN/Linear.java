@@ -164,74 +164,25 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.dataset.datareader;
-
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
+package plt.plalgorithm.ANN;
 
 /**
  *
  * @author Institute of Digital Games, UoM Malta
  */
-public class DataFileParseStatus
-{
-  //  public boolean overallParseResult;
-	
-	IntegerProperty error;
-	String errorDescription;
-	
-  /*  public int error_iDataFile;             // -1 = unknown, 0 = no error, 1 = error.
-    public int error_orderDataFile;         // -1 = unknown, 0 = no error, 1 = error.
-    
-    public String error_iDataFile_reason;
-    public String error_orderDataFile_reason;
-    */
-    
-    public IntegerProperty getError(){
-    	return error;
+public class Linear implements ActivationFunction {
+    @Override
+    public double evalue(double input) {
+        return input;
     }
-   
-    public void setError(int value){
-    	System.out.println(value);
-    	error.setValue(value);
+
+    @Override
+    public String toString() {
+        return "{Linear}";
     }
-    
-    public String getDescription(){
-    	return errorDescription;
+
+    @Override
+    public double evalueDerivative(double input,double output) {
+        return 1;
     }
-    
-    public void setDescription(String value){
-    	errorDescription = value;
-    }
-    
-    
-    public DataFileParseStatus()
-    {
-        // Defaults
-        
-       // overallParseResult = false;
-    	error = new SimpleIntegerProperty(-1);
-    	errorDescription = "";
-    	
-       /* error_iDataFile = -1;
-        error_orderDataFile = -1;
-        
-        error_iDataFile_reason = "Invalid File Format";
-        error_orderDataFile_reason = "Invalid File Format";*/
-    }
-    
-    
-    
-    
-    
-  /*  public DataFileParseStatus(boolean para_overallParseResult,
-                                  int para_errorIDataFile,
-                                  int para_errorOrderDataFile)
-    {
-        overallParseResult = para_overallParseResult;
-        error_iDataFile = para_errorIDataFile;
-        error_orderDataFile = para_errorOrderDataFile;
-    }*/
-    
-    
 }

@@ -192,8 +192,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.util.Callback;
-
-import plt.dataset.datareader.ObjectsOrderFormat;
+import plt.dataset.ObjectsOrderFormat;
 import plt.dataset.preprocessing.Binary;
 import plt.dataset.preprocessing.NumericBinary;
 import plt.dataset.preprocessing.PreprocessingOperation;

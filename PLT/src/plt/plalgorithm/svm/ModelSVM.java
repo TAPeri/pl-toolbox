@@ -6,8 +6,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import plt.dataset.TrainableDataSet;
+import plt.experiments.Experiment;
 import plt.featureselection.SelectedFeature;
-import plt.gui.Experiment;
 import plt.json.JsonObjIO;
 import plt.model.Model;
 import plt.plalgorithm.svm.libsvm_plt.RankSvmManager;
@@ -61,7 +61,7 @@ public class ModelSVM extends Model {
         }
         catch (Exception ex)
         {
-           Logger.getLogger(PLRankSvm.class.getName()).log(Level.SEVERE,null,ex);
+           Logger.getLogger(RankSvm.class.getName()).log(Level.SEVERE,null,ex);
            throw ex;
         }
     }

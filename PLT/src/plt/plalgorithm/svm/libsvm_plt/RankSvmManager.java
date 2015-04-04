@@ -172,7 +172,7 @@ import java.util.HashMap;
 
 import plt.dataset.TrainableDataSet;
 import plt.featureselection.SelectedFeature;
-import plt.plalgorithm.neruoevolution.NE.SimpleNeuralNetwork;
+import plt.plalgorithm.ANN.SimpleNeuralNetwork;
 import plt.plalgorithm.svm.libsvm.svm;
 import plt.plalgorithm.svm.libsvm.svm_model;
 import plt.plalgorithm.svm.libsvm.svm_node;

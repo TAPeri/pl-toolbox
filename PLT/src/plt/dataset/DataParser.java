@@ -5,11 +5,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
-
 import java.util.List;
 import java.util.Scanner;
-
-import plt.dataset.datareader.DataFileParseStatus;
 
 public class DataParser {
 	

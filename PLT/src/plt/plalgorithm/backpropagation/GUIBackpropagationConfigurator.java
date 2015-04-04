@@ -164,7 +164,7 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.gui.algorithms;
+package plt.plalgorithm.backpropagation;
 
 import java.util.ArrayList;
 
@@ -186,13 +186,13 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import plt.gui.Main;
+import plt.gui.algorithms.GUIConfigurator;
 import plt.gui.component.AdvanceTextField;
 import plt.plalgorithm.PLAlgorithm;
-import plt.plalgorithm.backpropagation.PLBackPropagation;
-import plt.plalgorithm.neruoevolution.NE.ActivationFunction;
-import plt.plalgorithm.neruoevolution.NE.HyperbolicTangent;
-import plt.plalgorithm.neruoevolution.NE.Linear;
-import plt.plalgorithm.neruoevolution.NE.Sigmond;
+import plt.plalgorithm.ANN.ActivationFunction;
+import plt.plalgorithm.ANN.HyperbolicTangent;
+import plt.plalgorithm.ANN.Linear;
+import plt.plalgorithm.ANN.Sigmond;
 
 /**
  *
@@ -201,7 +201,7 @@ import plt.plalgorithm.neruoevolution.NE.Sigmond;
  * @author Vincent Farrugia
  */
 
-public class PLBackPropagationConfigurator implements GUIConfigurator{// implements plt.plalgorithm.backpropagation.PLBackPropagationConfigurator {
+public class GUIBackpropagationConfigurator implements GUIConfigurator, BackpropagationConfigurator{// implements plt.plalgorithm.backpropagation.PLBackPropagationConfigurator {
     
     private ArrayList<TextField> topology;
     private ArrayList<ChoiceBox> choiceBoxTopology;
@@ -230,17 +230,14 @@ public class PLBackPropagationConfigurator implements GUIConfigurator{// impleme
         } 
     }
 
-
-    public PLBackPropagationConfigurator() {
+    public GUIBackpropagationConfigurator() {
 
         
         // Section 1: ANN
         
         topology = new ArrayList<TextField>();
         choiceBoxTopology = new ArrayList<ChoiceBox>();
-        
-        
-        
+                
         
         // Section 2: Backpropagation
         
@@ -256,7 +253,11 @@ public class PLBackPropagationConfigurator implements GUIConfigurator{// impleme
     
     
    // @Override
-    public int[] getTopology(int inputSize)
+    /* (non-Javadoc)
+	 * @see plt.gui.algorithms.IPLBackpropagationConfigurator#getTopology(int)
+	 */
+    @Override
+	public int[] getTopology(int inputSize)
     {
         int j = 0;
         for (int i = 0; i < topology.size(); i++) 
@@ -290,10 +291,6 @@ public class PLBackPropagationConfigurator implements GUIConfigurator{// impleme
 
         ui = new HBox(5);
 
-    	
-    	
-    	
-    	
         annGridPane = new GridPane();
         annGridPane.setPadding(new Insets(20));
         annGridPane.setHgap(15);
@@ -302,7 +299,6 @@ public class PLBackPropagationConfigurator implements GUIConfigurator{// impleme
 
         
         Font headerFont = Font.font("BirchStd", FontWeight.BOLD, 15);
-        
         
 
         // Section 1: (ANN)
@@ -328,7 +324,7 @@ public class PLBackPropagationConfigurator implements GUIConfigurator{// impleme
         btnAddHiddenLayer.setPrefHeight(30);
         btnAddHiddenLayer.setGraphic(new ImageView(new Image(Main.class.getResourceAsStream("plus_small.png"))));
         btnAddHiddenLayer.setStyle("-fx-background-color: transparent");
-        btnAddHiddenLayer.setOnAction(new PLBackPropagationConfigurator.AddANNLayerHandler());
+        btnAddHiddenLayer.setOnAction(new GUIBackpropagationConfigurator.AddANNLayerHandler());
         
         
         
@@ -339,7 +335,7 @@ public class PLBackPropagationConfigurator implements GUIConfigurator{// impleme
         btnRemoveHiddenLayer.setPrefHeight(30);
         btnRemoveHiddenLayer.setGraphic(new ImageView(new Image(Main.class.getResourceAsStream("minus_small.png"))));
         btnRemoveHiddenLayer.setStyle("-fx-background-color: transparent");
-        btnRemoveHiddenLayer.setOnAction(new PLBackPropagationConfigurator.RemoveANNLayerHandler());
+        btnRemoveHiddenLayer.setOnAction(new GUIBackpropagationConfigurator.RemoveANNLayerHandler());
         
         
         
@@ -455,21 +451,26 @@ HBox.setHgrow(tmp2.getContent(), Priority.ALWAYS);
 
 
 
-return ui;
+		return ui;
         
     }
    
 
 	@Override
 	public String testParameters() {
-		// TODO Auto-generated method stub
-		return "";
+		
+		InlineBackpropagationConfigurator test = new InlineBackpropagationConfigurator(this);
+		return test.testParameters();
 	}
     
     
     
     //@Override
-    public ActivationFunction[] getActivationsFunctions()
+    /* (non-Javadoc)
+	 * @see plt.gui.algorithms.IPLBackpropagationConfigurator#getActivationsFunctions()
+	 */
+    @Override
+	public ActivationFunction[] getActivationsFunctions()
     {
         int j = 0;
         for (int i = 0; i < topology.size(); i++)
@@ -525,17 +526,29 @@ return ui;
     
 
   //  @Override
-    public double getLearningRate() {
+    /* (non-Javadoc)
+	 * @see plt.gui.algorithms.IPLBackpropagationConfigurator#getLearningRate()
+	 */
+    @Override
+	public double getLearningRate() {
         return parseDobuleOrFailWithZero(learningRate);    
     }
 
    // @Override
-    public double getErrorThreeshold() {
+    /* (non-Javadoc)
+	 * @see plt.gui.algorithms.IPLBackpropagationConfigurator#getErrorThreeshold()
+	 */
+    @Override
+	public double getErrorThreeshold() {
         return parseDobuleOrFailWithZero(errorThreeshold);    
     }
 
   //  @Override
-    public int getMaxNumberOfIterations() {
+    /* (non-Javadoc)
+	 * @see plt.gui.algorithms.IPLBackpropagationConfigurator#getMaxNumberOfIterations()
+	 */
+    @Override
+	public int getMaxNumberOfIterations() {
         return parseIntegerOrFailWithZero(maxNumberOfIterations);    
     }
     
@@ -615,9 +628,6 @@ return ui;
             topology = nwTopologyList;
             
             
-            
-            
-            
             ChoiceBox nwActivationFuncCBox = new ChoiceBox(FXCollections.observableArrayList("Sigmoid", "Hyperbolic Tangent", "Linear"));
             nwActivationFuncCBox.getSelectionModel().selectFirst();
             
@@ -652,9 +662,12 @@ return ui;
         }
     }
 
+	/* (non-Javadoc)
+	 * @see plt.gui.algorithms.IPLBackpropagationConfigurator#algorithm()
+	 */
 	@Override
 	public PLAlgorithm algorithm() {
-		return new PLBackPropagation(this);
+		return new Backpropagation(this);
 	}
     
     

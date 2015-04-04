@@ -164,7 +164,7 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.gui.algorithms;
+package plt.plalgorithm.neruoevolution;
 
 import java.util.ArrayList;
 
@@ -186,9 +186,13 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import plt.gui.Main;
+import plt.gui.algorithms.GUIConfigurator;
 import plt.gui.component.AdvanceTextField;
 import plt.plalgorithm.PLAlgorithm;
-import plt.plalgorithm.neruoevolution.PLNeuroEvolution;
+import plt.plalgorithm.ANN.ActivationFunction;
+import plt.plalgorithm.ANN.HyperbolicTangent;
+import plt.plalgorithm.ANN.Linear;
+import plt.plalgorithm.ANN.Sigmond;
 import plt.plalgorithm.neruoevolution.GA.GeneticAlgorithmConfigurator;
 import plt.plalgorithm.neruoevolution.GA.ParentSelection;
 import plt.plalgorithm.neruoevolution.GA.genticaloperators.CrossOver;
@@ -196,10 +200,6 @@ import plt.plalgorithm.neruoevolution.GA.genticaloperators.CrossOverType;
 import plt.plalgorithm.neruoevolution.GA.genticaloperators.GaussianMutation;
 import plt.plalgorithm.neruoevolution.GA.genticaloperators.Invertion;
 import plt.plalgorithm.neruoevolution.GA.parentselections.RouletteWheelSelection;
-import plt.plalgorithm.neruoevolution.NE.ActivationFunction;
-import plt.plalgorithm.neruoevolution.NE.HyperbolicTangent;
-import plt.plalgorithm.neruoevolution.NE.Linear;
-import plt.plalgorithm.neruoevolution.NE.Sigmond;
 
 /**
  *
@@ -207,7 +207,7 @@ import plt.plalgorithm.neruoevolution.NE.Sigmond;
  *
  * @author Vincent Farrugia
  */
-public class PLNeuroEvolutionConfigurator implements GUIConfigurator{// implements plt.plalgorithm.neruoevolution.PLNeuroEvolutionConfigurator {
+public class GUINeuroEvolutionConfigurator implements GUIConfigurator, NeuroEvolutionConfigurator{// implements plt.plalgorithm.neruoevolution.PLNeuroEvolutionConfigurator {
 
     
     private ArrayList<TextField> topology;
@@ -243,7 +243,7 @@ public class PLNeuroEvolutionConfigurator implements GUIConfigurator{// implemen
         }
     }
 
-    public PLNeuroEvolutionConfigurator() {
+    public GUINeuroEvolutionConfigurator() {
         
         // Section 1: ANN
         
@@ -279,7 +279,11 @@ public class PLNeuroEvolutionConfigurator implements GUIConfigurator{// implemen
     }
 
    // @Override
-    public int[] getTopology(int inputSize)
+    /* (non-Javadoc)
+	 * @see plt.gui.algorithms.NeuroEvolutionConfigurator#getTopology(int)
+	 */
+    @Override
+	public int[] getTopology(int inputSize)
     {
         int j = 0;
         for (int i = 0; i < topology.size(); i++) 
@@ -306,14 +310,22 @@ public class PLNeuroEvolutionConfigurator implements GUIConfigurator{// implemen
     }
 
    // @Override
-    public int iterations()
+    /* (non-Javadoc)
+	 * @see plt.gui.algorithms.NeuroEvolutionConfigurator#iterations()
+	 */
+    @Override
+	public int iterations()
     {
         return parseOrFailWithZero(iterations);
     }
 
    // @Override
-    public GeneticAlgorithmConfigurator getGeneticAlgorithmConfigurator() {
-        final PLNeuroEvolutionConfigurator self = this;
+    /* (non-Javadoc)
+	 * @see plt.gui.algorithms.NeuroEvolutionConfigurator#getGeneticAlgorithmConfigurator()
+	 */
+    @Override
+	public GeneticAlgorithmConfigurator getGeneticAlgorithmConfigurator() {
+        final GUINeuroEvolutionConfigurator self = this;
         return new GeneticAlgorithmConfigurator() {
             
             @Override
@@ -659,6 +671,9 @@ public class PLNeuroEvolutionConfigurator implements GUIConfigurator{// implemen
 	}
 	
 
+	/* (non-Javadoc)
+	 * @see plt.gui.algorithms.NeuroEvolutionConfigurator#testParameters()
+	 */
 	@Override
 	public String testParameters() {
 
@@ -688,7 +703,11 @@ public class PLNeuroEvolutionConfigurator implements GUIConfigurator{// implemen
     
 
    // @Override
-    public ActivationFunction[] getActivationsFunctions()
+    /* (non-Javadoc)
+	 * @see plt.gui.algorithms.NeuroEvolutionConfigurator#getActivationsFunctions()
+	 */
+    @Override
+	public ActivationFunction[] getActivationsFunctions()
     {
         int j = 0;
         for (int i = 0; i < topology.size(); i++)
@@ -855,9 +874,12 @@ public class PLNeuroEvolutionConfigurator implements GUIConfigurator{// implemen
         }
     }
 
+	/* (non-Javadoc)
+	 * @see plt.gui.algorithms.NeuroEvolutionConfigurator#algorithm()
+	 */
 	@Override
 	public PLAlgorithm algorithm() {
-		return new PLNeuroEvolution(this);
+		return new NeuroEvolution(this);
 	}
         
 }

@@ -170,10 +170,11 @@ import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
 import plt.dataset.TrainableDataSet;
+import plt.experiments.Experiment;
 import plt.featureselection.SelectedFeature;
-import plt.gui.Experiment;
-import plt.plalgorithm.neruoevolution.NE.SimpleNeuralNetwork;
+import plt.plalgorithm.ANN.SimpleNeuralNetwork;
 import plt.utils.TimeHelper;
 
 public class NNModelFileData extends ModelFileData implements Serializable

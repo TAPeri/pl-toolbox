@@ -164,93 +164,112 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.plalgorithm.neruoevolution.NE;
+package plt.experiments;
 
-
-
-import plt.dataset.TrainableDataSet;
-
-import plt.featureselection.SelectedFeature;
-import plt.plalgorithm.neruoevolution.GA.DNA;
-import plt.plalgorithm.neruoevolution.GA.GeneticAlgorithm;
-import plt.plalgorithm.neruoevolution.GA.GeneticEncoder;
+import plt.functions.MathematicalFunction;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
+import plt.dataset.DataSet;
+import plt.utils.Preference;
 
 /**
  *
  * @author Vincent Farrugia
  */
+public class DumpDataSet implements DataSet {
+    private String[][] features;
+    private List<Preference> preferences;
+    
+    public DumpDataSet(int numberOfObjects, int numberOfFeatures, MathematicalFunction function) {
+        super();
+        this.features = new String[numberOfObjects][numberOfFeatures];
+        
+        
+        
+        Random rand = new Random();
+        
+        for (int i=0; i<numberOfObjects; i++) {
+            for (int j=0; j<numberOfFeatures; j++) {
+                this.features[i][j] = ""+rand.nextDouble();
+            }
+        }
+        
+        preferences = new LinkedList<>();
+        for (int i = 0; i < numberOfObjects; i++) {
+            for (int j = 0; j < i; j++) {
 
-public class NeuroEvolutionAlgorithm {
-    private NeuroEvolutionAlgorithmConfigurator configurator;
-    protected GeneticAlgorithm ga;
-    private NetworkEvalutaor evaluator;
-
-     
-    public NeuroEvolutionAlgorithm(NeuroEvolutionAlgorithmConfigurator configurator,NetworkEvalutaor networkEvaluator,SelectedFeature features) {
-        
-        this.configurator = configurator;
-        this.evaluator = networkEvaluator;
-        
-        final SimpleNeuralNetwork n = new SimpleNeuralNetwork(this.configurator.getTopology(features), this.configurator.getActivationsFunctions());
-        
-        final NetworkEvalutaor e = this.evaluator;
-        
-        this.ga = new GeneticAlgorithm(this.configurator.getGeneticAlgorithmConfigurator(), new GeneticEncoder() {
-
-            @Override
-            public Object decode(DNA dna) {
-                double[] weights = new double[dna.vector.length];
-                for (int i=0; i<weights.length;i++) {
-                    weights[i] = (dna.vector[i]*10)-5;
+                double iValue =  function.evaluate(features[i]);
+                double jValue =  function.evaluate(features[j]);
+                
+                if (jValue > iValue) {
+                    preferences.add(new Preference(j, i));
+                } else {
+                    preferences.add(new Preference(i, j));
                 }
                 
-                n.setWeights(weights);
-                return n;
             }
-
-            @Override
-            public double evaluationFunction(DNA dna,TrainableDataSet dataset,SelectedFeature featureSelection ) {
-                double[] weights = new double[dna.vector.length];
-                for (int i=0; i<weights.length;i++) {
-                    weights[i] = (dna.vector[i]*10)-5;
-                }
-                
-                n.setWeights(weights);
-                
-                try {
-                    return e.evaluate((SimpleNeuralNetwork)n.clone(),dataset,featureSelection);
-                } catch (CloneNotSupportedException ex) {
-                    throw new RuntimeException();
-                }
-            }
-
-            @Override
-            public int dnaSize() {
-                return n.getNumberOfWeights();
-            }
-        });
-    }
-    
+       }
         
-    public void runUntillReach(double threshold,TrainableDataSet dataset,SelectedFeature featureSelection) {
-        //Logger.getLogger("plt.logger").log(Level.INFO, "run NeuroEvolution with threshold "+ threshold);
-        ga.runUntillReach(threshold,dataset,featureSelection);
-    }
-    
-    public void runFor(int times,TrainableDataSet dataset,SelectedFeature featureSelection) throws InterruptedException {
-        //Logger.getLogger("plt.logger").log(Level.INFO, "run NeuroEvolution for "+ times+" iterations ");
-        ga.runFor(times,dataset,featureSelection);
-    }
-    
-    /**
-     * 
-     * @return current result; if untrained, return the first phenotype (not the best)
-     */
-    public SimpleNeuralNetwork getNeuralNetuork() {
-        return (SimpleNeuralNetwork)ga.getResult();
     }
 
-    
-    
+    @Override
+    public int getNumberOfObjects() {
+        return features.length;
+    }
+
+    @Override
+    public int getNumberOfPreferences() {
+        return preferences.size();
+     }
+
+    @Override
+    public int getNumberOfFeatures() {
+        return features[0].length;
+    }
+
+    @Override
+    public String getFeatureName(int n) {
+        return "feature "+n;
+    }
+
+    @Override
+    public String[] getFeatures(int n) {
+        return this.features[n];
+    }
+
+    @Override
+    public String getFeature(int n, int f) {
+        return this.features[n][f];
+    }
+
+    @Override
+    public Preference getPreference(int n) {
+        return this.preferences.get(n);
+    }
+
+    @Override
+    public int atomicGroup(int n) {
+        return n;
+    }
+
+    @Override
+    public boolean isNumeric(int n) {
+        return true;
+    }
+
+	@Override
+	public List<Preference> getPreferences() {
+		return preferences;
+	}
+
+	@Override
+	public int[] getIDs() {
+		int[] tmp = new int[features.length];
+		for(int i=0;i<tmp.length;i++)
+			tmp[i] = i;
+		return tmp;
+	}
+        
     
 }

@@ -170,19 +170,18 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 import plt.dataset.PreprocessedDataSet;
 import plt.dataset.TrainableDataSet;
-import plt.dataset.experiment.ExperimentDataset;
 import plt.dataset.preprocessing.Numeric;
 import plt.dataset.preprocessing.PreprocessingOperation;
 import plt.featureselection.SFS;
 import plt.featureselection.SelectedFeature;
 import plt.functions.LinearFunction;
 import plt.functions.MathematicalFunction;
-import plt.gui.algorithms.PLBackPropagationConfigurator;
-import plt.plalgorithm.backpropagation.PLBackPropagation;
-import plt.plalgorithm.neruoevolution.NE.ActivationFunction;
-import plt.plalgorithm.neruoevolution.NE.Linear;
-import plt.plalgorithm.neruoevolution.NE.Sigmond;
-
+import plt.plalgorithm.ANN.ActivationFunction;
+import plt.plalgorithm.ANN.Linear;
+import plt.plalgorithm.ANN.Sigmond;
+import plt.plalgorithm.backpropagation.BackpropagationConfigurator;
+import plt.plalgorithm.backpropagation.Backpropagation;
+import plt.plalgorithm.backpropagation.GUIBackpropagationConfigurator;
 import plt.validator.NoValidation;
 import plt.validator.SplitValidation;
 import plt.validator.Validator;
@@ -250,7 +249,7 @@ public class SFSExperiments extends Application {
             TrainableDataSet trainableDataSet = new PreprocessedDataSet(dataSet, po);
 
 
-            PLBackPropagationConfigurator bpC = new PLBackPropagationConfigurator() {
+            BackpropagationConfigurator bpC = new GUIBackpropagationConfigurator() {
                 @Override
                 public int[] getTopology(int inputSize) {
                     if (hiddenLayer > 0) {
@@ -287,7 +286,7 @@ public class SFSExperiments extends Application {
                 }
             };
 
-            PLBackPropagationConfigurator AFSbpC = new PLBackPropagationConfigurator() {
+            GUIBackpropagationConfigurator AFSbpC = new GUIBackpropagationConfigurator() {
                 @Override
                 public int[] getTopology(int inputSize) {
                     if (hiddenLayer > 0) {
@@ -332,7 +331,7 @@ public class SFSExperiments extends Application {
             SelectedFeature selection = new SelectedFeature();
             selection.setSelected(0, 5);
 
-            sfs.run(new NoValidation(), new PLBackPropagation( AFSbpC),trainableDataSet);
+            sfs.run(new NoValidation(), new Backpropagation( AFSbpC),trainableDataSet);
             SelectedFeature selectedFeatures = sfs.getResult();
             
             if (selection.equals(selectedFeatures))

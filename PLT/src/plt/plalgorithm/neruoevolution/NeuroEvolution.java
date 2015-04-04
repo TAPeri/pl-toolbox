@@ -164,122 +164,263 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.plalgorithm.svm;
+package plt.plalgorithm.neruoevolution;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
+//import java.util.logging.Level;
+//import java.util.logging.Logger;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 import plt.dataset.TrainableDataSet;
 import plt.featureselection.SelectedFeature;
-
-import plt.gui.algorithms.PLRankSvmConfigurator;
-
 import plt.model.Model;
 import plt.plalgorithm.PLAlgorithm;
-import plt.plalgorithm.svm.libsvm_plt.RankSvmManager;
+import plt.plalgorithm.ANN.*;
+import plt.plalgorithm.neruoevolution.GA.DNA;
+import plt.plalgorithm.neruoevolution.GA.GeneticAlgorithm;
+import plt.plalgorithm.neruoevolution.GA.GeneticAlgorithmConfigurator;
+import plt.plalgorithm.neruoevolution.GA.GeneticEncoder;
+import plt.plalgorithm.neruoevolution.GA.genticaloperators.CrossOverType;
 
 
 /**
  *
  * @author Vincent Farrugia
  */
-public class PLRankSvm extends PLAlgorithm
-{
-    private PLRankSvmConfigurator configurator;
-    private RankSvmManager svmMang;
+public class NeuroEvolution extends PLAlgorithm {
+    private NeuroEvolutionConfigurator configurator;
+    private SigmoidPairwiseFitness nee;
+    protected GeneticAlgorithm ga;
+
     
     
-    public PLRankSvm(){
+    public NeuroEvolution() {
+
+    	this(new GUINeuroEvolutionConfigurator());
     	
-    	this(new PLRankSvmConfigurator());
     }
     
-    public PLRankSvm( PLRankSvmConfigurator para_svmConfig)
-    {
+    
+
+    public NeuroEvolution( NeuroEvolutionConfigurator configurator) {
         super();
-        configurator = para_svmConfig;
+        //final NeuroEvolution self = this;
+
+        this.configurator = configurator;
+
+        this.nee = new SigmoidPairwiseFitness();
+        
+    }
+
+    @Override
+    public Model run(TrainableDataSet dataSet,SelectedFeature features) throws InterruptedException {
+      // Logger.getLogger("plt.logger").log(Level.INFO, "run PLNeuroEvolution");
+    	
+    	this.ga.runFor(this.configurator.iterations(),dataSet,features);
+        final SimpleNeuralNetwork resultNetwork = getNeuralNetuork();
+        return new ModelNeuroEvolution(resultNetwork, dataSet, features);
+
+    }
+    private SimpleNeuralNetwork getNeuralNetuork() {
+        return (SimpleNeuralNetwork)ga.getResult();
+    }
+
+    
+
+    
+    @Override
+    protected Model beforeRun(TrainableDataSet dataSet,SelectedFeature features) {
+    	
+    	
+       final SimpleNeuralNetwork n = new SimpleNeuralNetwork(this.configurator.getTopology(features.getSize()), this.configurator.getActivationsFunctions());
+        
+        final SigmoidPairwiseFitness e = nee;
+        
+        this.ga = new GeneticAlgorithm(this.configurator.getGeneticAlgorithmConfigurator(), new GeneticEncoder() {
+
+            @Override
+            public Object decode(DNA dna) {
+                double[] weights = new double[dna.vector.length];
+                for (int i=0; i<weights.length;i++) {
+                    weights[i] = (dna.vector[i]*10)-5;
+                }
+                
+                n.setWeights(weights);
+                return n;
+            }
+
+            @Override
+            public double evaluationFunction(DNA dna,TrainableDataSet dataset,SelectedFeature featureSelection ) {
+                double[] weights = new double[dna.vector.length];
+                for (int i=0; i<weights.length;i++) {
+                    weights[i] = (dna.vector[i]*10)-5;
+                }
+                
+                n.setWeights(weights);
+                
+                try {
+                    return e.evaluate((SimpleNeuralNetwork)n.clone(),dataset,featureSelection);
+                } catch (CloneNotSupportedException ex) {
+                    throw new RuntimeException();
+                }
+            }
+
+            @Override
+            public int dnaSize() {
+                return n.getNumberOfWeights();
+            }
+        });
+    	
+    	
+       // this.ne = new NeuroEvolutionAlgorithm(this.configurator, nee,features);
+        return new ModelNeuroEvolution( this.getNeuralNetuork(), dataSet, features);
     }
     
+
     
     @Override
-    protected Model run(TrainableDataSet dataset,SelectedFeature featureSelection) throws InterruptedException
+    public ArrayList<Object[]> getProperties()
     {
-        //Logger.getLogger("plt.logger").log(Level.INFO, "run PLRankSvm");
-
-        svmMang.runRankSVM();
-        
-        return new ModelSVM(svmMang,dataset,featureSelection);
-    }
-
-    @Override
-    protected Model beforeRun(TrainableDataSet dataset,SelectedFeature featureSelection)
-    {
-        HashMap<String,Object> userConfig = new HashMap<>();
-        userConfig.put("kernel", configurator.getKernelType());
-        userConfig.put("gamma", configurator.getGamma());
-        userConfig.put("degree", configurator.getDegree());     
-        
-        svmMang = new RankSvmManager();
-        svmMang.performSetup(dataset,featureSelection,userConfig);
-        
-        
-        return new ModelSVM(svmMang, dataset,featureSelection);
-    }
-
-    @Override
-    public ArrayList<Object[]> getProperties() 
-    {
-        
         // Multilayer Perceptron Properties:
         
-        String subSec1_header = "Rank SVM";
+        //int inputSize = this.getFeatureSelection().getSize();
+    	
+    	//if(ne==null)
+    	//	System.err.println("Not ready");
+        int[] fullTopology = this.getNeuralNetuork().topology;//configurator.getTopology(inputSize);
+        
+    	
+        String subSec1_header = "Multilayer Perceptron";
         ArrayList<String[]> subSec1_content = new ArrayList<>();
+
+
         
-        String[] cPair1 = new String[2];
-        cPair1[0] = "Kernel:";
-        cPair1[1] = ""+configurator.getKernelType();
-        subSec1_content.add(cPair1);
+        String[] inpLayerContentPair = new String[3];
+        inpLayerContentPair[0] = "Input Layer:";
+        inpLayerContentPair[1] = ""+fullTopology[0];
+        inpLayerContentPair[2] = "N/A";
+        subSec1_content.add(inpLayerContentPair);
         
-        if(configurator.gammaRequired())
+        
+
+        
+        for(int i=1; i<fullTopology.length-1; i++)
         {
-            String[] cPair2 = new String[2];
-            cPair2[0] = "Gamma:";
-            cPair2[1] = ""+configurator.getGamma();
-            subSec1_content.add(cPair2);
-        }
-        
-        if(configurator.degreeRequired())
-        {
-            String[] cPair3 = new String[2];
-            cPair3[0] = "Degree:";
-            cPair3[1] = ""+configurator.getDegree();
-            subSec1_content.add(cPair3);
-        }
+            if(fullTopology[i] > 0)
+            {
+                String[] nwContentPair = new String[3];
+                nwContentPair[0] = "Hidden Layer "+i+":";
+                nwContentPair[1] = ""+fullTopology[i];
+                nwContentPair[2] = configurator.getActivationsFunctions()[i-1].toString();
                 
+                subSec1_content.add(nwContentPair);
+            }
+        }
+        
+        String[] outLayerContentPair = new String[3];
+        outLayerContentPair[0] = "Output Layer:";
+        outLayerContentPair[1] = ""+1;
+        outLayerContentPair[2] = configurator.getActivationsFunctions()[fullTopology.length-2].toString();
+        subSec1_content.add(outLayerContentPair);
         
         
+        
+        // GA Properties:
+        
+        String subSec2_header = "GA Properties";
+        ArrayList<String[]> subSec2_content = new ArrayList<>();
+        
+        GeneticAlgorithmConfigurator gaConfig = configurator.getGeneticAlgorithmConfigurator();
+        
+        String[] popContentPair = new String[2];
+        popContentPair[0] = "Population:";
+        popContentPair[1] = ""+gaConfig.getPopulationSize();
+        subSec2_content.add(popContentPair);
+        
+        String[] crossoverRateContentPair = new String[2];
+        crossoverRateContentPair[0] = "Crossover Probability:";
+        crossoverRateContentPair[1] = ""+gaConfig.getCrossOver().getProbability();
+        subSec2_content.add(crossoverRateContentPair);
+        
+        String[] crossoverTypeContentPair = new String[2];
+        crossoverTypeContentPair[0] = "Crossover Type:";
+        
+        String typStr = "";
+        if(gaConfig.getCrossOver().getCrossOverType() == CrossOverType.ONEPOINT) { typStr = "OnePoint"; }
+        else if(gaConfig.getCrossOver().getCrossOverType() == CrossOverType.TWOPOINT) { typStr = "TwoPoint"; }
+        else if(gaConfig.getCrossOver().getCrossOverType() == CrossOverType.UNIFORM) { typStr = "Uniform"; }
+        crossoverTypeContentPair[1] = typStr;
+        subSec2_content.add(crossoverTypeContentPair);
+        
+        
+        String[] mutationRateContentPair = new String[2];
+        mutationRateContentPair[0] = "Mutation Probability:";
+        mutationRateContentPair[1] = ""+gaConfig.getMutation().getProbability();
+        subSec2_content.add(mutationRateContentPair);
+        
+        String[] numOfParentsContentPair = new String[2];
+        numOfParentsContentPair[0] = "Num of Parents:";
+        numOfParentsContentPair[1] = ""+gaConfig.getNumberOfParents();
+        subSec2_content.add(numOfParentsContentPair);
+        
+        String[] parentSelectionContentPair = new String[2];
+        parentSelectionContentPair[0] = "Parent Selection:";
+        parentSelectionContentPair[1] = ""+gaConfig.getParentSelection().getSelectionName();
+        subSec2_content.add(parentSelectionContentPair);
+        
+        String[] elitismSizeContentPair = new String[2];
+        elitismSizeContentPair[0] = "Elitism Size:";
+        elitismSizeContentPair[1] = ""+gaConfig.getElitSize();
+        subSec2_content.add(elitismSizeContentPair);
+        
+        String[] iterationsContentPair = new String[2];
+        iterationsContentPair[0] = "Generations:";
+        iterationsContentPair[1] = ""+gaConfig.getIterations();
+        subSec2_content.add(iterationsContentPair);
+        
+        
+        
+    
         Object[] wrapper1 = new Object[2];
         wrapper1[0] = subSec1_header;
         wrapper1[1] = subSec1_content;
         
+        Object[] wrapper2 = new Object[2];
+        wrapper2[0] = subSec2_header;
+        wrapper2[1] = subSec2_content;
         
         ArrayList<Object[]> retData = new ArrayList<>();
         retData.add(wrapper1);
+        retData.add(wrapper2);
         
         return retData;
     }
-    
-    @Override
-    public PLRankSvmConfigurator getConfigurator()
-    {
-        return configurator;
-    }
-    
-
-        
 
 
-    
+
+	@Override
+	public String testParameters() {
+		return configurator.testParameters();
+	}
+
+
+
+
+
 }

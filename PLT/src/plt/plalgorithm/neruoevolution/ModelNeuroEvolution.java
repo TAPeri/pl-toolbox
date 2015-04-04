@@ -6,12 +6,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import plt.dataset.TrainableDataSet;
+import plt.experiments.Experiment;
 import plt.featureselection.SelectedFeature;
-import plt.gui.Experiment;
 import plt.json.JsonObjIO;
 import plt.model.Model;
+import plt.plalgorithm.ANN.SimpleNeuralNetwork;
 import plt.plalgorithm.backpropagation.ModelBackpropagation;
-import plt.plalgorithm.neruoevolution.NE.SimpleNeuralNetwork;
 import plt.report.NNModelFileData;
 
 public class ModelNeuroEvolution extends Model {
@@ -62,7 +62,7 @@ public class ModelNeuroEvolution extends Model {
             jsonRW.writeObjToFile(file.getAbsolutePath(), objToStore);
         }
         catch (Exception ex) {
-           Logger.getLogger(PLNeuroEvolution.class.getName()).log(Level.SEVERE,null,ex);
+           Logger.getLogger(NeuroEvolution.class.getName()).log(Level.SEVERE,null,ex);
            
            throw ex;
         }

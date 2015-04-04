@@ -176,11 +176,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
-
 import javafx.stage.Stage;
+import plt.dataset.DataFileParseStatus;
 import plt.dataset.DataParser;
-import plt.dataset.datareader.DataFileParseStatus;
-import plt.dataset.datareader.ObjectsOrderFormat;
+import plt.dataset.ObjectsOrderFormat;
 
 /**
  *  GUI to load a dataset

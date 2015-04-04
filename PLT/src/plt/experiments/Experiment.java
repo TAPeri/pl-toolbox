@@ -164,7 +164,7 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.gui;
+package plt.experiments;
 
 import java.util.Calendar;
 import java.util.logging.Level;
@@ -173,14 +173,15 @@ import java.util.logging.Logger;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import plt.dataset.ObjectsOrderFormat;
 import plt.dataset.PreprocessedDataSet;
 import plt.dataset.TrainableDataSet;
-import plt.dataset.datareader.ObjectsOrderFormat;
 import plt.dataset.preprocessing.FeaturePreprocessingInfo;
 import plt.dataset.preprocessing.Ignoring;
 import plt.dataset.preprocessing.PreprocessingOperation;
 import plt.featureselection.FeatureSelection;
 import plt.featureselection.SelectedFeature;
+import plt.gui.ExecutionProgress;
 import plt.plalgorithm.PLAlgorithm;
 import plt.report.Report;
 import plt.utils.TimeHelper;
@@ -246,7 +247,7 @@ public class Experiment {
 
             }else{
             	
-            	FSerror = algorithmForFeatureSelectionProperty().get().getConfigurator().testParameters();
+            	FSerror = algorithmForFeatureSelectionProperty().get().testParameters();
             	if(FSerror.length()>0)
             		return FSerror;
             	
@@ -255,7 +256,7 @@ public class Experiment {
         }
 
     	
-    	return algorithmProperty().get().getConfigurator().testParameters();
+    	return algorithmProperty().get().testParameters();
     	
     }
     

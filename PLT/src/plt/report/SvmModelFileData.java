@@ -172,10 +172,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import plt.dataset.TrainableDataSet;
+import plt.experiments.Experiment;
 import plt.featureselection.SelectedFeature;
-import plt.gui.Experiment;
-import plt.gui.algorithms.PLRankSvmConfigurator;
-import plt.plalgorithm.svm.PLRankSvm;
+import plt.plalgorithm.svm.GUIRankSvmConfigurator;
+import plt.plalgorithm.svm.RankSvm;
 import plt.plalgorithm.svm.libsvm_plt.SVMDataStore;
 import plt.utils.TimeHelper;
 
@@ -263,8 +263,8 @@ public class SvmModelFileData extends ModelFileData implements Serializable
     {
         SvmAlgConfiguration createReqSvmAlgConfig(Experiment para_exp)
         {
-            PLRankSvm castSvmAlg = (PLRankSvm) para_exp.algorithmProperty().get();
-            PLRankSvmConfigurator svmConfig = castSvmAlg.getConfigurator();
+            RankSvm castSvmAlg = (RankSvm) para_exp.algorithmProperty().get();
+            GUIRankSvmConfigurator svmConfig = castSvmAlg.getConfigurator();
             String kernelType = svmConfig.getKernelType();
             
             if(kernelType.equals("Linear"))

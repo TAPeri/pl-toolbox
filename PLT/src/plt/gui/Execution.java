@@ -168,6 +168,7 @@ package plt.gui;
 
 import java.util.Calendar;
 import java.util.logging.*;
+
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -186,6 +187,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import plt.experiments.Experiment;
 import plt.gui.customcomponents.ExecutionModalPopup;
 import plt.report.Report;
 import plt.utils.TimeHelper;

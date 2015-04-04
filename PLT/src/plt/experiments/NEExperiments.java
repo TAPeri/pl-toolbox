@@ -171,13 +171,15 @@ import javafx.stage.Stage;
 import plt.dataset.PreprocessedDataSet;
 import plt.dataset.TrainableDataSet;
 import plt.functions.MathematicalFunction;
-import plt.dataset.experiment.ExperimentDataset;
 import plt.dataset.preprocessing.Numeric;
 import plt.dataset.preprocessing.PreprocessingOperation;
 import plt.functions.LinearFunction;
 import plt.functions.QuadraticFuncion;
-import plt.gui.algorithms.PLNeuroEvolutionConfigurator;
-import plt.plalgorithm.neruoevolution.PLNeuroEvolution;
+import plt.plalgorithm.ANN.ActivationFunction;
+import plt.plalgorithm.ANN.Linear;
+import plt.plalgorithm.ANN.Sigmond;
+import plt.plalgorithm.neruoevolution.GUINeuroEvolutionConfigurator;
+import plt.plalgorithm.neruoevolution.NeuroEvolution;
 import plt.plalgorithm.neruoevolution.GA.GeneticAlgorithmConfigurator;
 import plt.plalgorithm.neruoevolution.GA.ParentSelection;
 import plt.plalgorithm.neruoevolution.GA.genticaloperators.CrossOver;
@@ -185,9 +187,6 @@ import plt.plalgorithm.neruoevolution.GA.genticaloperators.CrossOverType;
 import plt.plalgorithm.neruoevolution.GA.genticaloperators.GaussianMutation;
 import plt.plalgorithm.neruoevolution.GA.genticaloperators.Invertion;
 import plt.plalgorithm.neruoevolution.GA.parentselections.RouletteWheelSelection;
-import plt.plalgorithm.neruoevolution.NE.ActivationFunction;
-import plt.plalgorithm.neruoevolution.NE.Linear;
-import plt.plalgorithm.neruoevolution.NE.Sigmond;
 import plt.report.Report;
 import plt.validator.SplitValidation;
 import plt.validator.Validator;
@@ -282,7 +281,7 @@ public class NEExperiments extends Application {
 
 
             Validator v = new SplitValidation(20);
-            PLNeuroEvolution bp = new PLNeuroEvolution(new PLNeuroEvolutionConfigurator() {
+            NeuroEvolution bp = new NeuroEvolution(new GUINeuroEvolutionConfigurator() {
                 @Override
                 public GeneticAlgorithmConfigurator getGeneticAlgorithmConfigurator() {
                     return new GeneticAlgorithmConfigurator() {

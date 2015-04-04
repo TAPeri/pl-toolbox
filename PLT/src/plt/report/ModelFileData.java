@@ -171,12 +171,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
-import plt.dataset.datareader.ObjectsOrderFormat;
+import plt.dataset.ObjectsOrderFormat;
 import plt.dataset.preprocessing.MinMax;
 import plt.dataset.preprocessing.PreprocessingOperation;
 import plt.dataset.preprocessing.ZScore;
+import plt.experiments.Experiment;
 import plt.featureselection.SelectedFeature;
-import plt.gui.Experiment;
 
 /**
  *

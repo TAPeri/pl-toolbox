@@ -164,15 +164,13 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.dataset.datareader;
+package plt.dataset;
 
 import java.util.*;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
-import plt.dataset.DataParser;
-import plt.dataset.DataSet;
 import plt.utils.Preference;
 
 /**

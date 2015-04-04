@@ -171,7 +171,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import plt.dataset.DataSet;
-import plt.dataset.datareader.ObjectsOrderFormat;
+import plt.dataset.ObjectsOrderFormat;
 
 /**
  *

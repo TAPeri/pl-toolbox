@@ -164,100 +164,204 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
+
 package plt.plalgorithm.backpropagation;
 
-import plt.plalgorithm.neruoevolution.NE.ActivationFunction;
-import plt.plalgorithm.neruoevolution.NE.SimpleNeuralNetwork;
+
+import java.util.ArrayList;
+
+import plt.dataset.TrainableDataSet;
+import plt.featureselection.SelectedFeature;
+import plt.gui.ExecutionProgress;
+import plt.model.Model;
+import plt.plalgorithm.PLAlgorithm;
+import plt.utils.Preference;
 
 /**
  *
  * @author Vincent Farrugia
  * @author Hector P. Martinez
  */
-public class NeuralNetwork extends SimpleNeuralNetwork {
-
-   
-   // public double[] deltas;
-   // public double[] gradients;
-
-    double[] deltas;
-    double[][] gradients;
+public class Backpropagation extends PLAlgorithm {
+    private BackpropagationConfigurator configurator;
+    private BackpropagationNeuralNetwork network;
     
-    public double learningRate;
-
-    public NeuralNetwork(int[] topology, ActivationFunction[] activationFunctions, double learningRate) {
-        super(topology, activationFunctions);
-        
-        this.gradients = new double[this.topology.length-1][];
-        deltas = new double[weights.length];
-        
-        for(int i = 0;i<topology.length-1;i++){
-        	gradients[i] = new double[topology[i+1]];
-        }        
-
-        this.learningRate = learningRate;
-        
-    }
-
-    public void backpropagate(double[] outputErrorDerivative) {
+    
+    public Backpropagation(){
     	
-    	this.activate();
-       
-       for(int i=0;i<this.gradients.length;i++)
-    	   for(int j=0;j<gradients[i].length;j++){
-			gradients[i][j] = 0;
-    	   }
-
-       
-       for(int outNeuron = 0;outNeuron<outputErrorDerivative.length;outNeuron++){
-    	   
-    	   gradients[ gradients.length-1 ][outNeuron] = outputErrorDerivative[outNeuron];
-    	   //*
-       }
-       
-       
-       int weightPointer = deltas.length-1;
-       for(int layer = topology.length-1;layer>1;layer--){
-    	   
-    	   for(int neuron = topology[layer]-1;neuron>=0;neuron--){
-    		   
-    		   gradients[ layer-1 ][neuron] *= this.activationFunctions[layer -1].evalueDerivative(sums[layer-1 ][neuron],activations[ layer-1 ][neuron]);
-
-    		   for(int input = topology[layer-1]-1;input>=0;input--){
-    			   
-    			   deltas[weightPointer] += gradients[ layer-1 ][neuron]*activations[layer-2][input];
-    			   gradients[layer-2][input] +=gradients[ layer-1 ][neuron]*weights[weightPointer];
-    			   weightPointer--;
-    		   }
-    		   deltas[weightPointer--] = -gradients[ layer-1 ][neuron];//bias
-    		   
-    	   }
-       }
-       
-	   for(int neuron = topology[1]-1;neuron>=0;neuron--){
-		   
-		   gradients[ 0 ][neuron] *= this.activationFunctions[0].evalueDerivative(sums[0 ][neuron],activations[ 0 ][neuron]);
-
-		   for(int input = topology[0]-1;input>=0;input--){
-			   
-			   deltas[weightPointer] += gradients[ 0 ][neuron]*this.inputs[input];
-			   weightPointer--;
-
-		   }
-		   deltas[weightPointer--] = -gradients[0][neuron];//bias
-		   
-	   }
-       
-       
+    	this(new GUIBackpropagationConfigurator());
     }
     
-    public void applyDeltas(int size) {
-        for (int i=0; i< this.weights.length; i++) {
-            this.weights[i] -= (this.learningRate*this.deltas[i]/size);
-      	   deltas[i] = 0;
+    
+    public Backpropagation(BackpropagationConfigurator configurator) {
+        super();
+        
+        this.configurator = configurator;
+        
+    }
+    
+    @Override
+    protected Model run(TrainableDataSet dataSet,SelectedFeature featureSelection) throws InterruptedException {
+        
+       // Logger.getLogger("plt.logger").log(Level.INFO, "run PLBackPropagation");
 
+        boolean trained = false;
+       
+        for (int i=0; i< this.configurator.getMaxNumberOfIterations() && !trained; i++) {
+            //ExecutionProgress.setTaskSubHeader("MLP Iteration "+(i+1));
+            
+            double error = 0;
+            
+            
+            for (int j =0; j< dataSet.getNumberOfPreferences() ; j++) {
+
+                Preference instance = dataSet.getPreference(j);
+                                
+                double[] featuresPreferred = featureSelection.select( dataSet.getFeatures(instance.getPreferred()));
+                double[] featuresOther= featureSelection.select( dataSet.getFeatures(instance.getOther()));
+
+                
+                network.setInputs(featuresPreferred);
+                double fPreferred = network.getOutputs()[0];
+                network.setInputs(featuresOther);
+                double fOther = network.getOutputs()[0];
+                
+                double errorPattern = Math.max(1- (fPreferred-fOther),0);
+
+                if(errorPattern>0){
+                	error += errorPattern;
+                    network.setInputs(featuresPreferred);
+                    network.backpropagate(new double[]{-1});
+                    network.setInputs(featuresOther);
+                    network.backpropagate(new double[]{1});
+                    
+                    
+                }
+                
+
+            }
+            
+            error /= dataSet.getNumberOfPreferences()*2;
+            trained =  error < this.configurator.getErrorThreeshold();
+            
+            network.applyDeltas(dataSet.getNumberOfPreferences()*2);
+            
+            
+            ExecutionProgress.incrementTaskProgByPerc(1.0f / (this.configurator.getMaxNumberOfIterations() * 1.0f));
+            
+            if((ExecutionProgress.needToShutdown())||(ExecutionProgress.hasInterruptRequest(1)))
+            {
+                ExecutionProgress.signalDeactivation(1);
+                throw new InterruptedException();
+            }
         }
+        
+        
+        return new ModelBackpropagation(network, dataSet, featureSelection);
+
+    
     }
 
-  
+    @Override
+    protected Model beforeRun(TrainableDataSet dataSet,SelectedFeature featureSelection) {
+        int inputSize = featureSelection.getSize();
+        this.network = new BackpropagationNeuralNetwork(
+                this.configurator.getTopology(inputSize), 
+                this.configurator.getActivationsFunctions(), 
+                this.configurator.getLearningRate()
+                );
+    
+        return new ModelBackpropagation(network, dataSet, featureSelection);
+    }
+    
+    
+    @Override
+    public ArrayList<Object[]> getProperties() 
+    {
+        // Multilayer Perceptron Properties:
+       // int inputSize = this.getFeatureSelection().getSize();
+        
+        if (network==null)
+        	System.err.println("Not ready");
+        
+        int[] fullTopology = network.topology;//configurator.getTopology(inputSize);
+        
+        String subSec1_header = "Multilayer Perceptron";
+        ArrayList<String[]> subSec1_content = new ArrayList<>();
+        
+        String[] inpLayerContentPair = new String[3];
+        inpLayerContentPair[0] = "Input Layer:";
+        inpLayerContentPair[1] = ""+fullTopology[0];
+        inpLayerContentPair[2] = "N/A";
+        subSec1_content.add(inpLayerContentPair);
+        
+        
+
+        
+        for(int i=1; i<fullTopology.length-1; i++)
+        {
+            if(fullTopology[i] > 0)
+            {
+                String[] nwContentPair = new String[3];
+                nwContentPair[0] = "Hidden Layer "+i+":";
+                nwContentPair[1] = ""+fullTopology[i];
+                nwContentPair[2] = configurator.getActivationsFunctions()[i-1].toString();
+                
+                subSec1_content.add(nwContentPair);
+            }
+        }
+        
+        String[] outLayerContentPair = new String[3];
+        outLayerContentPair[0] = "Output Layer:";
+        outLayerContentPair[1] = ""+1;
+        outLayerContentPair[2] = configurator.getActivationsFunctions()[fullTopology.length-2].toString();
+        subSec1_content.add(outLayerContentPair);
+        
+        
+        
+        // Backprop Properties:
+        String subSec2_header = "Backpropagation";
+        ArrayList<String[]> subSec2_content = new ArrayList<>();
+        
+        
+        String[] errorThresholdContentPair = new String[2];
+        errorThresholdContentPair[0] = "Error Threshold:";
+        errorThresholdContentPair[1] = ""+configurator.getErrorThreeshold();
+        subSec2_content.add(errorThresholdContentPair);
+        
+        String[] learningRateContentPair = new String[2];
+        learningRateContentPair[0] = "Learning Rate:";
+        learningRateContentPair[1] = ""+configurator.getLearningRate();
+        subSec2_content.add(learningRateContentPair);
+        
+        String[] maxIterationsContentPair = new String[2];
+        maxIterationsContentPair[0] = "Epochs:";
+        maxIterationsContentPair[1] = ""+configurator.getMaxNumberOfIterations();
+        subSec2_content.add(maxIterationsContentPair);
+        
+        
+        
+        
+        Object[] wrapper1 = new Object[2];
+        wrapper1[0] = subSec1_header;
+        wrapper1[1] = subSec1_content;
+        
+        Object[] wrapper2 = new Object[2];
+        wrapper2[0] = subSec2_header;
+        wrapper2[1] = subSec2_content;
+        
+        ArrayList<Object[]> retData = new ArrayList<>();
+        retData.add(wrapper1);
+        retData.add(wrapper2);
+        
+        return retData;
+    }
+
+
+	@Override
+	public String testParameters() {
+		return configurator.testParameters();
+	}
+
+
 }

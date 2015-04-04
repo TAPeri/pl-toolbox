@@ -164,112 +164,180 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.dataset.dump;
+package plt.plalgorithm.ANN;
 
-import plt.functions.MathematicalFunction;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Random;
-import plt.dataset.DataSet;
-import plt.utils.Preference;
+
 
 /**
  *
  * @author Institute of Digital Games, UoM Malta
  */
-public class DumpDataSet implements DataSet {
-    private String[][] features;
-    private List<Preference> preferences;
+public class SimpleNeuralNetwork implements Cloneable {
+
+    public double[] weights;
+    public int[] topology;
+    public double[] outputs;
+    public double[] inputs;
+    public ActivationFunction[] activationFunctions;
     
-    public DumpDataSet(int numberOfObjects, int numberOfFeatures, MathematicalFunction function) {
-        super();
-        this.features = new String[numberOfObjects][numberOfFeatures];
+    protected double[][] sums;
+    protected double[][] activations;
+    
+
+    
+    public SimpleNeuralNetwork(int[] topology, ActivationFunction[] activationFunctions) {
+
+        if (topology.length < 2) {
+            throw new IllegalArgumentException();
+        }
+
+        for (int i = 0; i < topology.length; i++) {
+            if (topology[i] <= 0) {
+                throw new IllegalArgumentException();
+            }
+        }
+
+        if (topology.length != activationFunctions.length + 1) {
+            throw new IllegalArgumentException();
+        }
+
+        this.topology = topology;
+        this.weights = new double[this.getNumberOfWeights()];
+        this.activationFunctions = activationFunctions;
         
+        this.sums = new double[this.topology.length-1][];
+        this.activations = new double[this.topology.length-1][];
+
         
+        for(int i = 0;i<topology.length-1;i++){
+        	sums[i] = new double[topology[i+1]];
+        	activations[i] = new double[topology[i+1]];
+        }
         
-        Random rand = new Random();
+        Random r = new Random();
+        for (int i=0; i< this.weights.length; i++) {
+           this.weights[i] = (r.nextDouble()*2)-1;
+
+        }
+
+
+    }
+
+    public int getNumberOfNerons() {
+        int result = 0;
+        for (int i = 1; i < topology.length; i++) {
+            result += topology[i];
+        }
+        return result;
+    }
+
+    public int getNumberOfWeights() {
+
+        int result = 0;
+        for (int l = 1; l < topology.length; l++) {
+            result += topology[l] * (1 + topology[l - 1]);
+        }
+
+        return result;
+    }
+
+    public void setInputs(double[] inputs) {
+        this.inputs = inputs;
+        this.outputs = null;
+
+    }
+    
+    
+
+
+    public void setWeights(double[] weights) {
+        if (weights.length != getNumberOfWeights()) {
+            throw new RuntimeException();
+        }
+
+        this.weights = weights;
+        this.outputs = null;
+    }
+
+    public double[] getOutputs() {
+        if (this.outputs == null) {
+            activate();
+        }
+        return this.outputs;
+    }
+    
         
-        for (int i=0; i<numberOfObjects; i++) {
-            for (int j=0; j<numberOfFeatures; j++) {
-                this.features[i][j] = ""+rand.nextDouble();
+    
+
+    protected void activate() {
+    	
+    	for(int i=0;i<sums.length;i++)
+    		for(int j=0;j<sums[i].length;j++){
+    			sums[i][j] = 0;
+    			activations[i][j] = 0;
+    		}
+    	
+        int weightPointer = 0;
+        
+        for(int i=0;i<topology[1];i++){
+        	sums[0][i] = -weights[weightPointer++];
+        	for(double x : inputs)
+        		sums[0][i] += (x*weights[weightPointer++]);
+        	activations[0][i] = activationFunctions[0].evalue(sums[0][i]);
+        }
+        
+        for(int j = 2;j<topology.length;j++){
+        	
+            for(int i=0;i<topology[j];i++){
+            	sums[j-1][i] = -weights[weightPointer++];
+            	for(double x : activations[j-2])
+            		sums[j-1][i] += (x*weights[weightPointer++]);
+            	activations[j-1][i] = activationFunctions[j-1].evalue(sums[j-1][i]);
             }
         }
         
-        preferences = new LinkedList<>();
-        for (int i = 0; i < numberOfObjects; i++) {
-            for (int j = 0; j < i; j++) {
+        outputs = activations[activations.length-1];
+        
 
-                double iValue =  function.evaluate(features[i]);
-                double jValue =  function.evaluate(features[j]);
-                
-                if (jValue > iValue) {
-                    preferences.add(new Preference(j, i));
-                } else {
-                    preferences.add(new Preference(i, j));
-                }
-                
-            }
-       }
+    }
+    
+   /*protected double getValueOf(int layer, int neuron) {
+        if (layer == 0) {
+            return inputs[neuron];
+        }
+        return getAValueOf(layer, neuron);
+    }
+
+    protected double getSValueOf(int layer, int neuron) {
+
+    	return this.sums[layer-2][neuron];
         
     }
+    protected double getAValueOf(int layer, int neuron) {
 
-    @Override
-    public int getNumberOfObjects() {
-        return features.length;
+        return this.activations[layer-2][neuron];//  activationFunctions[layer - 1].evalue(getSValueOf(layer, neuron));
+    }*/
+
+    protected int weightPointer(int layer, int neuron) {
+        int result = 0;
+        for (int l = 1; l < layer; l++) {
+            result += topology[l] * (1 + topology[l - 1]);
+        }
+        result += neuron * (1 + topology[layer - 1]);
+
+        return result;
     }
 
     @Override
-    public int getNumberOfPreferences() {
-        return preferences.size();
-     }
+    public Object clone() throws CloneNotSupportedException {
+        SimpleNeuralNetwork n = new SimpleNeuralNetwork(this.topology, this.activationFunctions);
+        n.weights = this.weights.clone();
 
-    @Override
-    public int getNumberOfFeatures() {
-        return features[0].length;
-    }
+        if (this.inputs != null) {
+            n.inputs = this.inputs.clone();
+        }
 
-    @Override
-    public String getFeatureName(int n) {
-        return "feature "+n;
-    }
-
-    @Override
-    public String[] getFeatures(int n) {
-        return this.features[n];
-    }
-
-    @Override
-    public String getFeature(int n, int f) {
-        return this.features[n][f];
-    }
-
-    @Override
-    public Preference getPreference(int n) {
-        return this.preferences.get(n);
-    }
-
-    @Override
-    public int atomicGroup(int n) {
         return n;
     }
-
-    @Override
-    public boolean isNumeric(int n) {
-        return true;
-    }
-
-	@Override
-	public List<Preference> getPreferences() {
-		return preferences;
-	}
-
-	@Override
-	public int[] getIDs() {
-		int[] tmp = new int[features.length];
-		for(int i=0;i<tmp.length;i++)
-			tmp[i] = i;
-		return tmp;
-	}
-        
-    
 }

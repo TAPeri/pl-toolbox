@@ -164,28 +164,13 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.plalgorithm.neruoevolution.NE;
-
-import plt.featureselection.SelectedFeature;
-import plt.plalgorithm.neruoevolution.GA.GeneticAlgorithmConfigurator;
+package plt.plalgorithm.ANN;
 
 /**
  *
  * @author Institute of Digital Games, UoM Malta
  */
-
-public abstract class NeuroEvolutionAlgorithmConfigurator  {
-    private GeneticAlgorithmConfigurator geneticAlgorithmConfigurator;
-    
-    public NeuroEvolutionAlgorithmConfigurator(GeneticAlgorithmConfigurator geneticAlgorithmConfigurator) {
-        this.geneticAlgorithmConfigurator = geneticAlgorithmConfigurator;
-    }
-    
-    public abstract int[] getTopology(SelectedFeature features);
-
-    public GeneticAlgorithmConfigurator getGeneticAlgorithmConfigurator() {
-        return this.geneticAlgorithmConfigurator;
-    }
-   
-    public abstract ActivationFunction[] getActivationsFunctions();
+public interface ActivationFunction {
+    public double evalue(double input);
+    public double evalueDerivative(double input,double output);
 }

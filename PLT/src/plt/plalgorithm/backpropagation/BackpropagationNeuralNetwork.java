@@ -164,231 +164,100 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.gui.algorithms;
+package plt.plalgorithm.backpropagation;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import plt.gui.component.AdvanceTextField;
-import plt.plalgorithm.PLAlgorithm;
-import plt.plalgorithm.svm.PLRankSvm;
-import plt.plalgorithm.svm.libsvm_plt.IPLRankSvmConfigurator;
+import plt.plalgorithm.ANN.ActivationFunction;
+import plt.plalgorithm.ANN.SimpleNeuralNetwork;
 
 /**
  *
- * GUI to set up the parameters for Rank SVM
- *
  * @author Vincent Farrugia
+ * @author Hector P. Martinez
  */
+public class BackpropagationNeuralNetwork extends SimpleNeuralNetwork {
 
-public class PLRankSvmConfigurator implements IPLRankSvmConfigurator, GUIConfigurator
-{
-               
-    private ChoiceBox cbKernelType;
-    private TextField txtGamma;
-    private TextField txtDegree;
-    
-    private Label lblGamma;
-    private Label lblDegree;
-    
+   
+   // public double[] deltas;
+   // public double[] gradients;
 
-    public PLRankSvmConfigurator()
-    {
-        ObservableList<String> availableKernelTypes = FXCollections.observableArrayList();
-        availableKernelTypes.addAll(new String[] {"Linear","Poly","RBF"});
-        cbKernelType = new ChoiceBox<>(availableKernelTypes);
-        cbKernelType.valueProperty().addListener(new KernelChangeListener());
+    double[] deltas;
+    double[][] gradients;
+    
+    public double learningRate;
+
+    public BackpropagationNeuralNetwork(int[] topology, ActivationFunction[] activationFunctions, double learningRate) {
+        super(topology, activationFunctions);
         
-        txtGamma = new AdvanceTextField("[0-9.]","1");
-        txtDegree = new AdvanceTextField("[0-9.]","2");
+        this.gradients = new double[this.topology.length-1][];
+        deltas = new double[weights.length];
         
+        for(int i = 0;i<topology.length-1;i++){
+        	gradients[i] = new double[topology[i+1]];
+        }        
+
+        this.learningRate = learningRate;
         
-        float inputColWidth = 200;
-        cbKernelType.setPrefWidth(inputColWidth);
-        txtGamma.setPrefWidth(inputColWidth);
-        txtDegree.setPrefWidth(inputColWidth);
     }
-    
-    private Node ui;
-  
-	@Override
-    public Node ui()
-    {        
+
+    public void backpropagate(double[] outputErrorDerivative) {
     	
-        ui = new HBox(5);
-        
+    	this.activate();
+       
+       for(int i=0;i<this.gradients.length;i++)
+    	   for(int j=0;j<gradients[i].length;j++){
+			gradients[i][j] = 0;
+    	   }
 
-        
-        Font headerFont = Font.font("BirchStd", FontWeight.BOLD, 15);
-                
-        Label lblRankSvmSectionHeader = new Label("Rank SVM");
-        Label lblKernelSelection = new Label("Kernel");
-        lblGamma = new Label("Gamma:");
-        lblDegree = new Label("Degree:");
-        
-        lblRankSvmSectionHeader.setFont(headerFont);
-               
-        
-        
-        GridPane innerGrid = new GridPane();
-        innerGrid.setAlignment(Pos.CENTER);
-        innerGrid.setPadding(new Insets(20));
-        innerGrid.setHgap(10);
-        innerGrid.setVgap(12);
-        
-        innerGrid.add(lblKernelSelection, 0, 0);
-        innerGrid.add(cbKernelType, 1, 0);
-        innerGrid.add(lblGamma,0,1);
-        innerGrid.add(txtGamma,1,1);
-        innerGrid.add(lblDegree,0,2);
-        innerGrid.add(txtDegree,1,2);
-        
-        
-        BorderPane svmPane = new BorderPane();
-        BorderPane.setAlignment(lblRankSvmSectionHeader, Pos.CENTER);
-        BorderPane.setAlignment(innerGrid, Pos.CENTER);
-        svmPane.setTop(lblRankSvmSectionHeader);
-        svmPane.setCenter(innerGrid);
-        svmPane.setPrefWidth(960);
-        
-        svmPane.getStyleClass().add("modulePane1Child");
-        
-        
-        cbKernelType.getSelectionModel().select(0);
-        
-        		
-        TitledPane tmp=		new TitledPane("Rank SVM", svmPane);
-        ((HBox)ui).getChildren().add(tmp.getContent());
-        HBox.setHgrow(tmp.getContent(), Priority.ALWAYS);
-        return ui;
+       
+       for(int outNeuron = 0;outNeuron<outputErrorDerivative.length;outNeuron++){
+    	   
+    	   gradients[ gradients.length-1 ][outNeuron] = outputErrorDerivative[outNeuron];
+    	   //*
+       }
+       
+       
+       int weightPointer = deltas.length-1;
+       for(int layer = topology.length-1;layer>1;layer--){
+    	   
+    	   for(int neuron = topology[layer]-1;neuron>=0;neuron--){
+    		   
+    		   gradients[ layer-1 ][neuron] *= this.activationFunctions[layer -1].evalueDerivative(sums[layer-1 ][neuron],activations[ layer-1 ][neuron]);
+
+    		   for(int input = topology[layer-1]-1;input>=0;input--){
+    			   
+    			   deltas[weightPointer] += gradients[ layer-1 ][neuron]*activations[layer-2][input];
+    			   gradients[layer-2][input] +=gradients[ layer-1 ][neuron]*weights[weightPointer];
+    			   weightPointer--;
+    		   }
+    		   deltas[weightPointer--] = -gradients[ layer-1 ][neuron];//bias
+    		   
+    	   }
+       }
+       
+	   for(int neuron = topology[1]-1;neuron>=0;neuron--){
+		   
+		   gradients[ 0 ][neuron] *= this.activationFunctions[0].evalueDerivative(sums[0 ][neuron],activations[ 0 ][neuron]);
+
+		   for(int input = topology[0]-1;input>=0;input--){
+			   
+			   deltas[weightPointer] += gradients[ 0 ][neuron]*this.inputs[input];
+			   weightPointer--;
+
+		   }
+		   deltas[weightPointer--] = -gradients[0][neuron];//bias
+		   
+	   }
+       
+       
     }
     
-
-	@Override
-	public String testParameters() {
-		
-		
-        if((this.gammaRequired())
-        &&(this.getGamma() == 0))
-        {
-            return "SVM error: Gamma cannot be set to 0.";
-            
-        } else
-        	return "";
-
-	}
-    
-    @Override
-    public String getKernelType()
-    {
-        return (String) cbKernelType.getSelectionModel().getSelectedItem();
-    }
-    
-    @Override
-    public double getGamma()
-    {
-        return parseDobuleOrFailWithZero(txtGamma);
-    }
-    
-    @Override
-    public double getDegree()
-    {
-        return parseDobuleOrFailWithZero(txtDegree);
-    }
-    
-    public boolean gammaRequired()
-    {
-        return txtGamma.isVisible();
-    }
-    
-    public boolean degreeRequired()
-    {
-        return txtDegree.isVisible();
-    }
-    
-    private static int parseIntegerOrFailWithZero(TextField t)
-    {
-        try
-        {
-            return Integer.parseInt(t.getText());
-        }
-        catch (NumberFormatException e)
-        {
-            return 0;
-        } 
-    }
-    
-    private static double parseDobuleOrFailWithZero(TextField t)
-    {
-        try
-        {
-            return Double.parseDouble(t.getText());
-        } 
-        catch (NumberFormatException e)
-        {
-            return 0;
-        } 
-    }
-
-    
-    class KernelChangeListener implements ChangeListener
-    {
-        
-        
-        @Override
-        public void changed(ObservableValue ov, Object t, Object t1)
-        {
-
-            
-            int i =  cbKernelType.getSelectionModel().getSelectedIndex();
-            switch (i)
-            {
-                // Linear Kernel.
-                case 0:  lblGamma.setVisible(false);
-                         txtGamma.setVisible(false);
-                         lblDegree.setVisible(false);
-                         txtDegree.setVisible(false);
-                         break;
-
-                // Poly Kernel.
-                case 1:  lblGamma.setVisible(true);
-                         txtGamma.setVisible(true);
-                         lblDegree.setVisible(true);
-                         txtDegree.setVisible(true);
-                         break;
-
-                // RBF Kernel.
-                case 2:  lblGamma.setVisible(true);
-                         txtGamma.setVisible(true);
-                         lblDegree.setVisible(false);
-                         txtDegree.setVisible(false);
-                         break;                   
-            }
-
+    public void applyDeltas(int size) {
+        for (int i=0; i< this.weights.length; i++) {
+            this.weights[i] -= (this.learningRate*this.deltas[i]/size);
+      	   deltas[i] = 0;
 
         }
-            
-         
     }
 
-
-	@Override
-	public PLAlgorithm algorithm() {
-		return new PLRankSvm(this);
-	}
-    
-    
-    
-
+  
 }

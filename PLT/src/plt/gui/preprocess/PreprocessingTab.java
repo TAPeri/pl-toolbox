@@ -169,7 +169,7 @@ package plt.gui.preprocess;
 
 import plt.dataset.preprocessing.FeaturePreprocessingInfo;
 import plt.dataset.preprocessing.PreprocessingSelector;
-import plt.gui.Experiment;
+import plt.experiments.Experiment;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -177,16 +177,12 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
-
-
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -235,27 +231,7 @@ public class PreprocessingTab extends Tab {
     
     private void setup()
     {
-        //final Stage localStage = this.stage;
-        
-        	//final BorderPane bp = new BorderPane();
-        	//this.setContent(bp);
-        
-        		//final VBox tmpVBox = new VBox(10);
-        		//bp.setCenter(tmpVBox);
-        		
-        		 	/*final ScrollPane sPane = new ScrollPane();
- 			        stage.heightProperty().addListener(new ChangeListener<Number>() {
 
- 			            @Override
- 			            public void changed(ObservableValue<? extends Number> ov, Number t, Number t1){
- 			                
- 			                sPane.setPrefHeight(t1.doubleValue());// * 0.7);
- 			            }
- 			            
- 			        });*/
- 			        
- 			        //this.setContent(sPane);
- 	        		//bp.setCenter(sPane);
         		
     		 			//final GridPane innerPane = new GridPane();
  	        			HBox innerPane = new HBox(10);

@@ -195,6 +195,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import plt.experiments.Experiment;
 import plt.featureselection.NBest;
 import plt.featureselection.SFS;
 import plt.gui.component.ModalPopup;

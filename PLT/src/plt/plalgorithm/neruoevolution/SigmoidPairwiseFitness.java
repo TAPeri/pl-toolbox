@@ -164,180 +164,47 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.plalgorithm.neruoevolution.NE;
+package plt.plalgorithm.neruoevolution;
 
-import java.util.Random;
+import java.util.Hashtable;
 
+import plt.dataset.TrainableDataSet;
+import plt.featureselection.SelectedFeature;
+import plt.plalgorithm.ANN.SimpleNeuralNetwork;
+import plt.utils.Preference;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
  */
-public class SimpleNeuralNetwork implements Cloneable {
+public class SigmoidPairwiseFitness {
 
-    public double[] weights;
-    public int[] topology;
-    public double[] outputs;
-    public double[] inputs;
-    public ActivationFunction[] activationFunctions;
-    
-    protected double[][] sums;
-    protected double[][] activations;
-    
-
-    
-    public SimpleNeuralNetwork(int[] topology, ActivationFunction[] activationFunctions) {
-
-        if (topology.length < 2) {
-            throw new IllegalArgumentException();
-        }
-
-        for (int i = 0; i < topology.length; i++) {
-            if (topology[i] <= 0) {
-                throw new IllegalArgumentException();
-            }
-        }
-
-        if (topology.length != activationFunctions.length + 1) {
-            throw new IllegalArgumentException();
-        }
-
-        this.topology = topology;
-        this.weights = new double[this.getNumberOfWeights()];
-        this.activationFunctions = activationFunctions;
+    public double evaluate(SimpleNeuralNetwork network,TrainableDataSet dataSet,SelectedFeature featureSelection) {
         
-        this.sums = new double[this.topology.length-1][];
-        this.activations = new double[this.topology.length-1][];
+        double fitness = 0;
 
         
-        for(int i = 0;i<topology.length-1;i++){
-        	sums[i] = new double[topology[i+1]];
-        	activations[i] = new double[topology[i+1]];
+        Hashtable<Integer,Double> h = new Hashtable<>();
+        for (int i=0; i<dataSet.getNumberOfObjects(); i++) {
+            double[] featuresOther = featureSelection.select( dataSet.getFeatures(i));
+            network.setInputs(featuresOther);
+            h.put(i,network.getOutputs()[0]);
         }
+            
+        for (int i =0; i< dataSet.getNumberOfPreferences() ; i++) {
+            Preference instance = dataSet.getPreference(i);
+            double fPreferred = h.get(instance.getPreferred());
+            double fOther = h.get(instance.getOther());
+            
+            int epsilon = fOther > fPreferred ? 5 : 30;
+            double delta= plt.utils.Math.sigmoid(1, epsilon*(fPreferred-fOther)); 
+            
+            
+            fitness += delta;
+        }
+                        
         
-        Random r = new Random();
-        for (int i=0; i< this.weights.length; i++) {
-           this.weights[i] = (r.nextDouble()*2)-1;
-
-        }
-
-
-    }
-
-    public int getNumberOfNerons() {
-        int result = 0;
-        for (int i = 1; i < topology.length; i++) {
-            result += topology[i];
-        }
-        return result;
-    }
-
-    public int getNumberOfWeights() {
-
-        int result = 0;
-        for (int l = 1; l < topology.length; l++) {
-            result += topology[l] * (1 + topology[l - 1]);
-        }
-
-        return result;
-    }
-
-    public void setInputs(double[] inputs) {
-        this.inputs = inputs;
-        this.outputs = null;
-
+        return fitness;
     }
     
-    
-
-
-    public void setWeights(double[] weights) {
-        if (weights.length != getNumberOfWeights()) {
-            throw new RuntimeException();
-        }
-
-        this.weights = weights;
-        this.outputs = null;
-    }
-
-    public double[] getOutputs() {
-        if (this.outputs == null) {
-            activate();
-        }
-        return this.outputs;
-    }
-    
-        
-    
-
-    protected void activate() {
-    	
-    	for(int i=0;i<sums.length;i++)
-    		for(int j=0;j<sums[i].length;j++){
-    			sums[i][j] = 0;
-    			activations[i][j] = 0;
-    		}
-    	
-        int weightPointer = 0;
-        
-        for(int i=0;i<topology[1];i++){
-        	sums[0][i] = -weights[weightPointer++];
-        	for(double x : inputs)
-        		sums[0][i] += (x*weights[weightPointer++]);
-        	activations[0][i] = activationFunctions[0].evalue(sums[0][i]);
-        }
-        
-        for(int j = 2;j<topology.length;j++){
-        	
-            for(int i=0;i<topology[j];i++){
-            	sums[j-1][i] = -weights[weightPointer++];
-            	for(double x : activations[j-2])
-            		sums[j-1][i] += (x*weights[weightPointer++]);
-            	activations[j-1][i] = activationFunctions[j-1].evalue(sums[j-1][i]);
-            }
-        }
-        
-        outputs = activations[activations.length-1];
-        
-
-    }
-    
-   /*protected double getValueOf(int layer, int neuron) {
-        if (layer == 0) {
-            return inputs[neuron];
-        }
-        return getAValueOf(layer, neuron);
-    }
-
-    protected double getSValueOf(int layer, int neuron) {
-
-    	return this.sums[layer-2][neuron];
-        
-    }
-    protected double getAValueOf(int layer, int neuron) {
-
-        return this.activations[layer-2][neuron];//  activationFunctions[layer - 1].evalue(getSValueOf(layer, neuron));
-    }*/
-
-    protected int weightPointer(int layer, int neuron) {
-        int result = 0;
-        for (int l = 1; l < layer; l++) {
-            result += topology[l] * (1 + topology[l - 1]);
-        }
-        result += neuron * (1 + topology[layer - 1]);
-
-        return result;
-    }
-
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        SimpleNeuralNetwork n = new SimpleNeuralNetwork(this.topology, this.activationFunctions);
-        n.weights = this.weights.clone();
-
-        if (this.inputs != null) {
-            n.inputs = this.inputs.clone();
-        }
-
-        return n;
-    }
 }

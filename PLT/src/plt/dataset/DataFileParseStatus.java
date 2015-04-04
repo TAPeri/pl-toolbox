@@ -164,211 +164,48 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.plalgorithm.neruoevolution;
+package plt.dataset;
 
-
-import java.util.ArrayList;
-//import java.util.logging.Level;
-//import java.util.logging.Logger;
-
-import plt.dataset.TrainableDataSet;
-import plt.featureselection.SelectedFeature;
-
-import plt.gui.algorithms.PLNeuroEvolutionConfigurator;
-
-import plt.model.Model;
-import plt.plalgorithm.PLAlgorithm;
-import plt.plalgorithm.neruoevolution.GA.GeneticAlgorithmConfigurator;
-import plt.plalgorithm.neruoevolution.GA.genticaloperators.CrossOverType;
-import plt.plalgorithm.neruoevolution.NE.*;
-
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 
 /**
  *
  * @author Vincent Farrugia
  */
-public class PLNeuroEvolution extends PLAlgorithm {
-    private PLNeuroEvolutionConfigurator configurator;
-    private NeuroEvolutionAlgorithm ne;
-    private NeuroEvolutionAlgorithmConfigurator nec;
-    private NetworkEvalutaor nee;
-    
-    
-    
-    public PLNeuroEvolution() {
+public class DataFileParseStatus
+{
+	
+	IntegerProperty error;
+	String errorDescription;
 
-    	this(new PLNeuroEvolutionConfigurator());
-    	
+    
+    public IntegerProperty getError(){
+    	return error;
+    }
+   
+    public void setError(int value){
+    	System.out.println(value);
+    	error.setValue(value);
+    }
+    
+    public String getDescription(){
+    	return errorDescription;
+    }
+    
+    public void setDescription(String value){
+    	errorDescription = value;
     }
     
     
-
-    public PLNeuroEvolution( PLNeuroEvolutionConfigurator configurator) {
-        super();
-        final PLNeuroEvolution self = this;
-
-        this.configurator = configurator;
-        this.nec = new NeuroEvolutionAlgorithmConfigurator(this.configurator.getGeneticAlgorithmConfigurator()) {
-
-            @Override
-            public int[] getTopology(SelectedFeature features) {
-                return self.configurator.getTopology(features.getSize());
-            }
-
-            @Override
-            public ActivationFunction[] getActivationsFunctions() {
-                return self.configurator.getActivationsFunctions();
-            }
-        };
-        
-        this.nee = new NetworkEvalutaor();
-        
-    }
-
-    @Override
-    public Model run(TrainableDataSet dataSet,SelectedFeature features) throws InterruptedException {
-      // Logger.getLogger("plt.logger").log(Level.INFO, "run PLNeuroEvolution");
-       this.ne.runFor(this.configurator.iterations(),dataSet,features);
-        final SimpleNeuralNetwork resultNetwork = ne.getNeuralNetuork();
-        return new ModelNeuroEvolution(resultNetwork, dataSet, features);
-
-    }
-
-    @Override
-    protected Model beforeRun(TrainableDataSet dataSet,SelectedFeature features) {
-        this.ne = new NeuroEvolutionAlgorithm(this.nec, nee,features);
-        return new ModelNeuroEvolution(ne.getNeuralNetuork(), dataSet, features);
-    }
-    
-    
-
-
-    @Override
-    public PLNeuroEvolutionConfigurator getConfigurator()
+    public DataFileParseStatus()
     {
-        return configurator;
+
+    	error = new SimpleIntegerProperty(-1);
+    	errorDescription = "";
+
     }
     
-    @Override
-    public ArrayList<Object[]> getProperties()
-    {
-        // Multilayer Perceptron Properties:
-        
-        //int inputSize = this.getFeatureSelection().getSize();
-    	
-    	if(ne==null)
-    		System.err.println("Not ready");
-        int[] fullTopology = ne.getNeuralNetuork().topology;//configurator.getTopology(inputSize);
-        
-    	
-        String subSec1_header = "Multilayer Perceptron";
-        ArrayList<String[]> subSec1_content = new ArrayList<>();
-
-
-        
-        String[] inpLayerContentPair = new String[3];
-        inpLayerContentPair[0] = "Input Layer:";
-        inpLayerContentPair[1] = ""+fullTopology[0];
-        inpLayerContentPair[2] = "N/A";
-        subSec1_content.add(inpLayerContentPair);
-        
-        
-
-        
-        for(int i=1; i<fullTopology.length-1; i++)
-        {
-            if(fullTopology[i] > 0)
-            {
-                String[] nwContentPair = new String[3];
-                nwContentPair[0] = "Hidden Layer "+i+":";
-                nwContentPair[1] = ""+fullTopology[i];
-                nwContentPair[2] = configurator.getActivationsFunctions()[i-1].toString();
-                
-                subSec1_content.add(nwContentPair);
-            }
-        }
-        
-        String[] outLayerContentPair = new String[3];
-        outLayerContentPair[0] = "Output Layer:";
-        outLayerContentPair[1] = ""+1;
-        outLayerContentPair[2] = configurator.getActivationsFunctions()[fullTopology.length-2].toString();
-        subSec1_content.add(outLayerContentPair);
-        
-        
-        
-        // GA Properties:
-        
-        String subSec2_header = "GA Properties";
-        ArrayList<String[]> subSec2_content = new ArrayList<>();
-        
-        GeneticAlgorithmConfigurator gaConfig = configurator.getGeneticAlgorithmConfigurator();
-        
-        String[] popContentPair = new String[2];
-        popContentPair[0] = "Population:";
-        popContentPair[1] = ""+gaConfig.getPopulationSize();
-        subSec2_content.add(popContentPair);
-        
-        String[] crossoverRateContentPair = new String[2];
-        crossoverRateContentPair[0] = "Crossover Probability:";
-        crossoverRateContentPair[1] = ""+gaConfig.getCrossOver().getProbability();
-        subSec2_content.add(crossoverRateContentPair);
-        
-        String[] crossoverTypeContentPair = new String[2];
-        crossoverTypeContentPair[0] = "Crossover Type:";
-        
-        String typStr = "";
-        if(gaConfig.getCrossOver().getCrossOverType() == CrossOverType.ONEPOINT) { typStr = "OnePoint"; }
-        else if(gaConfig.getCrossOver().getCrossOverType() == CrossOverType.TWOPOINT) { typStr = "TwoPoint"; }
-        else if(gaConfig.getCrossOver().getCrossOverType() == CrossOverType.UNIFORM) { typStr = "Uniform"; }
-        crossoverTypeContentPair[1] = typStr;
-        subSec2_content.add(crossoverTypeContentPair);
-        
-        
-        String[] mutationRateContentPair = new String[2];
-        mutationRateContentPair[0] = "Mutation Probability:";
-        mutationRateContentPair[1] = ""+gaConfig.getMutation().getProbability();
-        subSec2_content.add(mutationRateContentPair);
-        
-        String[] numOfParentsContentPair = new String[2];
-        numOfParentsContentPair[0] = "Num of Parents:";
-        numOfParentsContentPair[1] = ""+gaConfig.getNumberOfParents();
-        subSec2_content.add(numOfParentsContentPair);
-        
-        String[] parentSelectionContentPair = new String[2];
-        parentSelectionContentPair[0] = "Parent Selection:";
-        parentSelectionContentPair[1] = ""+gaConfig.getParentSelection().getSelectionName();
-        subSec2_content.add(parentSelectionContentPair);
-        
-        String[] elitismSizeContentPair = new String[2];
-        elitismSizeContentPair[0] = "Elitism Size:";
-        elitismSizeContentPair[1] = ""+gaConfig.getElitSize();
-        subSec2_content.add(elitismSizeContentPair);
-        
-        String[] iterationsContentPair = new String[2];
-        iterationsContentPair[0] = "Generations:";
-        iterationsContentPair[1] = ""+gaConfig.getIterations();
-        subSec2_content.add(iterationsContentPair);
-        
-        
-        
     
-        Object[] wrapper1 = new Object[2];
-        wrapper1[0] = subSec1_header;
-        wrapper1[1] = subSec1_content;
-        
-        Object[] wrapper2 = new Object[2];
-        wrapper2[0] = subSec2_header;
-        wrapper2[1] = subSec2_content;
-        
-        ArrayList<Object[]> retData = new ArrayList<>();
-        retData.add(wrapper1);
-        retData.add(wrapper2);
-        
-        return retData;
-    }
-
-
-
-
-
+    
 }

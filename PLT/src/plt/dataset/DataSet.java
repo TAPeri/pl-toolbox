@@ -175,7 +175,8 @@ import plt.utils.Preference;
  * called features, and a set of pairwise preference called instances.
  * A dataSet can't be used as input for the preference learning algorithms: a TrainableDataSet
  * must be constructed and then used.
- * @author Institute of Digital Games, UoM Malta
+ * 
+ * @author Vincent Farrugia
  */
 public interface DataSet {
     

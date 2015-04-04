@@ -170,8 +170,8 @@ import java.io.File;
 import java.io.IOException;
 
 import plt.dataset.TrainableDataSet;
+import plt.experiments.Experiment;
 import plt.featureselection.SelectedFeature;
-import plt.gui.Experiment;
 
 
 /**

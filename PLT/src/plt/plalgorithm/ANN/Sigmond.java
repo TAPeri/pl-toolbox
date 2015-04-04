@@ -164,13 +164,30 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.plalgorithm.neruoevolution.NE;
+package plt.plalgorithm.ANN;
 
 /**
  *
  * @author Institute of Digital Games, UoM Malta
  */
-public interface ActivationFunction {
-    public double evalue(double input);
-    public double evalueDerivative(double input,double output);
+public class Sigmond implements ActivationFunction {
+
+
+    
+    @Override
+    public double evalue(double input) {
+        return plt.utils.Math.sigmoid(input, 1);
+
+
+    }
+    
+    
+    public String toString() {
+        return "{Sigmond}";
+    }
+
+    @Override
+    public double evalueDerivative(double input,double output) {
+        return output*(1 -output);
+    }
 }

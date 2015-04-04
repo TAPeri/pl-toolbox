@@ -171,7 +171,6 @@ import java.util.ArrayList;
 
 import plt.dataset.TrainableDataSet;
 import plt.featureselection.SelectedFeature;
-import plt.gui.algorithms.GUIConfigurator;
 import plt.model.Model;
 
 /**
@@ -193,7 +192,8 @@ public abstract class PLAlgorithm {
     }
 
 
-    public abstract GUIConfigurator getConfigurator();
+   // public abstract GUIConfigurator getConfigurator();
+    public abstract String testParameters();
 
   /*  public TrainableDataSet getDataset() {
         return dataSet;

@@ -178,7 +178,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import plt.gui.Experiment;
+import plt.experiments.Experiment;
 import plt.gui.customcomponents.ModulePane;
 import plt.validator.SupportedValidations;
 import plt.validator.Validator;

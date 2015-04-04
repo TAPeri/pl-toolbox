@@ -6,7 +6,6 @@ import javafx.scene.Node;
 public interface GUIConfigurator {
 
     public Node ui();
-	public String testParameters();
 	public PLAlgorithm algorithm();
 	
 }

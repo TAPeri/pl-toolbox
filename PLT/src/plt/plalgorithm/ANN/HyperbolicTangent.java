@@ -164,46 +164,26 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.plalgorithm.neruoevolution.NE;
-
-import java.util.Hashtable;
-
-import plt.dataset.TrainableDataSet;
-import plt.featureselection.SelectedFeature;
-import plt.utils.Preference;
+package plt.plalgorithm.ANN;
 
 /**
  *
- * @author Vincent Farrugia
+ * @author Institute of Digital Games, UoM Malta
  */
-public class NetworkEvalutaor {
-
-    public double evaluate(SimpleNeuralNetwork network,TrainableDataSet dataSet,SelectedFeature featureSelection) {
-        
-        double fitness = 0;
-
-        
-        Hashtable<Integer,Double> h = new Hashtable<>();
-        for (int i=0; i<dataSet.getNumberOfObjects(); i++) {
-            double[] featuresOther = featureSelection.select( dataSet.getFeatures(i));
-            network.setInputs(featuresOther);
-            h.put(i,network.getOutputs()[0]);
-        }
-            
-        for (int i =0; i< dataSet.getNumberOfPreferences() ; i++) {
-            Preference instance = dataSet.getPreference(i);
-            double fPreferred = h.get(instance.getPreferred());
-            double fOther = h.get(instance.getOther());
-            
-            int epsilon = fOther > fPreferred ? 5 : 30;
-            double delta= plt.utils.Math.sigmoid(1, epsilon*(fPreferred-fOther)); 
-            
-            
-            fitness += delta;
-        }
-                        
-        
-        return fitness;
+public class HyperbolicTangent implements ActivationFunction {
+    @Override
+    public double evalue(double input) {
+        return Math.tanh(input);
     }
     
+    @Override
+    public String toString() {
+        return "{HyperbolicTangent}";
+    }
+
+    @Override
+    public double evalueDerivative(double input,double output) {
+        return 1-(output*output);
+    }
+
 }

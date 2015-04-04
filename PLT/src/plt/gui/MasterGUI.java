@@ -184,11 +184,9 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-
+import plt.experiments.Experiment;
 import plt.gui.algorithms.AlgorithmTab;
-
 import plt.gui.component.ModalPopup;
-
 import plt.gui.dataset.DataSetTab;
 import plt.gui.featureselection.FeatureSelectionTab;
 import plt.gui.help.Tab1Help;

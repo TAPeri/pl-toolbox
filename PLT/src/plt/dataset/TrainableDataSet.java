@@ -179,20 +179,12 @@ import plt.utils.Preference;
  * by a DataSet and a list of preprocessing operation to apply to it.
  * An important difference is that the features of a DataSet are String of a TrainableDataset are Double.
  * 
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
  */
 public abstract class TrainableDataSet {
     
    // protected DataSet dataSet;
     
-   /* public TrainableDataSet(DataSet d) {
-        this.dataSet = d;
-    } 
-    
-    public DataSet getDataSet()
-    {
-        return dataSet;
-    }*/
     
      /**
      * Given a number n in [0..this.getNumberOfObjects()-1] and a number f in [0..this.getNumberOfFeatures()-1]
@@ -251,112 +243,6 @@ public abstract class TrainableDataSet {
      * @param o
      * @return
      */
-  /*  @Override
-    public boolean equals(Object o){
-        TrainableDataSet other= (TrainableDataSet)o;
-        
-        if (other.dataSet != this.dataSet) {
-            return false;
-        }
-        
-        if (other.getNumberOfPreferences() != this.getNumberOfPreferences()) {
-            return false;
-        }
-        if (other.getNumberOfFeatures() != this.getNumberOfFeatures()) {
-            return false;
-        }
-        
-        for (int i=0; i<this.getNumberOfPreferences(); i++) {
-            if (!other.getPreference(i).equals(this.getPreference(i))) {
-                return false;
-            }
-        }
-        
-        return true;
-        
-    }*/
-    
-    
-    /**
-     * create a subset of trainableDataSet given a vector of instances
-     * @param subset
-     * @return 
-     */
-   /* public abstract TrainableDataSet subSet(int[] subset) ;/*{
-
-        if (subset.length < 1) {
-            throw new IllegalArgumentException();
-        }
-        
-        HashMap<Integer,Set<Integer>> subHash = new HashMap<>();
-        
-        for (int i=0; i<subset.length; i++) {
-            int groupID = this.atomicGroup(subset[i]);
-            if (subHash.get(groupID) == null) {
-                subHash.put(groupID, new HashSet<Integer>());
-            }
-            subHash.get(groupID).add(subset[i]);
-        }
-        
-        HashMap<Integer,Set<Integer>> hash = new HashMap<>();
-
-        for (int i =0; i< this.dataSet.getNumberOfPreferences(); i++) {
-            int j =this.dataSet.atomicGroup(i);
-            if (hash.get(j) == null) {
-                hash.put(j, new HashSet<Integer>());
-            }
-            hash.get(j).add(i);
-        }
-        
-        for (Integer i : subHash.keySet()) {
-            if (hash.get(i).size() != subHash.get(i).size()) {
-                throw  new IllegalArgumentException();
-            }
-        }
-
-        final TrainableDataSet father = this;
-        return new TrainableDataSet(this.dataSet) {
-            
-            @Override
-            public Preference getPreference(int n) {
-                if (n >= subset.length || n <0) {
-                    throw new IllegalArgumentException(n + " is not a valid instance");
-                }
-                
-                return father.getPreference(subset[n]);
-            }
-            
-            @Override
-            public int atomicGroup(int n) {
-                if (n >= subset.length || n <0) {
-                    throw new IllegalArgumentException(n + " is not a valid instance");
-                }
-                
-                return father.atomicGroup(subset[n]);
-            }
-
-
-            @Override
-            public int getNumberOfPreferences() {
-                return subset.length;
-            }
-
-            @Override
-            public double[] getFeatures(int n) {
-                return father.getFeatures(n);
-            }
-
-            @Override
-            public double getFeature(int n, int f) {
-                return father.getFeature(n, f);
-            }
-
-            @Override
-            public int getNumberOfFeatures() {
-                return father.getNumberOfFeatures();
-            }
-        };
-    }*/
     
     /**
      * create a subset of trainableDataSet given a set of instances
