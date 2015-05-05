@@ -1,28 +1,29 @@
 package plt.plalgorithm.backpropagation;
 
 import plt.plalgorithm.PLAlgorithm;
-import plt.plalgorithm.ANN.ActivationFunction;
+import plt.utils.ANN.ANNConfigurator;
+import plt.utils.ANN.ActivationFunction;
+import plt.utils.ANN.InlineANNConfigurator;
 
 public class InlineBackpropagationConfigurator implements
 		BackpropagationConfigurator {
 
-	
-	int[] topology;
-	ActivationFunction[] activationFunctions;
+	ANNConfigurator ann;
+
 	double learningRate;
 	double errorThreshold;
 	int epochs;
 	
 	public InlineBackpropagationConfigurator(BackpropagationConfigurator copy){
 
-		int[] tmp = copy.getTopology(0);
-		this.topology = new int[tmp.length-1];
-		
-		for(int i=1;i<tmp.length;i++){
-			this.topology[i-1] = tmp[i];
+		int topologyWithInput[] = copy.getTopology(0);
+		int[] tmp = new int[topologyWithInput.length-1];
+		for(int i=0;i<tmp.length;i++){
+			tmp[i] = topologyWithInput[i+1];
+			
 		}
 		
-		this.activationFunctions = copy.getActivationsFunctions();
+		ann = new InlineANNConfigurator(tmp,copy.getActivationsFunctions());
 		this.learningRate = copy.getLearningRate();
 		this.errorThreshold = copy.getErrorThreeshold();
 		this.epochs = copy.getMaxNumberOfIterations();
@@ -30,14 +31,12 @@ public class InlineBackpropagationConfigurator implements
 }
 
 	
-	public InlineBackpropagationConfigurator(int[] topology,
-												ActivationFunction[] activationFunctions,
+	public InlineBackpropagationConfigurator(ANNConfigurator ann,
 												double learningRate,
 												double errorThreshold,
 												int epochs){
 		
-		this.topology = topology;
-		this.activationFunctions = activationFunctions;
+		this.ann = ann;
 		this.learningRate = learningRate;
 		this.errorThreshold = errorThreshold;
 		this.epochs = epochs;
@@ -47,16 +46,12 @@ public class InlineBackpropagationConfigurator implements
 	@Override
 	public int[] getTopology(int inputSize) {
 		
-		int[] top = new int[topology.length+1];
-		top[0] = inputSize;
-		for(int i=0;i<topology.length;i++)
-			top[i+1] = topology[i];
-		return top;
+		return ann.getTopology(inputSize);
 	}
 
 	@Override
 	public ActivationFunction[] getActivationsFunctions() {
-		return this.activationFunctions;
+		return ann.getActivationsFunctions();
 	}
 
 	@Override
@@ -83,7 +78,7 @@ public class InlineBackpropagationConfigurator implements
 	@Override
 	public String testParameters() {
 
-			return "";
+			return ""+ann.testParameters();
 	}
 
 }

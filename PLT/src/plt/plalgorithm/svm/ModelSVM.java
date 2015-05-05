@@ -10,9 +10,9 @@ import plt.experiments.Experiment;
 import plt.featureselection.SelectedFeature;
 import plt.json.JsonObjIO;
 import plt.model.Model;
-import plt.plalgorithm.svm.libsvm_plt.RankSvmManager;
-import plt.plalgorithm.svm.libsvm_plt.SVMDataStore;
 import plt.report.SvmModelFileData;
+import svm.libsvm_plt.RankSvmManager;
+import svm.libsvm_plt.SVMDataStore;
 
 public class ModelSVM extends Model {
 

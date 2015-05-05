@@ -10,9 +10,9 @@ import plt.experiments.Experiment;
 import plt.featureselection.SelectedFeature;
 import plt.json.JsonObjIO;
 import plt.model.Model;
-import plt.plalgorithm.ANN.SimpleNeuralNetwork;
 import plt.plalgorithm.backpropagation.ModelBackpropagation;
 import plt.report.NNModelFileData;
+import plt.utils.ANN.SimpleNeuralNetwork;
 
 public class ModelNeuroEvolution extends Model {
 	

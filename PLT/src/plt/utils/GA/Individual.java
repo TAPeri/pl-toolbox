@@ -164,129 +164,78 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.gui.algorithms;
+package plt.utils.GA;
 
-
-import java.util.ArrayList;
-import java.util.Arrays;
-
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-import plt.experiments.Experiment;
-import plt.gui.customcomponents.ModulePane;
-import plt.validator.SupportedValidations;
-import plt.validator.Validator;
-
+import plt.dataset.TrainableDataSet;
+import plt.featureselection.SelectedFeature;
 
 /**
  *
- * @author Vincent Farrugia
- * @author Hector P. Martinez
+ * @author Institute of Digital Games, UoM Malta
  */
-public class AlgorithmTab extends Tab {
-
-   // final private Stage stage;
-    private Experiment experiment;
+public class Individual implements Comparable<Individual>{
+    private DNA dna;
+    private GeneticEncoder geneticEncoder;
+    private boolean evalueted;
+    private double fitness;
     
-    VBox moduleHBox;
-
-
-    public AlgorithmTab(Stage s, Experiment e) {
-        super();
-        this.experiment = e;
-       // this.stage = s;
-
-        setup();
+    public Individual (GeneticEncoder geneticEncoder) {
+        this(geneticEncoder, new DNA(geneticEncoder.dnaSize()));
+    }
+    
+    public Individual (GeneticEncoder geneticEncoder, DNA dna)  {
+        this.geneticEncoder = geneticEncoder;
+        this.dna = dna;
+        this.evalueted = false;
     }
 
-    
-    private void setup()
-    {
-    	
-    	    	
-       // this.setContent(sPane);
-        /*stage.heightProperty().addListener(new ChangeListener<Number>() {
+    public DNA getDna() {
+        DNA result = null;
         
-        	
-            @Override
-            public void changed(ObservableValue<? extends Number> ov, Number t, Number t1){
-                
-                sPane.setPrefHeight(t1.doubleValue() * 0.7);
-            }
-            
-        });*/
+        try {
+            result = (DNA) dna.clone();
+        } catch (CloneNotSupportedException ex) {
+            throw new RuntimeException();
+        }
         
-//sPane.setStyle("-fx-background-color: transparent;"); // Hide the scrollpane gray border.
-//sPane.setPrefSize(880,600);
-        
-        
-       // final Pane nestedBp = new Pane();
-        //nestedBp.setPrefHeight(400);
-        //nestedBp.setPrefWidth(650);
-        
-        	moduleHBox = new VBox(1);
-        	
-        	//nestedBp.getChildren().add(moduleHBox); 
-        
-        	
-        	//Pane tmpParentPane2 = new Pane();
-        	//moduleHBox.getChildren().add(tmpParentPane2);
-            	
-        		final ModulePane algorithmMPane = new ModulePane("Algorithm", new ArrayList<String>(Arrays.asList(SupportedAlgorithms.labels)), new Pane(), "modulePane1",850);
-        		//tmpParentPane2.getChildren().add(algorithmMPane);
-                ScrollPane sPane = new ScrollPane();  
-
-        		sPane.setContent(moduleHBox);
-            	this.setContent(sPane);
-
-            	moduleHBox.getChildren().add(algorithmMPane);
-
-        	//Pane tmpParentPane3 = new Pane();
-        	//moduleHBox.getChildren().add(tmpParentPane3);
-        
-        		final ModulePane validatorMPane = new ModulePane("Cross Validation", new ArrayList<String>(Arrays.asList(SupportedValidations.labels)),new Pane(),"modulePane2",850);
-        		moduleHBox.getChildren().add(validatorMPane);
-
-            	this.experiment.algorithmProperty().set(null);
-        	
-        
-                algorithmMPane.choiceBox.valueProperty().addListener(new ChangeListener<String>() {
-                    
-                    @Override
-                    public void changed(ObservableValue<? extends String> ov, String t, String t1) {
-                         
-                            int i =  algorithmMPane.choiceBox.getSelectionModel().getSelectedIndex();
-                            GUIConfigurator tmp = SupportedAlgorithms.getClass(i);
-                            if(tmp==null){
-                            	algorithmMPane.setMainContent(new HBox());
-                            	
-                            }else{
-                            	algorithmMPane.setMainContent(tmp.ui());
-                            	experiment.algorithmProperty().set(tmp.algorithm());
-                            }
-
-                    }
-                });
-                
-                
-                validatorMPane.choiceBox.valueProperty().addListener(new ChangeListener<String>() {
-                    @Override
-                    public void changed(ObservableValue<? extends String> ov, String t, String t1) {
-                        int i =  validatorMPane.choiceBox.getSelectionModel().getSelectedIndex();
-                        Validator tmp = SupportedValidations.getClass(i);
-                        experiment.validatorProperty().set(tmp);
-                        validatorMPane.setMainContent(tmp.getUI());   
-                    }
-                });
-    	
-        algorithmMPane.choiceBox.getSelectionModel().select(0);
-        validatorMPane.choiceBox.getSelectionModel().select(1);
+        return result;
     }
 
+	@Override
+    public int compareTo(Individual other) {
+
+        if (this.getFitness() > other.getFitness()) {
+            return -1;
+        } else if (this.getFitness() < other.getFitness()) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+    
+
+    
+     public double getFitness(TrainableDataSet dataset,SelectedFeature featureSelection) {
+        if (!evalueted) 
+            this.fitness = this.geneticEncoder.evaluationFunction(this.getDna(),dataset,featureSelection);
+        
+        evalueted = true;
+        return fitness;
+    }
+     
+     public double getFitness() {
+
+         return fitness;
+     }
+     
+    public Object getPhenotype() {
+        try {
+            return geneticEncoder.decode((DNA)this.dna.clone());
+        } catch (CloneNotSupportedException ex) {
+            throw new RuntimeException();
+        }
+    }
+
+
+    
 }

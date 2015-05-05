@@ -1,10 +1,9 @@
 package plt.plalgorithm.neruoevolution;
 
-import plt.plalgorithm.PLAlgorithm;
-import plt.plalgorithm.ANN.ActivationFunction;
-import plt.plalgorithm.neruoevolution.GA.GeneticAlgorithmConfigurator;
+import plt.utils.ANN.ActivationFunction;
+import plt.utils.GA.GeneticAlgorithmConfigurator;
 
-public interface NeuroEvolutionConfigurator {
+public interface NeuroEvolutionConfigurator extends Configurator {
 
 	// @Override
 	public abstract int[] getTopology(int inputSize);
@@ -15,11 +14,7 @@ public interface NeuroEvolutionConfigurator {
 	// @Override
 	public abstract GeneticAlgorithmConfigurator getGeneticAlgorithmConfigurator();
 
-	public abstract String testParameters();
-
 	// @Override
 	public abstract ActivationFunction[] getActivationsFunctions();
-
-	public abstract PLAlgorithm algorithm();
 
 }

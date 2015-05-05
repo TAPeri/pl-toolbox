@@ -174,7 +174,7 @@ import plt.dataset.TrainableDataSet;
 import plt.featureselection.SelectedFeature;
 import plt.model.Model;
 import plt.plalgorithm.PLAlgorithm;
-import plt.plalgorithm.svm.libsvm_plt.RankSvmManager;
+import svm.libsvm_plt.RankSvmManager;
 
 
 /**
@@ -183,11 +183,11 @@ import plt.plalgorithm.svm.libsvm_plt.RankSvmManager;
  */
 public class RankSvm extends PLAlgorithm
 {
-    private GUIRankSvmConfigurator configurator;
+    private RankSvmConfigurator configurator;
     private RankSvmManager svmMang;
     
     
-    public GUIRankSvmConfigurator getConfigurator(){
+    public RankSvmConfigurator getConfigurator(){
     	return configurator;
     }
     
@@ -196,7 +196,7 @@ public class RankSvm extends PLAlgorithm
     	this(new GUIRankSvmConfigurator());
     }
     
-    public RankSvm( GUIRankSvmConfigurator para_svmConfig)
+    public RankSvm( RankSvmConfigurator para_svmConfig)
     {
         super();
         configurator = para_svmConfig;

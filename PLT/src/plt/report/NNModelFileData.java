@@ -174,8 +174,8 @@ import java.util.Date;
 import plt.dataset.TrainableDataSet;
 import plt.experiments.Experiment;
 import plt.featureselection.SelectedFeature;
-import plt.plalgorithm.ANN.SimpleNeuralNetwork;
 import plt.utils.TimeHelper;
+import plt.utils.ANN.SimpleNeuralNetwork;
 
 public class NNModelFileData extends ModelFileData implements Serializable
 {

@@ -196,10 +196,10 @@ public class ZScore extends PreprocessingOperation {
 
     @Override
     public double value(DataSet d,int feature,int object, int output) {
-        if (output > this.numberOfOutput(d,feature))
-            throw new IllegalArgumentException();
+
         
-        if (!ready) prepareValues(d,feature);
+        if (!ready) 
+        	prepareValues(d,feature);
 
         double value = Double.parseDouble(d.getFeature(object, feature));
         
@@ -242,6 +242,7 @@ public class ZScore extends PreprocessingOperation {
         meanOfDifferences = meanOfDifferences / ((squareDiffsArr.length) * 1.0f);
         
         stdev = Math.sqrt(meanOfDifferences);
+        ready = true;
         
     }
     

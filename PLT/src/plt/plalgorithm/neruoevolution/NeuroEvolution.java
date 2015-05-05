@@ -187,16 +187,21 @@ import java.util.ArrayList;
 
 
 
+
+
+
+
+
 import plt.dataset.TrainableDataSet;
 import plt.featureselection.SelectedFeature;
 import plt.model.Model;
 import plt.plalgorithm.PLAlgorithm;
-import plt.plalgorithm.ANN.*;
-import plt.plalgorithm.neruoevolution.GA.DNA;
-import plt.plalgorithm.neruoevolution.GA.GeneticAlgorithm;
-import plt.plalgorithm.neruoevolution.GA.GeneticAlgorithmConfigurator;
-import plt.plalgorithm.neruoevolution.GA.GeneticEncoder;
-import plt.plalgorithm.neruoevolution.GA.genticaloperators.CrossOverType;
+import plt.utils.ANN.*;
+import plt.utils.GA.DNA;
+import plt.utils.GA.GeneticAlgorithm;
+import plt.utils.GA.GeneticAlgorithmConfigurator;
+import plt.utils.GA.GeneticEncoder;
+import plt.utils.GA.genticaloperators.CrossOverType;
 
 
 /**

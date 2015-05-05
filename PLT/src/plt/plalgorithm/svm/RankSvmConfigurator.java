@@ -1,10 +1,9 @@
 package plt.plalgorithm.svm;
 
-import plt.plalgorithm.PLAlgorithm;
+import plt.plalgorithm.neruoevolution.Configurator;
 
-public interface RankSvmConfigurator {
+public interface RankSvmConfigurator extends Configurator {
 
-	public abstract String testParameters();
 
 	public abstract String getKernelType();
 
@@ -16,6 +15,5 @@ public interface RankSvmConfigurator {
 
 	public abstract boolean degreeRequired();
 
-	public abstract PLAlgorithm algorithm();
 
 }

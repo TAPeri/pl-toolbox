@@ -170,8 +170,8 @@ import java.util.Hashtable;
 
 import plt.dataset.TrainableDataSet;
 import plt.featureselection.SelectedFeature;
-import plt.plalgorithm.ANN.SimpleNeuralNetwork;
 import plt.utils.Preference;
+import plt.utils.ANN.SimpleNeuralNetwork;
 
 /**
  *

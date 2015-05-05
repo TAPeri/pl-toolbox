@@ -166,8 +166,8 @@ Library.*/
 
 package plt.plalgorithm.backpropagation;
 
-import plt.plalgorithm.ANN.ActivationFunction;
-import plt.plalgorithm.ANN.SimpleNeuralNetwork;
+import plt.utils.ANN.ActivationFunction;
+import plt.utils.ANN.SimpleNeuralNetwork;
 
 /**
  *

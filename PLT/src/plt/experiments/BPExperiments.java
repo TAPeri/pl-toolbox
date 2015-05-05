@@ -175,12 +175,12 @@ import plt.dataset.preprocessing.Numeric;
 import plt.dataset.preprocessing.PreprocessingOperation;
 import plt.functions.LinearFunction;
 import plt.functions.QuadraticFuncion;
-import plt.plalgorithm.ANN.ActivationFunction;
-import plt.plalgorithm.ANN.Linear;
-import plt.plalgorithm.ANN.Sigmond;
 import plt.plalgorithm.backpropagation.Backpropagation;
 import plt.plalgorithm.backpropagation.GUIBackpropagationConfigurator;
 import plt.report.Report;
+import plt.utils.ANN.ActivationFunction;
+import plt.utils.ANN.Linear;
+import plt.utils.ANN.Sigmond;
 import plt.validator.SplitValidation;
 import plt.validator.Validator;
 

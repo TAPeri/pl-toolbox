@@ -164,129 +164,51 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.gui.algorithms;
+package svm.libsvm;
+public class svm_parameter implements Cloneable,java.io.Serializable
+{
+	/* svm_type */
+	public static final int C_SVC = 0;
+	public static final int NU_SVC = 1;
+	public static final int ONE_CLASS = 2;
+	public static final int EPSILON_SVR = 3;
+	public static final int NU_SVR = 4;
+        public static final int RANK = 5;
 
+	/* kernel_type */
+	public static final int LINEAR = 0;
+	public static final int POLY = 1;
+	public static final int RBF = 2;
+	public static final int SIGMOID = 3;
+	public static final int PRECOMPUTED = 4;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+	public int svm_type;
+	public int kernel_type;
+	public int degree;	// for poly
+	public double gamma;	// for poly/rbf/sigmoid
+	public double coef0;	// for poly/sigmoid
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
+	// these are for training only
+	public double cache_size; // in MB
+	public double eps;	// stopping criteria
+	public double C;	// for C_SVC, EPSILON_SVR and NU_SVR
+	public int nr_weight;		// for C_SVC
+	public int[] weight_label;	// for C_SVC
+	public double[] weight;		// for C_SVC
+	public double nu;	// for NU_SVC, ONE_CLASS, and NU_SVR
+	public double p;	// for EPSILON_SVR
+	public int shrinking;	// use the shrinking heuristics
+	public int probability; // do probability estimates
 
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-import plt.experiments.Experiment;
-import plt.gui.customcomponents.ModulePane;
-import plt.validator.SupportedValidations;
-import plt.validator.Validator;
-
-
-/**
- *
- * @author Vincent Farrugia
- * @author Hector P. Martinez
- */
-public class AlgorithmTab extends Tab {
-
-   // final private Stage stage;
-    private Experiment experiment;
-    
-    VBox moduleHBox;
-
-
-    public AlgorithmTab(Stage s, Experiment e) {
-        super();
-        this.experiment = e;
-       // this.stage = s;
-
-        setup();
-    }
-
-    
-    private void setup()
-    {
-    	
-    	    	
-       // this.setContent(sPane);
-        /*stage.heightProperty().addListener(new ChangeListener<Number>() {
-        
-        	
-            @Override
-            public void changed(ObservableValue<? extends Number> ov, Number t, Number t1){
-                
-                sPane.setPrefHeight(t1.doubleValue() * 0.7);
-            }
-            
-        });*/
-        
-//sPane.setStyle("-fx-background-color: transparent;"); // Hide the scrollpane gray border.
-//sPane.setPrefSize(880,600);
-        
-        
-       // final Pane nestedBp = new Pane();
-        //nestedBp.setPrefHeight(400);
-        //nestedBp.setPrefWidth(650);
-        
-        	moduleHBox = new VBox(1);
-        	
-        	//nestedBp.getChildren().add(moduleHBox); 
-        
-        	
-        	//Pane tmpParentPane2 = new Pane();
-        	//moduleHBox.getChildren().add(tmpParentPane2);
-            	
-        		final ModulePane algorithmMPane = new ModulePane("Algorithm", new ArrayList<String>(Arrays.asList(SupportedAlgorithms.labels)), new Pane(), "modulePane1",850);
-        		//tmpParentPane2.getChildren().add(algorithmMPane);
-                ScrollPane sPane = new ScrollPane();  
-
-        		sPane.setContent(moduleHBox);
-            	this.setContent(sPane);
-
-            	moduleHBox.getChildren().add(algorithmMPane);
-
-        	//Pane tmpParentPane3 = new Pane();
-        	//moduleHBox.getChildren().add(tmpParentPane3);
-        
-        		final ModulePane validatorMPane = new ModulePane("Cross Validation", new ArrayList<String>(Arrays.asList(SupportedValidations.labels)),new Pane(),"modulePane2",850);
-        		moduleHBox.getChildren().add(validatorMPane);
-
-            	this.experiment.algorithmProperty().set(null);
-        	
-        
-                algorithmMPane.choiceBox.valueProperty().addListener(new ChangeListener<String>() {
-                    
-                    @Override
-                    public void changed(ObservableValue<? extends String> ov, String t, String t1) {
-                         
-                            int i =  algorithmMPane.choiceBox.getSelectionModel().getSelectedIndex();
-                            GUIConfigurator tmp = SupportedAlgorithms.getClass(i);
-                            if(tmp==null){
-                            	algorithmMPane.setMainContent(new HBox());
-                            	
-                            }else{
-                            	algorithmMPane.setMainContent(tmp.ui());
-                            	experiment.algorithmProperty().set(tmp.algorithm());
-                            }
-
-                    }
-                });
-                
-                
-                validatorMPane.choiceBox.valueProperty().addListener(new ChangeListener<String>() {
-                    @Override
-                    public void changed(ObservableValue<? extends String> ov, String t, String t1) {
-                        int i =  validatorMPane.choiceBox.getSelectionModel().getSelectedIndex();
-                        Validator tmp = SupportedValidations.getClass(i);
-                        experiment.validatorProperty().set(tmp);
-                        validatorMPane.setMainContent(tmp.getUI());   
-                    }
-                });
-    	
-        algorithmMPane.choiceBox.getSelectionModel().select(0);
-        validatorMPane.choiceBox.getSelectionModel().select(1);
-    }
+	public Object clone() 
+	{
+		try 
+		{
+			return super.clone();
+		} catch (CloneNotSupportedException e) 
+		{
+			return null;
+		}
+	}
 
 }

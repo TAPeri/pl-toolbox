@@ -280,14 +280,8 @@ public class GUIRankSvmConfigurator implements GUIConfigurator, RankSvmConfigura
 	@Override
 	public String testParameters() {
 		
-		
-        if((this.gammaRequired())
-        &&(this.getGamma() == 0))
-        {
-            return "SVM error: Gamma cannot be set to 0.";
-            
-        } else
-        	return "";
+		InlineSvmConfigurator test = new InlineSvmConfigurator(this);
+        return test.testParameters();
 
 	}
     

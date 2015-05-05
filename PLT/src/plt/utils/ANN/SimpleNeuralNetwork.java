@@ -164,129 +164,164 @@ apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.*/
 
-package plt.gui.algorithms;
+package plt.utils.ANN;
 
-
-import java.util.ArrayList;
-import java.util.Arrays;
-
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-import plt.experiments.Experiment;
-import plt.gui.customcomponents.ModulePane;
-import plt.validator.SupportedValidations;
-import plt.validator.Validator;
+import java.util.Random;
 
 
 /**
  *
- * @author Vincent Farrugia
- * @author Hector P. Martinez
+ * @author Institute of Digital Games, UoM Malta
  */
-public class AlgorithmTab extends Tab {
+public class SimpleNeuralNetwork implements Cloneable {
 
-   // final private Stage stage;
-    private Experiment experiment;
+    public double[] weights;
+    public int[] topology;
+    public double[] outputs;
+    public double[] inputs;
+    public ActivationFunction[] activationFunctions;
     
-    VBox moduleHBox;
-
-
-    public AlgorithmTab(Stage s, Experiment e) {
-        super();
-        this.experiment = e;
-       // this.stage = s;
-
-        setup();
-    }
+    protected double[][] sums;
+    protected double[][] activations;
+    
 
     
-    private void setup()
-    {
-    	
-    	    	
-       // this.setContent(sPane);
-        /*stage.heightProperty().addListener(new ChangeListener<Number>() {
-        
-        	
-            @Override
-            public void changed(ObservableValue<? extends Number> ov, Number t, Number t1){
-                
-                sPane.setPrefHeight(t1.doubleValue() * 0.7);
+    public SimpleNeuralNetwork(int[] topology, ActivationFunction[] activationFunctions) {
+
+        if (topology.length < 2) {
+            throw new IllegalArgumentException();
+        }
+
+        for (int i = 0; i < topology.length; i++) {
+            if (topology[i] <= 0) {
+                throw new IllegalArgumentException();
             }
-            
-        });*/
-        
-//sPane.setStyle("-fx-background-color: transparent;"); // Hide the scrollpane gray border.
-//sPane.setPrefSize(880,600);
-        
-        
-       // final Pane nestedBp = new Pane();
-        //nestedBp.setPrefHeight(400);
-        //nestedBp.setPrefWidth(650);
-        
-        	moduleHBox = new VBox(1);
-        	
-        	//nestedBp.getChildren().add(moduleHBox); 
-        
-        	
-        	//Pane tmpParentPane2 = new Pane();
-        	//moduleHBox.getChildren().add(tmpParentPane2);
-            	
-        		final ModulePane algorithmMPane = new ModulePane("Algorithm", new ArrayList<String>(Arrays.asList(SupportedAlgorithms.labels)), new Pane(), "modulePane1",850);
-        		//tmpParentPane2.getChildren().add(algorithmMPane);
-                ScrollPane sPane = new ScrollPane();  
+        }
 
-        		sPane.setContent(moduleHBox);
-            	this.setContent(sPane);
+        if (topology.length != activationFunctions.length + 1) {
+            throw new IllegalArgumentException();
+        }
 
-            	moduleHBox.getChildren().add(algorithmMPane);
-
-        	//Pane tmpParentPane3 = new Pane();
-        	//moduleHBox.getChildren().add(tmpParentPane3);
+        this.topology = topology;
+        this.weights = new double[this.getNumberOfWeights()];
+        this.activationFunctions = activationFunctions;
         
-        		final ModulePane validatorMPane = new ModulePane("Cross Validation", new ArrayList<String>(Arrays.asList(SupportedValidations.labels)),new Pane(),"modulePane2",850);
-        		moduleHBox.getChildren().add(validatorMPane);
+        this.sums = new double[this.topology.length-1][];
+        this.activations = new double[this.topology.length-1][];
 
-            	this.experiment.algorithmProperty().set(null);
-        	
         
-                algorithmMPane.choiceBox.valueProperty().addListener(new ChangeListener<String>() {
-                    
-                    @Override
-                    public void changed(ObservableValue<? extends String> ov, String t, String t1) {
-                         
-                            int i =  algorithmMPane.choiceBox.getSelectionModel().getSelectedIndex();
-                            GUIConfigurator tmp = SupportedAlgorithms.getClass(i);
-                            if(tmp==null){
-                            	algorithmMPane.setMainContent(new HBox());
-                            	
-                            }else{
-                            	algorithmMPane.setMainContent(tmp.ui());
-                            	experiment.algorithmProperty().set(tmp.algorithm());
-                            }
+        for(int i = 0;i<topology.length-1;i++){
+        	sums[i] = new double[topology[i+1]];
+        	activations[i] = new double[topology[i+1]];
+        }
+        
+        Random r = new Random();
+        for (int i=0; i< this.weights.length; i++) {
+           this.weights[i] = (r.nextDouble()*2)-1;
 
-                    }
-                });
-                
-                
-                validatorMPane.choiceBox.valueProperty().addListener(new ChangeListener<String>() {
-                    @Override
-                    public void changed(ObservableValue<? extends String> ov, String t, String t1) {
-                        int i =  validatorMPane.choiceBox.getSelectionModel().getSelectedIndex();
-                        Validator tmp = SupportedValidations.getClass(i);
-                        experiment.validatorProperty().set(tmp);
-                        validatorMPane.setMainContent(tmp.getUI());   
-                    }
-                });
-    	
-        algorithmMPane.choiceBox.getSelectionModel().select(0);
-        validatorMPane.choiceBox.getSelectionModel().select(1);
+        }
+
+
     }
 
+    public int getNumberOfNerons() {
+        int result = 0;
+        for (int i = 1; i < topology.length; i++) {
+            result += topology[i];
+        }
+        return result;
+    }
+
+    public int getNumberOfWeights() {
+
+        int result = 0;
+        for (int l = 1; l < topology.length; l++) {
+            result += topology[l] * (1 + topology[l - 1]);
+        }
+
+        return result;
+    }
+
+    public void setInputs(double[] inputs) {
+        this.inputs = inputs;
+        this.outputs = null;
+
+    }
+    
+    
+
+
+    public void setWeights(double[] weights) {
+        if (weights.length != getNumberOfWeights()) {
+            throw new RuntimeException();
+        }
+
+        this.weights = weights;
+        this.outputs = null;
+    }
+
+    public double[] getOutputs() {
+        if (this.outputs == null) {
+            activate();
+        }
+        return this.outputs;
+    }
+    
+        
+    
+
+    protected void activate() {
+    	
+    	for(int i=0;i<sums.length;i++)
+    		for(int j=0;j<sums[i].length;j++){
+    			sums[i][j] = 0;
+    			activations[i][j] = 0;
+    		}
+    	
+        int weightPointer = 0;
+        
+        for(int i=0;i<topology[1];i++){
+        	sums[0][i] = -weights[weightPointer++];
+        	for(double x : inputs)
+        		sums[0][i] += (x*weights[weightPointer++]);
+        	activations[0][i] = activationFunctions[0].evalue(sums[0][i]);
+        }
+        
+        for(int j = 2;j<topology.length;j++){
+        	
+            for(int i=0;i<topology[j];i++){
+            	sums[j-1][i] = -weights[weightPointer++];
+            	for(double x : activations[j-2])
+            		sums[j-1][i] += (x*weights[weightPointer++]);
+            	activations[j-1][i] = activationFunctions[j-1].evalue(sums[j-1][i]);
+            }
+        }
+        
+        outputs = activations[activations.length-1];
+        
+
+    }
+    
+
+    protected int weightPointer(int layer, int neuron) {
+        int result = 0;
+        for (int l = 1; l < layer; l++) {
+            result += topology[l] * (1 + topology[l - 1]);
+        }
+        result += neuron * (1 + topology[layer - 1]);
+
+        return result;
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        SimpleNeuralNetwork n = new SimpleNeuralNetwork(this.topology, this.activationFunctions);
+        n.weights = this.weights.clone();
+
+        if (this.inputs != null) {
+            n.inputs = this.inputs.clone();
+        }
+
+        return n;
+    }
 }
