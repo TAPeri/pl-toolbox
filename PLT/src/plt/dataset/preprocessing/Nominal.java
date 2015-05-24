@@ -174,9 +174,12 @@ import java.util.List;
 import plt.dataset.DataSet;
 
 /**
- *
- * @author Institute of Digital Games, UoM Malta
- */
+*
+* Cast the values of a feature as nominal
+*
+* @author Vincent Farrugia
+* @author Luca Querella
+*/
 public class Nominal extends PreprocessingOperation {
     private List<String> possibleValues;
 
@@ -227,7 +230,6 @@ public class Nominal extends PreprocessingOperation {
 		
 	       if (possibleValues == null) preparePossibleValues(d,feature);
 
-	       System.err.println("NOMINAL TO NUMBER");
 	        String value = d.getFeature(object, feature);
 	        
 		 return new ArrayList<Number>(Arrays.asList(this.possibleValues.indexOf(value)));

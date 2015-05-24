@@ -171,7 +171,10 @@ import java.util.List;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * Pairwise preference
+ *
+ * @author Vincent Farrugia
+ * @author Luca Querella
  */
 public class Preference {
     private int preferred;

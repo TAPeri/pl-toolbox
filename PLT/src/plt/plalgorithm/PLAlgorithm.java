@@ -168,12 +168,12 @@ package plt.plalgorithm;
 
 import java.util.ArrayList;
 
-
 import plt.dataset.TrainableDataSet;
 import plt.featureselection.SelectedFeature;
-import plt.model.Model;
 
 /**
+ *
+ * Base class for all preference learning algorithms
  *
  * @author Vincent Farrugia
  * @author Hector P. Martinez
@@ -192,18 +192,17 @@ public abstract class PLAlgorithm {
     }
 
 
-   // public abstract GUIConfigurator getConfigurator();
     public abstract String testParameters();
-
-  /*  public TrainableDataSet getDataset() {
-        return dataSet;
-    }*/
 
  
     public Model getUntrainedModel(){
     	return this.untrainedModel;
     }
 
+    
+    /*
+     * Initialises and trains a model
+     */
     public Model createModel(TrainableDataSet dataSet,SelectedFeature features) {
         //Logger.getLogger("plt.logger").log(Level.INFO, "create a new model");
 
@@ -226,9 +225,11 @@ public abstract class PLAlgorithm {
 
     }
 
+    
+    /*
+     * Initialises the model
+     */
     private void prepareToRun(TrainableDataSet dataSet,SelectedFeature features) {
-
-
         
         this.result = null;
         try {
@@ -239,7 +240,14 @@ public abstract class PLAlgorithm {
         
     }
 
+    /*
+     * Trains a model using the given dataset and selected features
+     */
     protected abstract Model run(TrainableDataSet dataSet,SelectedFeature features) throws InterruptedException;
+   
+    /*
+     * Initialises the model and returns it before any training
+     */
     protected abstract Model beforeRun(TrainableDataSet dataSet,SelectedFeature features);
     
     public abstract ArrayList<Object[]> getProperties();

@@ -178,7 +178,7 @@ import javafx.scene.layout.Pane;
 
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import plt.experiments.Experiment;
+import plt.Experiment;
 import plt.gui.customcomponents.ModulePane;
 import plt.validator.SupportedValidations;
 import plt.validator.Validator;
@@ -186,8 +186,12 @@ import plt.validator.Validator;
 
 /**
  *
+ * GUI to select the model and method that will be trained
+ *
  * @author Vincent Farrugia
  * @author Hector P. Martinez
+ * @author Luca Querella
+ * 
  */
 public class AlgorithmTab extends Tab {
 
@@ -200,7 +204,6 @@ public class AlgorithmTab extends Tab {
     public AlgorithmTab(Stage s, Experiment e) {
         super();
         this.experiment = e;
-       // this.stage = s;
 
         setup();
     }
@@ -209,49 +212,24 @@ public class AlgorithmTab extends Tab {
     private void setup()
     {
     	
-    	    	
-       // this.setContent(sPane);
-        /*stage.heightProperty().addListener(new ChangeListener<Number>() {
-        
-        	
-            @Override
-            public void changed(ObservableValue<? extends Number> ov, Number t, Number t1){
-                
-                sPane.setPrefHeight(t1.doubleValue() * 0.7);
-            }
-            
-        });*/
-        
-//sPane.setStyle("-fx-background-color: transparent;"); // Hide the scrollpane gray border.
-//sPane.setPrefSize(880,600);
-        
-        
-       // final Pane nestedBp = new Pane();
-        //nestedBp.setPrefHeight(400);
-        //nestedBp.setPrefWidth(650);
-        
-        	moduleHBox = new VBox(1);
-        	
-        	//nestedBp.getChildren().add(moduleHBox); 
-        
-        	
-        	//Pane tmpParentPane2 = new Pane();
-        	//moduleHBox.getChildren().add(tmpParentPane2);
+        ScrollPane sPane = new ScrollPane();  
+		sPane.setFitToWidth(true);
+
+    	this.setContent(sPane);
+
+    		moduleHBox = new VBox(1);
+    		sPane.setContent(moduleHBox);
+
+    		final ModulePane validatorMPane = new ModulePane("Cross Validation", new ArrayList<String>(Arrays.asList(SupportedValidations.labels)),new Pane(),"modulePane2",850);
+    		
+    		//VBox.setVgrow(validatorMPane, Priority.ALWAYS);
+    		moduleHBox.getChildren().add(validatorMPane);
             	
         		final ModulePane algorithmMPane = new ModulePane("Algorithm", new ArrayList<String>(Arrays.asList(SupportedAlgorithms.labels)), new Pane(), "modulePane1",850);
         		//tmpParentPane2.getChildren().add(algorithmMPane);
-                ScrollPane sPane = new ScrollPane();  
-
-        		sPane.setContent(moduleHBox);
-            	this.setContent(sPane);
 
             	moduleHBox.getChildren().add(algorithmMPane);
 
-        	//Pane tmpParentPane3 = new Pane();
-        	//moduleHBox.getChildren().add(tmpParentPane3);
-        
-        		final ModulePane validatorMPane = new ModulePane("Cross Validation", new ArrayList<String>(Arrays.asList(SupportedValidations.labels)),new Pane(),"modulePane2",850);
-        		moduleHBox.getChildren().add(validatorMPane);
 
             	this.experiment.algorithmProperty().set(null);
         	
@@ -265,6 +243,7 @@ public class AlgorithmTab extends Tab {
                             GUIConfigurator tmp = SupportedAlgorithms.getClass(i);
                             if(tmp==null){
                             	algorithmMPane.setMainContent(new HBox());
+                            	experiment.algorithmProperty().set(null);
                             	
                             }else{
                             	algorithmMPane.setMainContent(tmp.ui());

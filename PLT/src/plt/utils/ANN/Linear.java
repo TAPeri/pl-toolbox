@@ -168,7 +168,9 @@ package plt.utils.ANN;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * Linear activation function
+ *
+ * @author Vincent Farrugia
  */
 public class Linear implements ActivationFunction {
     @Override

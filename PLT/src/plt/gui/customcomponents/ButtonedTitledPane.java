@@ -166,22 +166,19 @@ Library.*/
 
 package plt.gui.customcomponents;
 
-import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.control.TitledPane;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+
 import javafx.scene.layout.BorderPane;
-import javafx.scene.text.Font;
-import plt.gui.dataset.DataSetTab;
+
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
+ * @author Luca Querella
  */
 public class ButtonedTitledPane extends TitledPane
 {
@@ -236,12 +233,12 @@ public class ButtonedTitledPane extends TitledPane
     public void setCustomStyleID(String para_styleID)
     {
         // Loop through the titled pane's direct children.
-        ObservableList<Node> children = customHeader.getChildren();
-        for(int i=0; i<children.size(); i++)
-        {
-            Node child = children.get(i);
+        //ObservableList<Node> children = customHeader.getChildren();
+        //for(int i=0; i<children.size(); i++)
+        //{
+       //     Node child = children.get(i);
             //child.setId(para_styleID);
-        }
+        //}
         
         // Loop through buttons.
         for(int i=0; i<btnPanelItems.length; i++)
@@ -253,10 +250,5 @@ public class ButtonedTitledPane extends TitledPane
         this.lookup(".title").setId(para_styleID);
     }
     
-    /*public void setHeaderStyle(String para_nwStyle)
-    {
-        Node graphic = this.getGraphic();
-        graphic.setStyle(para_nwStyle);
-        this.setGraphic(graphic);
-    }*/
+
 }

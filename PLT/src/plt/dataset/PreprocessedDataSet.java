@@ -181,14 +181,11 @@ import plt.utils.Preference;
  * 
  * @author Vincent Farrugia
  * @author Hector P. Martinez
+ * @author Luca Querella
  */
 public class PreprocessedDataSet extends TrainableDataSet {
 
-   // private DataSet dataSet;
-   // private PreprocessingOperation[] preprocessingOperations;
 
-   // private int[] operationForFeature;
-   // private int[] cacheStatus;
     private double[][] cache;
 
     private List<String> featureNames;
@@ -376,17 +373,6 @@ public class PreprocessedDataSet extends TrainableDataSet {
     @Override
     public double[] getFeatures(int n) {
 
-       /* if (n < 0 || n > this.dataSet.getNumberOfObjects() - 1) {
-            throw new IllegalArgumentException();
-        }
-
-        initCache();
-
-        if (cacheStatus[n] < this.getNumberOfFeatures()) {
-            for (int i = 0; i < this.getNumberOfFeatures(); i++) {
-                getFeature(n, i);
-            }
-        }*/
 
         return cache[n];
     }

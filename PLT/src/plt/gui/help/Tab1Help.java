@@ -169,17 +169,21 @@ package plt.gui.help;
 import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-import plt.gui.component.ModalPopup;
+import plt.gui.customcomponents.ModalPopup;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
- */
+ * Help page for the data loading page
+ *
+ * @author Vincent Farrugia
+ * @author Hector P. Martinez
+ * @author Luca Querella
+ *  */
 public class Tab1Help extends ModalPopup {
-        public void show(Parent parent, final EventHandler eventHandler) {
+        public void show(Parent parent, final EventHandler<MouseEvent> eventHandler) {
             
             WebView w = new WebView();
             w.setMaxSize(450 , 400);
@@ -187,12 +191,38 @@ public class Tab1Help extends ModalPopup {
             WebEngine e = w.getEngine();
             e.loadContent("<h1>Preference Learning Toolbox</h1>\n" +
                           "<h2>Loading data</h2>\n" +
-                          "This toolbox can train models from a dataset encoded in two files: the object file and the rank file. Two valid datasets must be loaded before continuing to the next steps.\n" +
-                          "<ul>\n" +
-                          "<li>The <b>object file</b> contains the features that will serve as potential inputs to the models trained. Each line in the file must contain the feature values for one data sample (object) separated by a given character (comma by default). Each object must be identified by an integer ID specified as first feature. Optionally, the first line of the file may contain a textual label for each feature (first one is expected to be 'ID').</li>\n" +
-                          "<li>The <b>rank file</b> contains the known relations among the data samples in the object file. Each of these relations is specified as an order among a subset of objects and it is encoded as a list of object IDs from the most preferred/highest ranked object to the least preferred/lowest ranked. The object IDs are separated by a given character (comma by default).</li>\n" +
-                          "</ul>\n" +
-                          "For an example dataset, the user is referred to the <a href=http://130.226.142.6/people/hpma/PLT/data.zip>synthetic datasets</a> available online.");
+                          "Data to build a preference model needs to contain two elements: a set of objects and the relation/order among them."
+                          + "<h3>Objects</h3>"
+                          + " <ul>"
+                          + " <li>In PLT, all objects have to be represented by the same list of features or attributes and be placed on the <i>object</i> file. "
+                          + " <li>Each line of the file contains the features of one object separated"
+                          + " by a single character (comma by default)."
+                          + " <ul>"
+                          + " <li>(Optional: the first line of the file can contain the name of the features)"
+                          + " <li>(Optional: the first feature of each line can be used as object ID. ID values need to be unique integers)"
+                          + " </ul>"
+                          + " <li>Features that contain only numbers in integer (e.g. 1), floating point (e.g. 0.01) or scientific (e.g 1e-10) format are interpreted as numeric."
+                          + " <li>Features with at least one value that is not numeric will be treated as nominal."
+                          + " <li>The preprocessing tab can be later used to transform numeric features into nominal if needed."
+                          + " </ul>"
+                          + "<h3>Ranks and ratings: total order</h3>"
+                          + " <ul>"
+                          + " <li>When the available order among objects is total"
+                          + " (i.e. the relation between any pair of objects is known)"
+                          + " and given as a numeric value assigned to each object, "
+                          + " this value can be included as the last feature in the object file. "
+                          + " <li>Only numeric values in integer (e.g. 1), floating point (e.g. 0.01) or scientific (e.g 1e-10) format are permitted. "
+                          + " </ul>"
+                          + "<h3>Pairwise preferences: partial order</h3>"
+                          + " <ul><li>When the available order among objects is partial"
+                          + " (i.e. only the relation between some pairs of objects is known)"
+                          + " this information should be included in a separate <i>order</i> file. "
+                          + " <li>Each line of the order file contains a list of object IDs, sorted from"
+                          + " higher to lower level of preference. Note that when the object file does"
+                          + " not contain object IDs, the line number is used as ID"
+                          + " (starting at 0 and excluding the optional labels line)."
+                          + " </ul>");
+            
             super.show(w, parent,null,new Button("close"), 500,500,false);  
         }
 }

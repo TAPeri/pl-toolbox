@@ -173,9 +173,12 @@ import java.util.List;
 import plt.dataset.DataSet;
 
 /**
- *
- * @author Institute of Digital Games, UoM Malta
- */
+*
+* Transforms the values of a feature to have average equal to zero and standard deviation equal to one
+*
+* @author Vincent Farrugia
+* @author Luca Querella
+*/
 public class ZScore extends PreprocessingOperation {
 
     private double avg;

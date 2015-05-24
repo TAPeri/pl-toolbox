@@ -173,11 +173,13 @@ import java.util.ArrayList;
 import plt.dataset.TrainableDataSet;
 import plt.featureselection.SelectedFeature;
 import plt.gui.ExecutionProgress;
-import plt.model.Model;
+import plt.plalgorithm.Model;
 import plt.plalgorithm.PLAlgorithm;
 import plt.utils.Preference;
 
 /**
+ *
+ * Trains an MLP using backpropagation
  *
  * @author Vincent Farrugia
  * @author Hector P. Martinez
@@ -278,9 +280,7 @@ public class Backpropagation extends PLAlgorithm {
     @Override
     public ArrayList<Object[]> getProperties() 
     {
-        // Multilayer Perceptron Properties:
-       // int inputSize = this.getFeatureSelection().getSize();
-        
+
         if (network==null)
         	System.err.println("Not ready");
         

@@ -172,8 +172,10 @@ import java.util.List;
 import plt.dataset.DataSet;
 
 /**
+ * Placeholder preprocessing operation used with features that are selected
+ * to not be included in the model 
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
  */
 public class Ignoring extends PreprocessingOperation {
 

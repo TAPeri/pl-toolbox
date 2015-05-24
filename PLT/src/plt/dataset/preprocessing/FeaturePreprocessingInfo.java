@@ -5,6 +5,15 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 
+
+
+/**
+*
+* Preprocessing options selected for an input feature
+*
+* @author Vincent Farrugia
+* @author Luca Querella
+*/
 public class FeaturePreprocessingInfo
 {
     private int featureIdx;

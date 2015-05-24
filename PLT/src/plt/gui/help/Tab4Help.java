@@ -169,17 +169,20 @@ package plt.gui.help;
 import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-import plt.gui.component.ModalPopup;
+import plt.gui.customcomponents.ModalPopup;
 
 /**
- *
- * @author Institute of Digital Games, UoM Malta
- */
+*
+* Help page for the algorithm selection page
+*
+* @author Vincent Farrugia
+* @author Hector P. Martinez
+*/
 public class Tab4Help extends ModalPopup {
-        public void show(Parent parent, final EventHandler eventHandler) {
+        public void show(Parent parent, final EventHandler<MouseEvent> eventHandler) {
             
             WebView w = new WebView();
             w.setMaxSize(450 , 400);

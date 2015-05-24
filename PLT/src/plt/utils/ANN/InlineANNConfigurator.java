@@ -41,6 +41,11 @@ public class InlineANNConfigurator implements ANNConfigurator {
 	 */
 	@Override
 	public String testParameters() {
+		
+		for(int i : topology){
+			if (i==0)
+				return "ANN error: all layers need to have at least one neuron.";
+		}
 
 		return "";
 	}

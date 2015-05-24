@@ -169,15 +169,19 @@ package plt.gui.help;
 import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-import plt.gui.component.ModalPopup;
+import plt.gui.customcomponents.ModalPopup;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
- */
+ * Help window
+ *
+ * @author Vincent Farrugia
+ * @author Hector P. Martinez
+ * @author Luca Querella
+ *  */
 public class HelpPopup extends ModalPopup 
 {
     String helpText_html;
@@ -187,7 +191,7 @@ public class HelpPopup extends ModalPopup
         helpText_html = para_helpTextHTML;
     }
     
-    public void show(Parent parent, final EventHandler eventHandler)
+    public void show(Parent parent, final EventHandler<MouseEvent> eventHandler)
     {
 
         WebView w = new WebView();

@@ -175,7 +175,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import plt.dataset.preprocessing.*;
-import plt.gui.component.ModalPopup;
+import plt.gui.customcomponents.ModalPopup;
 
 /**
  *

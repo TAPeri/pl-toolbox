@@ -187,7 +187,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import plt.experiments.Experiment;
+import plt.Experiment;
 import plt.gui.customcomponents.ExecutionModalPopup;
 import plt.report.Report;
 import plt.utils.TimeHelper;

@@ -173,17 +173,14 @@ import java.util.List;
 import plt.dataset.DataSet;
 
 /**
- *
- * @author Institute of Digital Games, UoM Malta
- */
+*
+* Cast the values of a feature as a numeric
+*
+* @author Vincent Farrugia
+* @author Luca Querella
+*/
 public class Numeric extends PreprocessingOperation {
 
-    /*public Numeric(DataSet d, int feature) {
-        super(d, feature);
-        if (!d.isNumeric(feature))
-            throw  new IllegalArgumentException();
-        
-    }*/
    
     @Override
     public int numberOfOutput(DataSet d,int feature) {

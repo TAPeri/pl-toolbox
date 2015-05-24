@@ -174,7 +174,11 @@ import plt.dataset.DataSet;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * Transforms a nominal feature into a set
+ * of binary features, one for each different value
+ *
+ * @author Vincent Farrugia
+ * @author Luca Querella
  */
 public class Binary extends PreprocessingOperation {
 

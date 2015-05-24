@@ -153,6 +153,25 @@
 
 
 
+.popUpOptions{
+	
+    -fx-padding: 20;
+    -fx-spacing: 30;     
+       
+}
+
+
+.popUpPreview{
+	
+	    -fx-padding: 0 20 0 20;
+	    -fx-spacing: 50;
+	/*-fx-border-radius: 1;
+    -fx-border-color: black;*/
+	    -fx-background-insets: 12; 
+	
+}
+
+
 .popUpHBox{
 	
 	-fx-background-color: #336699; 
@@ -161,6 +180,9 @@
     -fx-padding: 20;
     -fx-spacing: 10;
     -fx-alignment:center;
+        
+   /* -fx-border-radius: 1;
+    -fx-border-color: black;*/
 	
 }
 
@@ -170,10 +192,15 @@
     -fx-background-color: white;
     -fx-background-insets: 12; 
     -fx-background-radius: 6;
+
 	
 }
 
 
+.datasetPopUp{
+	
+	-fx-border-color:black;
+}
 
 /*Light Border - Dark Contents Scheme*/
 
@@ -181,6 +208,14 @@
     -fx-border-radius: 1;
     -fx-border-color: #00529B;
     -fx-background-color: #BDE5F8;
+    -fx-padding: 10
+    
+}
+
+.modulePaneAll{
+
+    -fx-padding: 2
+    
 }
 
 .modulePane2{

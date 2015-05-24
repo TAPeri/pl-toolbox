@@ -171,7 +171,7 @@ import plt.utils.TimeHelper;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
  */
 public class ExpMetaData
 {

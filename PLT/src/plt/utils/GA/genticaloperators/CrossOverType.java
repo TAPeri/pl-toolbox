@@ -165,7 +165,10 @@ permanent authorization for you to choose that version for the
 Library.*/
 
 package plt.utils.GA.genticaloperators;
-
+/**
+ *  @author Vincent Farrugia
+ * @author Luca Querella
+*/
 public enum CrossOverType {
     ONEPOINT, TWOPOINT, UNIFORM
 }

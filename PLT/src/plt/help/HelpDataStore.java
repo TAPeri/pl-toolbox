@@ -174,7 +174,7 @@ import java.util.regex.Pattern;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
  */
 public class HelpDataStore 
 {
@@ -302,7 +302,7 @@ public class HelpDataStore
         return htmlStr;
     }
     
-    private String applyHtmlEscapeCharacters(String para_strToChange)
+  /*  private String applyHtmlEscapeCharacters(String para_strToChange)
     {
         String nwStr = para_strToChange;
         
@@ -311,15 +311,15 @@ public class HelpDataStore
         nwStr = nwStr.replace("&", "&amp;");//"&#38;");
         
         return nwStr;
-    }
+    }*/
     
     private ArrayList<String> extractParagraphs(String para_sourceStr)
     {   
         ArrayList<String> paragraphList = new ArrayList<String>();
         
-        CharSequence inputStr;
+       // CharSequence inputStr;
         //inputStr = "a\r\rb";              // Mac
-        inputStr = "a\r\n\r\nb";          // Windows
+       // inputStr = "a\r\n\r\nb";          // Windows
         //inputStr = "a\n\nb";              // Unix
 
         // Compile the pattern
@@ -336,32 +336,6 @@ public class HelpDataStore
         
         return paragraphList;
         
-        /*ArrayList<String> paragraphList = new ArrayList<String>();
-        
-        String tmpStr = "";
-        for(int i=0; i<para_sourceStr.length(); i++)
-        {
-            char nxtChar = para_sourceStr.charAt(i);
-            
-            if(("\\n\\r").equals(Character.LINE_SEPARATOR))
-            {
-                System.out.println("BINGO SON");
-            }
-            
-            if((i == (para_sourceStr.length()-1))|| 
-                    ((nxtChar == Character.LINE_SEPARATOR)
-            &&(para_sourceStr.charAt(i+1)== Character.LINE_SEPARATOR))
-                            )
-            {
-                paragraphList.add(tmpStr);
-            }
-            else
-            {
-                tmpStr += nxtChar;
-            }
-        }
-        
-        
-        return paragraphList;*/
+
     }
 }

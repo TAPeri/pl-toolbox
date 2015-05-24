@@ -173,12 +173,13 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
+
+
+import javafx.scene.layout.VBox;
+
+
 import plt.gui.algorithms.GUIConfigurator;
-import plt.gui.component.AdvanceTextField;
+import plt.gui.customcomponents.AdvanceTextField;
 import plt.plalgorithm.PLAlgorithm;
 import plt.utils.ANN.ActivationFunction;
 import plt.utils.ANN.GUIANNConfigurator;
@@ -190,7 +191,6 @@ import plt.utils.ANN.GUIANNConfigurator;
  *
  * @author Vincent Farrugia
  */
-
 public class GUIBackpropagationConfigurator implements GUIConfigurator, BackpropagationConfigurator{// implements plt.plalgorithm.backpropagation.PLBackPropagationConfigurator {
     
 
@@ -249,19 +249,19 @@ public class GUIBackpropagationConfigurator implements GUIConfigurator, Backprop
     @Override
     public Node ui() {
 
-        ui = new HBox(5);
+        ui = new VBox(5);
         
-        Font headerFont = Font.font("BirchStd", FontWeight.BOLD, 15);
+       // Font headerFont = Font.font("BirchStd", FontWeight.BOLD, 15);
         
 
         annUI = ann.ui();
-		((HBox)ui).getChildren().add(annUI);
-		HBox.setHgrow(annUI, Priority.ALWAYS);
+		((VBox)ui).getChildren().add(annUI);
+		//HBox.setHgrow(annUI, Priority.ALWAYS);
         
         // Section 2: (Backpropagation)
         
-        Label backpropHeaderLabel = new Label("Backpropagation");
-        backpropHeaderLabel.setFont(headerFont);
+       // Label backpropHeaderLabel = new Label("Backpropagation");
+        //backpropHeaderLabel.setFont(headerFont);
         
         Label learningRateLabel = new Label("Learning rate:");
         Label errorThreesholdLabel = new Label("Error threshold:");
@@ -283,22 +283,20 @@ public class GUIBackpropagationConfigurator implements GUIConfigurator, Backprop
         
         
         BorderPane backpropPane = new BorderPane();
-        BorderPane.setAlignment(backpropHeaderLabel, Pos.CENTER);
+       // BorderPane.setAlignment(backpropHeaderLabel, Pos.CENTER);
         BorderPane.setAlignment(grid2, Pos.CENTER);
-        backpropPane.setTop(backpropHeaderLabel);
+        //backpropPane.setTop(backpropHeaderLabel);
         backpropPane.setCenter(grid2);
         
 
         backpropPane.getStyleClass().add("modulePane1Child");               
-        backpropPane.setPrefSize(470, 470);
+        //backpropPane.setPrefSize(470, 470);
         
-
-
-		
 		
 		TitledPane tmp2=		new TitledPane("Backpropagation", backpropPane);
-		((HBox)ui).getChildren().add(tmp2.getContent());
-		HBox.setHgrow(tmp2.getContent(), Priority.ALWAYS);
+		tmp2.setExpanded(false);
+		((VBox)ui).getChildren().add(tmp2);
+		//HBox.setHgrow(tmp2.getContent(), Priority.ALWAYS);
 
 		return ui;
         

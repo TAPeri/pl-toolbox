@@ -167,18 +167,16 @@ Library.*/
 package plt.plalgorithm.backpropagation;
 
 import plt.utils.ANN.ActivationFunction;
-import plt.utils.ANN.SimpleNeuralNetwork;
+import plt.utils.ANN.MultiLayerPerceptron;
 
 /**
+ *
+ * Adds backpropagation functionality to a neural network
  *
  * @author Vincent Farrugia
  * @author Hector P. Martinez
  */
-public class BackpropagationNeuralNetwork extends SimpleNeuralNetwork {
-
-   
-   // public double[] deltas;
-   // public double[] gradients;
+public class BackpropagationNeuralNetwork extends MultiLayerPerceptron {
 
     double[] deltas;
     double[][] gradients;

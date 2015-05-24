@@ -174,8 +174,13 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-// Testing GIT Push 2.
-
+/**
+ * 
+ * Reads and writes jave objects from and to a file in JSON format
+ * 
+ * @author Vincent Farrugia
+ *
+ */
 public class JsonObjIO
 {
     public Object readObjFromFile(String para_sourceFilePath, Object para_sampleObj)

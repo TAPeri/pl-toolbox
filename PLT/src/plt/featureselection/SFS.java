@@ -183,6 +183,7 @@ import plt.validator.Validator;
  *
  * @author Vincent Farrugia
  * @author Hector P. Martinez
+ * @author Luca Querella
  */
 public class SFS extends FeatureSelection {
 
@@ -220,7 +221,7 @@ public class SFS extends FeatureSelection {
                 Report report = v.runWithValidation(algorithm, dataSet, test);
                 double result = report.getAVGAccuracy();
 
-                Logger.getLogger("plt.logger").log(Level.INFO, "Test" + test+": "+result*100);
+                Logger.getLogger("plt.logger").log(Level.INFO, "Evaluate" + test+": "+result*100);
 
                 
                 if (result > goodness) {

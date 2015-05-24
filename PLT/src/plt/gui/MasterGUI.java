@@ -184,9 +184,9 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import plt.experiments.Experiment;
+import plt.Experiment;
 import plt.gui.algorithms.AlgorithmTab;
-import plt.gui.component.ModalPopup;
+import plt.gui.customcomponents.ModalPopup;
 import plt.gui.dataset.DataSetTab;
 import plt.gui.featureselection.FeatureSelectionTab;
 import plt.gui.help.Tab1Help;
@@ -203,6 +203,8 @@ import plt.gui.preprocess.PreprocessingTab;
  *
  * @author Vincent Farrugia
  * @author Hector P. Martinez
+ * @author Luca Querella
+ * 
  */
 public class MasterGUI extends BorderPane
 {
@@ -321,9 +323,7 @@ public class MasterGUI extends BorderPane
 		});
         
         
-        //tabPane.selectionModelProperty();
-  
-        
+
         //Change label of 'next button' when at tab 4
         tab4.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
@@ -337,6 +337,12 @@ public class MasterGUI extends BorderPane
                     nextBtnInnerBPane.setCenter(lblNextBtn);
                     nextBtnInnerBPane.setRight(imgViewNextBtn);
                     btnNext.setGraphic(nextBtnInnerBPane);
+                    
+                   if(experiment.algorithmProperty().get()==null)
+                	   btnNext.setDisable(true);
+                   
+                    
+                    
                 }
                 else
                 {
@@ -346,11 +352,30 @@ public class MasterGUI extends BorderPane
                     nextBtnInnerBPane.setCenter(lblNextBtn);
                     nextBtnInnerBPane.setRight(imgViewNextBtn);
                     btnNext.setGraphic(nextBtnInnerBPane);
+                    btnNext.setDisable(false);
                 }
             }
         });
         
-        
+        experiment.algorithmProperty().addListener(new ChangeListener<Object>() {
+            @Override
+            public void changed(ObservableValue<? extends Object> ov, Object t, Object t1) {
+            	//System.err.prinltln("Eeeo "+t1);
+            	if (t1!=null){
+            		if(tab4.selectedProperty().get()){
+                 	   btnNext.setDisable(false);
+
+            		}
+            	}else{
+            		if(tab4.selectedProperty().get()){
+                  	   btnNext.setDisable(true);
+
+             		}
+            		
+            	}
+            }
+            
+        });
         //Hide back button when tab1 is selected
         tab1.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override

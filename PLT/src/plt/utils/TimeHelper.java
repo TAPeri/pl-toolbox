@@ -170,7 +170,7 @@ import java.util.Calendar;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
  */
 public class TimeHelper 
 {

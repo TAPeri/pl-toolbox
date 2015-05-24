@@ -176,10 +176,11 @@ import plt.utils.Preference;
 /**
  * Reader for a 2-file format. 
  * Objects file contains the input samples (1 per row)
- * The order file specify the partial orders between input samples (each row a sequence of IDs, from higher to lower)
+ * The order file specifies the partial orders between input samples (each row a sequence of IDs, from higher to lower)
  *
  * @author Vincent Farrugia
  * @author Hector P. Martinez
+ * @author Luca Querella
  */
 public class ObjectsOrderFormat implements DataSet {
 
@@ -217,16 +218,6 @@ public class ObjectsOrderFormat implements DataSet {
     
     public ObjectsOrderFormat() 
     {
-       // this.isReady = false;
-        
-        /*this.objects = null;
-        this.order = null;
-        
-        this.localParseStatusObjects = new DataFileParseStatus();
-        this.localParseStatusOrders = new DataFileParseStatus();*/
-        
-        
-
         
         featureToMinValMap = new HashMap<>();
         featureToMaxValMap = new HashMap<>();

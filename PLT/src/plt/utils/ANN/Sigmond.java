@@ -168,7 +168,9 @@ package plt.utils.ANN;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * Logistic sigmoid activation function
+ *
+ * @author Vincent Farrugia
  */
 public class Sigmond implements ActivationFunction {
 

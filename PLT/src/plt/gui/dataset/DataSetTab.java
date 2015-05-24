@@ -186,6 +186,7 @@ import plt.dataset.ObjectsOrderFormat;
  *   
  * @author Vincent Farrugia
  * @author Hector P. Martinez
+ * @author Luca Querella
  */
 public class DataSetTab extends Tab {
 

@@ -185,12 +185,9 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
+
 import javafx.util.Callback;
 import plt.dataset.ObjectsOrderFormat;
 import plt.dataset.preprocessing.Binary;
@@ -213,27 +210,28 @@ public class FeaturesPreview  {
     	
         content = new VBox(10);
         
-        	BorderPane tmpPane = new BorderPane();
-        		Label lblBlank = new Label(" No selection ");
-        		tmpPane.setCenter(lblBlank);
+        	//BorderPane tmpPane = new BorderPane();
+        		//Label lblBlank = new Label(" No selection ");
+        		//tmpPane.setCenter(lblBlank);
         
         	table = new TableView<>();
             //table.setPrefSize(400, 400);
             HBox blankFooter = new HBox();
             
-       content.getChildren().addAll(tmpPane,table,blankFooter);
+            content.getChildren().addAll(table,blankFooter);
+//            content.getChildren().addAll(tmpPane,table,blankFooter);
        table.setPlaceholder(new Label("Select a feature to see the preview"));
       
        
 //tmpPane.setPrefHeight(50);
-tmpPane.setPadding(new Insets(2,2,2,2));
+//tmpPane.setPadding(new Insets(2,2,2,2));
 //tmpPane.setPadding(new Insets(5,2,5,0));
-tmpPane.setStyle("-fx-border-radius: 1; -fx-border-color: black");
+//tmpPane.setStyle("-fx-border-radius: 1; -fx-border-color: black");
                 
-Font headerFont = Font.font("BirchStd", FontWeight.BOLD, 15);
+//Font headerFont = Font.font("BirchStd", FontWeight.BOLD, 15);
         
-lblBlank.setFont(headerFont);
-BorderPane.setAlignment(lblBlank, Pos.CENTER);   
+//lblBlank.setFont(headerFont);
+//BorderPane.setAlignment(lblBlank, Pos.CENTER);   
         
 //blankFooter.setSpacing(15);
 //blankFooter.setAlignment(Pos.CENTER);
@@ -262,7 +260,7 @@ BorderPane.setAlignment(lblBlank, Pos.CENTER);
         final int limit = 10;
         
         final int numberOfObjects = dataset.getNumberOfObjects();
-        String featureName = dataset.getFeatureName(featureIdx);
+       // String featureName = dataset.getFeatureName(featureIdx);
         
         final int idxFirstObservableObject;
         if (page*limit>=numberOfObjects)
@@ -280,17 +278,17 @@ BorderPane.setAlignment(lblBlank, Pos.CENTER);
         
 
         
-        Pane tmpPane = new Pane();
-        content.getChildren().set(0, tmpPane);
+        //Pane tmpPane = new Pane();
+        //content.getChildren().set(0, tmpPane);
         
         
-        	Label label = new Label();
-        	label.setText("Preview of feature: "+featureName+"\n"+
-                      "Displaying Objects ["+ dataset.getID(idxFirstObservableObject)+".."+dataset.getID(idxLastObservableObject)+"]");
-        	tmpPane.getChildren().add(label);
+        //	Label label = new Label();
+        //	label.setText("Preview of feature: "+featureName+"\n"+
+        //              "Displaying Objects ["+ dataset.getID(idxFirstObservableObject)+".."+dataset.getID(idxLastObservableObject)+"]");
+        //	tmpPane.getChildren().add(label);
         	
         HBox pagination = new HBox();
-        content.getChildren().set(2, pagination);
+        content.getChildren().set(1, pagination);
 
         
         
@@ -435,8 +433,8 @@ BorderPane.setAlignment(lblBlank, Pos.CENTER);
        		
             
             
-label.setAlignment(Pos.CENTER);
-label.setStyle("-fx-padding: 2;");
+//label.setAlignment(Pos.CENTER);
+//label.setStyle("-fx-padding: 2;");
        		        
        		        
 pagination.setSpacing(15);
@@ -445,8 +443,8 @@ pagination.setPadding(new Insets(10));
        		        
        		        
 
-tmpPane.setPadding(new Insets(5,2,0,0));
-tmpPane.setStyle("-fx-border-radius: 1; -fx-border-color: black");
+//tmpPane.setPadding(new Insets(5,2,0,0));
+//tmpPane.setStyle("-fx-border-radius: 1; -fx-border-color: black");
 
        
     }

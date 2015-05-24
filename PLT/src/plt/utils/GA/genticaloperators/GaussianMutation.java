@@ -168,13 +168,13 @@ package plt.utils.GA.genticaloperators;
 
 import java.util.Random;
 
-import plt.utils.GA.DNA;
+import plt.utils.GA.Phenotype;
 import plt.utils.GA.GenticalOperator;
 
 /**
- *
- * @author Institute of Digital Games, UoM Malta
- */
+ *  @author Vincent Farrugia
+ *  @author Luca Querella
+*/
 public class GaussianMutation implements GenticalOperator {
     protected static Random random = new Random();
     private double probability;
@@ -194,7 +194,7 @@ public class GaussianMutation implements GenticalOperator {
     }
 
     @Override
-    public void perform(DNA dna) {
+    public void perform(Phenotype dna) {
 
         for (int i=0; i>dna.vector.length; i++)
             if (GaussianMutation.random.nextDouble() < this.probability)
@@ -202,7 +202,7 @@ public class GaussianMutation implements GenticalOperator {
     }
     
     @Override
-    public void perform(DNA dna1, DNA dna2) {
+    public void perform(Phenotype dna1, Phenotype dna2) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
     

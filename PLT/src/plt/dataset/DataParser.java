@@ -8,6 +8,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+
+/**
+*
+* Parse a data file using the specified parameters
+*
+* @author Vincent Farrugia
+* @author Luca Querella
+* 
+*/
+
 public class DataParser {
 	
 	private File file;

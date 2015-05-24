@@ -168,11 +168,12 @@ package plt.report;
 
 import java.util.LinkedList;
 import java.util.List;
-import plt.model.Model;
+
+import plt.plalgorithm.Model;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
  */
 public class Report {
 

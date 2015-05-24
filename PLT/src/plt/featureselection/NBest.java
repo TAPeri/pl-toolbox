@@ -172,7 +172,6 @@ import java.util.logging.Logger;
 
 import javafx.scene.Node;
 import plt.dataset.TrainableDataSet;
-import plt.gui.featureselection.NBestConfigurator;
 import plt.plalgorithm.PLAlgorithm;
 import plt.report.Report;
 import plt.validator.Validator;
@@ -183,6 +182,7 @@ import plt.validator.Validator;
  *
  * @author Vincent Farrugia
  * @author Hector P. Martinez
+ * @author Luca Querella
  */
 public class NBest extends FeatureSelection {
     private NBestConfigurator configurator;
@@ -217,7 +217,7 @@ public class NBest extends FeatureSelection {
             selection.setSelected(i);
             Report report = v.runWithValidation(algorithm,t,selection);
             results[i] = report.getAVGAccuracy();
-            Logger.getLogger("plt.logger").log(Level.INFO, "Test " + i + ": "+results[i]*100);
+            Logger.getLogger("plt.logger").log(Level.INFO, "Evaluate " + t.getFeatureName(i) + ": "+results[i]*100);
 
         }
         

@@ -172,13 +172,14 @@ import java.util.HashMap;
 
 import plt.dataset.TrainableDataSet;
 import plt.featureselection.SelectedFeature;
-import plt.model.Model;
+import plt.plalgorithm.Model;
 import plt.plalgorithm.PLAlgorithm;
 import svm.libsvm_plt.RankSvmManager;
 
 
 /**
- *
+ * Trains a SVM
+ * 
  * @author Vincent Farrugia
  */
 public class RankSvm extends PLAlgorithm

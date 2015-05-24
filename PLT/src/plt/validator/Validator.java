@@ -174,7 +174,8 @@ import plt.report.Report;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Institute of Digital Games, UoM Malta@author Vincent Farrugia
+ * @author Luca Querella
  */
 public abstract class Validator {
 

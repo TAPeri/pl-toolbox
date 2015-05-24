@@ -171,7 +171,10 @@ import javafx.beans.property.SimpleIntegerProperty;
 
 /**
  *
+ * Holds the state and error message of a data parsing attempt
+ *
  * @author Vincent Farrugia
+ * @author Luca Querella
  */
 public class DataFileParseStatus
 {

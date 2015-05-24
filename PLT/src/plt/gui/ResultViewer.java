@@ -195,17 +195,17 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import plt.experiments.Experiment;
+import plt.Experiment;
 import plt.featureselection.NBest;
 import plt.featureselection.SFS;
-import plt.gui.component.ModalPopup;
-import plt.model.Model;
+import plt.gui.customcomponents.ModalPopup;
+import plt.plalgorithm.Model;
 import plt.report.Report;
 import plt.validator.KFoldCV;
 import plt.validator.NoValidation;
 
 /**
- *
+ * GUI element that shows the summary of an experiment
  * @author Vincent Farrugia
  */
 public class ResultViewer {
@@ -232,7 +232,7 @@ public class ResultViewer {
          
          Font subsectionHeaderFont = Font.font("BirchStd", FontWeight.BOLD, 15);
          
-         int maxPathStrWidth = 30;
+        // int maxPathStrWidth = 30;
          
          BorderPane bpDatasetUsed = new BorderPane();
          bpDatasetUsed.setStyle("-fx-border-radius: 1; -fx-border-color: black");

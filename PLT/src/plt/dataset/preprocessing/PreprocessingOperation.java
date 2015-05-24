@@ -174,25 +174,10 @@ import plt.dataset.DataSet;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
  */
 public abstract  class PreprocessingOperation {
     
-    //private DataSet dataSet;
-   // private int feature;
-    
-   /* public PreprocessingOperation(DataSet d,int feature) {
-        this.dataSet = d;
-        this.feature = feature;
-    }*/
-    
-   /* public DataSet getDataSet() {
-        return this.dataSet;
-    }
-    
-    public int getFeature() {
-        return this.feature;
-    }*/
     
     abstract public int numberOfOutput(DataSet d,int feature);
     
@@ -216,7 +201,6 @@ public abstract  class PreprocessingOperation {
     	}else{
     		System.out.println("Nominal preprocessing disabled");
     		return new ArrayList<PreprocessingOperation>(Arrays.asList(new Binary()));
-    		//return new ArrayList<PreprocessingOperation>(Arrays.asList(new Binary(),new Nominal()));
 
 
     	}

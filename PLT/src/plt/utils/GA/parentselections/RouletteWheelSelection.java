@@ -174,9 +174,10 @@ import plt.utils.GA.Individual;
 import plt.utils.GA.ParentSelection;
 
 /**
- *
- * @author Institute of Digital Games, UoM Malta
- */
+ * 
+ * @author Vincent Farrugia
+ * @author Luca Querella
+*/
 public class RouletteWheelSelection implements ParentSelection {
     private List<Individual> source;
     private double[] cumulativeFitnesses;

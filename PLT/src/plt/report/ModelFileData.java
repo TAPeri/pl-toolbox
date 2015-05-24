@@ -168,19 +168,17 @@ package plt.report;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Locale;
 
-import plt.dataset.ObjectsOrderFormat;
+
+import plt.Experiment;
 import plt.dataset.preprocessing.MinMax;
 import plt.dataset.preprocessing.PreprocessingOperation;
 import plt.dataset.preprocessing.ZScore;
-import plt.experiments.Experiment;
 import plt.featureselection.SelectedFeature;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
  */
 public abstract class ModelFileData implements Serializable
 {

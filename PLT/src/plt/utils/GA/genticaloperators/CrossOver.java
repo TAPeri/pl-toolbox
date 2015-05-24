@@ -168,12 +168,13 @@ package plt.utils.GA.genticaloperators;
 
 import java.util.Random;
 
-import plt.utils.GA.DNA;
+import plt.utils.GA.Phenotype;
 import plt.utils.GA.GenticalOperator;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
+ * @author Luca Querella
  */
 public class CrossOver implements GenticalOperator {
 
@@ -210,12 +211,12 @@ public class CrossOver implements GenticalOperator {
     }
 
     @Override
-    public void perform(DNA dna) {
+    public void perform(Phenotype dna) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public void perform(DNA dna1, DNA dna2) {
+    public void perform(Phenotype dna1, Phenotype dna2) {
 
         if (CrossOver.random.nextDouble() > this.probability) {
             return;
@@ -238,7 +239,7 @@ public class CrossOver implements GenticalOperator {
 
     }
 
-    protected void perform(DNA dna1, DNA dna2, int point) {
+    protected void perform(Phenotype dna1, Phenotype dna2, int point) {
 
         for (int i = 0; i < dna1.vector.length; i++) {
             double value1 = dna1.vector[i];
@@ -249,7 +250,7 @@ public class CrossOver implements GenticalOperator {
         }
     }
 
-    protected void perform(DNA dna1, DNA dna2, int point1, int point2) {
+    protected void perform(Phenotype dna1, Phenotype dna2, int point1, int point2) {
         for (int i = 0; i < dna1.vector.length; i++) {
             double value1 = dna1.vector[i];
             double value2 = dna2.vector[i];
@@ -259,7 +260,7 @@ public class CrossOver implements GenticalOperator {
         }
     }
 
-    protected void perform(DNA dna1, DNA dna2, boolean[] where) {
+    protected void perform(Phenotype dna1, Phenotype dna2, boolean[] where) {
         for (int i = 0; i < dna1.vector.length; i++) {
             double value1 = dna1.vector[i];
             double value2 = dna2.vector[i];

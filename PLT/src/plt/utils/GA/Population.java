@@ -179,7 +179,8 @@ import plt.utils.GA.genticaloperators.Invertion;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
+ * @author Luca Querella 
  */
 public class Population {
 
@@ -263,8 +264,8 @@ public class Population {
 
         while (newGeneration.size() < this.populationSize) {
 
-            DNA a = parentSelection.select().getDna();
-            DNA b = parentSelection.select().getDna();
+            Phenotype a = parentSelection.select().getDna();
+            Phenotype b = parentSelection.select().getDna();
 
             crossOver.perform(a, b);
             mutation.perform(a);

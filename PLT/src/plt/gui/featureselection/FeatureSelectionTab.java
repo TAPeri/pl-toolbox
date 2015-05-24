@@ -176,7 +176,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import plt.experiments.Experiment;
+import plt.Experiment;
 import plt.featureselection.FeatureSelection;
 import plt.gui.algorithms.GUIConfigurator;
 import plt.gui.algorithms.SupportedAlgorithms;
@@ -192,6 +192,7 @@ import plt.validator.Validator;
  *
  * @author Vincent Farrugia
  * @author Hector P. Martinez
+ * @author Luca Querella
  */
 public class FeatureSelectionTab extends Tab {
 
@@ -211,13 +212,12 @@ public class FeatureSelectionTab extends Tab {
     private void setup()
     {
         
-        //final FeatureSelectionTab self = this;        
-        //final BorderPane bp = new BorderPane();
-       // this.setContent(bp);
-        
+
         final ScrollPane sPane = new ScrollPane();  
+		sPane.setFitToWidth(true);
+
         this.setContent(sPane);
-        stage.heightProperty().addListener(new ChangeListener<Number>() {
+        /*stage.heightProperty().addListener(new ChangeListener<Number>() {
         
         	
             @Override
@@ -226,43 +226,47 @@ public class FeatureSelectionTab extends Tab {
                 sPane.setPrefHeight(t1.doubleValue() * 0.7);
             }
             
-        });
+        });*/
         
-sPane.setStyle("-fx-background-color: transparent;"); // Hide the scrollpane gray border.
-sPane.setPrefSize(880,600);
+//sPane.setStyle("-fx-background-color: transparent;"); // Hide the scrollpane gray border.
+//sPane.setPrefSize(880,600);
         
         
-        final Pane nestedBp = new Pane();
-        nestedBp.setPrefHeight(400);
-        nestedBp.setPrefWidth(650);
+       // final Pane nestedBp = new Pane();
+        //nestedBp.setPrefHeight(400);
+        //nestedBp.setPrefWidth(650);
         
-        	moduleHBox = new VBox(30);
+        	moduleHBox = new VBox(1);
         	sPane.setContent(moduleHBox);
-        	nestedBp.getChildren().add(moduleHBox); 
+        	//nestedBp.getChildren().add(moduleHBox); 
         
-        	Pane tmpParentPane1 = new Pane();
-        	moduleHBox.getChildren().add(tmpParentPane1);
+        	//Pane tmpParentPane1 = new Pane();
+        	//moduleHBox.getChildren().add(tmpParentPane1);
         	
         		final ModulePane featureSelection = new ModulePane("Feature Selection", new ArrayList<String>(Arrays.asList(SupportedFeatureSelection.labels)),new Pane(),"modulePane3",850);
-        		tmpParentPane1.getChildren().add(featureSelection);
+        		//tmpParentPane1.getChildren().add(featureSelection);
+        		moduleHBox.getChildren().add(featureSelection);
         	
-        	Pane tmpParentPane2 = new Pane();
-        	moduleHBox.getChildren().add(tmpParentPane2);
+        	//Pane tmpParentPane2 = new Pane();
+        	//moduleHBox.getChildren().add(tmpParentPane2);
             	
-        		final ModulePane algorithmMPane = new ModulePane("Algorithm", new ArrayList<String>(Arrays.asList(SupportedAlgorithms.labels)), new Pane(), "modulePane1",850);
-        		tmpParentPane2.getChildren().add(algorithmMPane);
-        		algorithmMPane.disableMPane();
-        	
-        	Pane tmpParentPane3 = new Pane();
-        	moduleHBox.getChildren().add(tmpParentPane3);
+
+        	//Pane tmpParentPane3 = new Pane();
+        	//moduleHBox.getChildren().add(tmpParentPane3);
         
         		final ModulePane validatorMPane = new ModulePane("Cross Validation", new ArrayList<String>(Arrays.asList(SupportedValidations.labels)),new Pane(),"modulePane2",850);
-        		tmpParentPane3.getChildren().add(validatorMPane);
+        		//tmpParentPane3.getChildren().add(validatorMPane);
+            	moduleHBox.getChildren().add(validatorMPane);
+
         		validatorMPane.disableMPane();
 
             	this.experiment.algorithmForFeatureSelectionProperty().set(null);
         	
-         
+        		final ModulePane algorithmMPane = new ModulePane("Algorithm", new ArrayList<String>(Arrays.asList(SupportedAlgorithms.labels)), new Pane(), "modulePane1",850);
+        		//tmpParentPane2.getChildren().add(algorithmMPane);
+        		moduleHBox.getChildren().add(algorithmMPane);
+
+        		algorithmMPane.disableMPane();
         
         
         
@@ -283,7 +287,6 @@ sPane.setPrefSize(880,600);
                 	 algorithmMPane.disableMPane();
                      validatorMPane.disableMPane();
                       
-                     //algorithmMPane.setChoiceBoxOptions(new ArrayList<String>(Arrays.asList(SupportedAlgorithms.labels)));
                 	
                 }else{
                 	featureSelection.setMainContent(tmp.getUI());
@@ -299,7 +302,6 @@ sPane.setPrefSize(880,600);
                     validatorMPane.choiceBox.getSelectionModel().select(0);
                 }
                 
-                //experiment.algorithmForFeatureSelectionProperty().set(null);
             }
             
         });
@@ -316,20 +318,10 @@ sPane.setPrefSize(880,600);
                 }
                 else
                 {
-                   /* if((algorithmMPane.choiceBox.getItems().size() != 3))
-                    {
-                        algorithmMPane.setChoiceBoxOptions(new ArrayList<String>(Arrays.asList("Evolving NN","Back propagation","Rank SVM")));
-                    }*/
+
                     
                     int i =  algorithmMPane.choiceBox.getSelectionModel().getSelectedIndex();
                     
-                    /*if(i == -1)
-                    {
-                        String txtChoice = (String) t;
-                        if(txtChoice.equals("Evolving NN")) { i = 0; }
-                        else if(txtChoice.equals("Back propagation")) { i = 1; }
-                        else if(txtChoice.equals("Rank SVM")) { i = 2; }
-                    }*/
                     
                 	
                     GUIConfigurator tmp = SupportedAlgorithms.getClass(i);

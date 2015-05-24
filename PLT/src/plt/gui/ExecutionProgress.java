@@ -176,7 +176,7 @@ import javafx.beans.property.StringProperty;
 
 /**
  *
- * 
+ * Keeps information about the execution of the current experiment
  *
  * @author Vincent Farrugia
  * @author Hector P. Martinez
@@ -198,7 +198,7 @@ public class ExecutionProgress
     // Key = allocated thread id. Value = thread state.
     static HashMap<Integer,Boolean> threadActiveStatus;
     static HashSet<Integer> interruptRequestSet;
-    static boolean shutdownProgram;
+    public static boolean shutdownProgram;
     //static int nxtThreadIDTicket;
     
     static boolean hasSetup = false;

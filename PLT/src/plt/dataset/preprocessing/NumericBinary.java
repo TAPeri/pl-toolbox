@@ -174,22 +174,16 @@ import java.util.List;
 import plt.dataset.DataSet;
 
 /**
- *
- * @author Institute of Digital Games, UoM Malta
- */
+*
+* Transforms a numeric feature into a set
+* of binary features, one for each different value
+*
+* @author Vincent Farrugia
+* @author Luca Querella
+*/
+
 public class NumericBinary extends PreprocessingOperation {
     private List<Double> possibleValues;
-    /*private List<Double> ignore;
-    
-    public NumericBinary(DataSet d, int feature, List<Double> ignore) {
-        super(d, feature);
-        
-        if (!d.isNumeric(feature))
-            throw  new IllegalArgumentException();
-        
-        this.ignore = ignore;
-
-    }*/
 
     @Override
     public int numberOfOutput(DataSet d,int feature) {

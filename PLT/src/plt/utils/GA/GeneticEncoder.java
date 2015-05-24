@@ -171,11 +171,11 @@ import plt.featureselection.SelectedFeature;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
  */
 public interface GeneticEncoder {
     
-    public Object decode(DNA dna);
-    public double evaluationFunction(DNA dna,TrainableDataSet dataset,SelectedFeature featureSelection);
+    public Object decode(Phenotype dna);
+    public double evaluationFunction(Phenotype dna,TrainableDataSet dataset,SelectedFeature featureSelection);
     public int dnaSize();
 }

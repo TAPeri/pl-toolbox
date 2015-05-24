@@ -173,14 +173,15 @@ import java.util.Set;
 import javafx.scene.Node;
 import plt.dataset.TrainableDataSet;
 import plt.featureselection.SelectedFeature;
-import plt.model.Model;
+import plt.plalgorithm.Model;
 import plt.plalgorithm.PLAlgorithm;
 import plt.report.Report;
 import plt.utils.Preference;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
+ * @author Luca Querella
  */
 public class SplitValidation extends Validator {
     

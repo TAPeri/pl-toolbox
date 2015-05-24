@@ -168,12 +168,12 @@ package plt.utils.GA;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
  */
 public interface GenticalOperator {
     
     public boolean isBinary();
     
-    public void perform(DNA dna);
-    public void perform(DNA dna1, DNA dna2);
+    public void perform(Phenotype dna);
+    public void perform(Phenotype dna1, Phenotype dna2);
 }

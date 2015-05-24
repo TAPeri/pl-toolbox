@@ -173,6 +173,7 @@ import java.util.*;
  * preference learning algorithm
  * 
  * @author Vincent Farrugia
+ * @author Luca Querella
  */
 public class SelectedFeature implements Cloneable {
     List<Integer> features;

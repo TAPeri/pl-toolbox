@@ -167,11 +167,13 @@ Library.*/
 package plt.gui.customcomponents;
 
 import java.util.ArrayList;
+
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -210,7 +212,7 @@ public class ModulePane extends BorderPane
         BorderPane.setAlignment(mainContent, Pos.CENTER);
         
         headerHBox = new HBox(10);
-        headerHBox.setAlignment(Pos.CENTER);
+        headerHBox.setAlignment(Pos.CENTER_LEFT);
         headerHBox.getChildren().addAll(txtTitle,choiceBox);
         
         
@@ -218,7 +220,11 @@ public class ModulePane extends BorderPane
         frameBox = new VBox(10);
         frameBox.setPadding(new Insets(5));
         frameBox.setAlignment(Pos.CENTER);
-        frameBox.getChildren().addAll(headerHBox,mainContent);
+        
+        ScrollPane sPane = new ScrollPane(); 
+        sPane.setContent(mainContent);
+        
+        frameBox.getChildren().addAll(headerHBox,sPane);//mainContent);
         
         housingPane = new Pane();
         housingPane.getChildren().add(frameBox);

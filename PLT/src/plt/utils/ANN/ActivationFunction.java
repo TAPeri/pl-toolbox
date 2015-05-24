@@ -168,7 +168,9 @@ package plt.utils.ANN;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * Interface for ANN activation functions
+ *
+ * @author Vincent Farrugia
  */
 public interface ActivationFunction {
     public double evalue(double input);

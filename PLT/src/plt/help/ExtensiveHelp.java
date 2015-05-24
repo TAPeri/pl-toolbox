@@ -171,7 +171,7 @@ import java.util.HashMap;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
  */
 public class ExtensiveHelp 
 {

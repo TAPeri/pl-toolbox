@@ -174,16 +174,18 @@ import plt.dataset.DataSet;
 import plt.dataset.ObjectsOrderFormat;
 
 /**
- *
- * @author Institute of Digital Games, UoM Malta
- */
+*
+* Transforms the values of a feature to have the new minimum and maximum values specified 
+*
+* @author Vincent Farrugia
+* @author Luca Querella
+*/
 public class MinMax extends PreprocessingOperation{
 
     private double min;
     private double max;
     
     public MinMax( double min, double max) {
-       // super(d, featre);
         this.min = min;
         this.max = max;
     }

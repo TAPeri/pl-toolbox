@@ -176,12 +176,12 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
+
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import plt.gui.algorithms.GUIConfigurator;
-import plt.gui.component.AdvanceTextField;
+import plt.gui.customcomponents.AdvanceTextField;
 import plt.plalgorithm.PLAlgorithm;
 
 /**
@@ -225,18 +225,18 @@ public class GUIRankSvmConfigurator implements GUIConfigurator, RankSvmConfigura
     public Node ui()
     {        
     	
-        ui = new HBox(5);
+        ui = new VBox(5);
         
 
         
         Font headerFont = Font.font("BirchStd", FontWeight.BOLD, 15);
                 
-        Label lblRankSvmSectionHeader = new Label("Rank SVM");
+        //Label lblRankSvmSectionHeader = new Label("Rank SVM");
         Label lblKernelSelection = new Label("Kernel");
         lblGamma = new Label("Gamma:");
         lblDegree = new Label("Degree:");
         
-        lblRankSvmSectionHeader.setFont(headerFont);
+        //lblRankSvmSectionHeader.setFont(headerFont);
                
         
         
@@ -255,9 +255,9 @@ public class GUIRankSvmConfigurator implements GUIConfigurator, RankSvmConfigura
         
         
         BorderPane svmPane = new BorderPane();
-        BorderPane.setAlignment(lblRankSvmSectionHeader, Pos.CENTER);
+        //BorderPane.setAlignment(lblRankSvmSectionHeader, Pos.CENTER);
         BorderPane.setAlignment(innerGrid, Pos.CENTER);
-        svmPane.setTop(lblRankSvmSectionHeader);
+        //svmPane.setTop(lblRankSvmSectionHeader);
         svmPane.setCenter(innerGrid);
         svmPane.setPrefWidth(960);
         
@@ -268,8 +268,8 @@ public class GUIRankSvmConfigurator implements GUIConfigurator, RankSvmConfigura
         
         		
         TitledPane tmp=		new TitledPane("Rank SVM", svmPane);
-        ((HBox)ui).getChildren().add(tmp.getContent());
-        HBox.setHgrow(tmp.getContent(), Priority.ALWAYS);
+        ((VBox)ui).getChildren().add(tmp);
+        //HBox.setHgrow(tmp.getContent(), Priority.ALWAYS);
         return ui;
     }
     
@@ -330,7 +330,7 @@ public class GUIRankSvmConfigurator implements GUIConfigurator, RankSvmConfigura
         return txtDegree.isVisible();
     }
     
-    private static int parseIntegerOrFailWithZero(TextField t)
+    /*private static int parseIntegerOrFailWithZero(TextField t)
     {
         try
         {
@@ -340,7 +340,7 @@ public class GUIRankSvmConfigurator implements GUIConfigurator, RankSvmConfigura
         {
             return 0;
         } 
-    }
+    }*/
     
     private static double parseDobuleOrFailWithZero(TextField t)
     {

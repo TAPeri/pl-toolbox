@@ -171,29 +171,31 @@ import plt.featureselection.SelectedFeature;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * Individual on the population of a GA
+ *
+ * @author Vincent Farrugia
  */
 public class Individual implements Comparable<Individual>{
-    private DNA dna;
+    private Phenotype dna;
     private GeneticEncoder geneticEncoder;
     private boolean evalueted;
     private double fitness;
     
     public Individual (GeneticEncoder geneticEncoder) {
-        this(geneticEncoder, new DNA(geneticEncoder.dnaSize()));
+        this(geneticEncoder, new Phenotype(geneticEncoder.dnaSize()));
     }
     
-    public Individual (GeneticEncoder geneticEncoder, DNA dna)  {
+    public Individual (GeneticEncoder geneticEncoder, Phenotype dna)  {
         this.geneticEncoder = geneticEncoder;
         this.dna = dna;
         this.evalueted = false;
     }
 
-    public DNA getDna() {
-        DNA result = null;
+    public Phenotype getDna() {
+        Phenotype result = null;
         
         try {
-            result = (DNA) dna.clone();
+            result = (Phenotype) dna.clone();
         } catch (CloneNotSupportedException ex) {
             throw new RuntimeException();
         }
@@ -230,7 +232,7 @@ public class Individual implements Comparable<Individual>{
      
     public Object getPhenotype() {
         try {
-            return geneticEncoder.decode((DNA)this.dna.clone());
+            return geneticEncoder.decode((Phenotype)this.dna.clone());
         } catch (CloneNotSupportedException ex) {
             throw new RuntimeException();
         }

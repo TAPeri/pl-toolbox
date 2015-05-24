@@ -170,7 +170,9 @@ import java.util.List;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * Selection algorithms for a GA
+ *
+ * @author Vincent Farrugia
  */
 public interface ParentSelection {
 

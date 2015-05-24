@@ -168,7 +168,7 @@ package plt.utils.ANN;
 
 /**
  *
- * @author Institute of Digital Games, UoM Malta
+ * @author Vincent Farrugia
  */
 public class HyperbolicTangent implements ActivationFunction {
     @Override

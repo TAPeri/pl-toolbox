@@ -169,7 +169,9 @@ package plt.utils;
 import java.util.Random;
 
 /*
- * @author Héctor Pérez Martínez <hpminf@gmail.com>
+ * Math utils
+ * 
+ * @author Héctor P. Martínez
  */
 
 public class Math {

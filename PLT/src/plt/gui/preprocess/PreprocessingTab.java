@@ -167,15 +167,14 @@ Library.*/
 package plt.gui.preprocess;
 
 
+import plt.Experiment;
 import plt.dataset.preprocessing.FeaturePreprocessingInfo;
 import plt.dataset.preprocessing.PreprocessingSelector;
-import plt.experiments.Experiment;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
@@ -185,8 +184,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
@@ -231,30 +228,28 @@ public class PreprocessingTab extends Tab {
     
     private void setup()
     {
-
         		
-    		 			//final GridPane innerPane = new GridPane();
  	        			HBox innerPane = new HBox(10);
  	        			
  	 			        this.setContent(innerPane);
  	 			      
     		 			innerPane.setVisible(true);
-    		 			//sPane.setContent(innerPane);
         		 				
         	        		 	VBox fListTViewPane = new VBox();//10
-        	        		 	//innerPane.add(fListTViewPane, 0, 0);        
         	        		 	innerPane.getChildren().add(fListTViewPane);
          	 			        HBox.setHgrow(fListTViewPane, Priority.ALWAYS);
 
-
-        	        		 		final Label lblTViewHeader = new Label("Available features");
+        	        		 		//final Label lblTViewHeader = new Label("Available features");
         	        		 					
         	        		 		GridPane effectAllGPane = buildTable();
-        	        		 			        			
+        	        		 		effectAllGPane.getStyleClass().add("modulePaneAll");
+        	        		 		
         	        		 		tableDataSet = experiment.getPreprocessingOperations();
         	        		 		tvFeaturePre.setItems(tableDataSet);
         	        		 			        
-        	        		 		fListTViewPane.getChildren().addAll(lblTViewHeader, effectAllGPane, tvFeaturePre);
+        	        		 		fListTViewPane.getChildren().addAll(tvFeaturePre,effectAllGPane);
+//        	        		 		fListTViewPane.getChildren().addAll(lblTViewHeader, effectAllGPane, tvFeaturePre);
+        	        		 		fListTViewPane.getStyleClass().add("modulePane1");  
                 		 		        		
         	        		 		if(dataPreview.table.getItems().size() != 0){
                 		 		        tvFeaturePre.getSelectionModel().select(0);
@@ -274,60 +269,18 @@ public class PreprocessingTab extends Tab {
         		 		        		
         	        		 		
             		 				VBox fPreviewPane = new VBox();//10
-                		 			//innerPane.add(fPreviewPane, 1, 0);
+            		 				fPreviewPane.getStyleClass().add("modulePane1"); 
+            		 				
             	        		 	innerPane.getChildren().add(fPreviewPane);        
              	 			        HBox.setHgrow(fPreviewPane, Priority.ALWAYS);
 
             		 				
-            		 		        	Label lblFeaturePreview = new Label("Feature preview");
-            		 		        	fPreviewPane.getChildren().addAll(lblFeaturePreview,dataPreview.getContent());
+            		 		        	//Label lblFeaturePreview = new Label("Feature preview");
+//        		 		        	fPreviewPane.getChildren().addAll(lblFeaturePreview,dataPreview.getContent());
+        		 		        	fPreviewPane.getChildren().add(dataPreview.getContent());
        	        		 		
-        	        		 		
-        	        		 		
-//tmpVBox.setAlignment(Pos.CENTER);
-		 		 
-//innerPane.setAlignment(Pos.CENTER);
-        		 
-fListTViewPane.setPadding(new Insets(10));
-//fListTViewPane.setAlignment(Pos.CENTER);
-fListTViewPane.getStyleClass().add("modulePane1");   
-        		        
-fPreviewPane.setPadding(new Insets(5));
-//fPreviewPane.setAlignment(Pos.CENTER);
-fPreviewPane.getStyleClass().add("modulePane1");    		        
-        		        
-//innerPane.setHgap(10);
-//sPane.setStyle("-fx-background-color: transparent;"); // Hide the scrollpane gray border.
-//sPane.setPrefSize(880,600);
-        
-        
-//padBox.setAlignment(Pos.CENTER);
-//padBox.setPadding(new Insets(5));
-        
-        
-effectAllGPane.setPadding(new Insets(2,2,2,2));
-//effectAllGPane.setPadding(new Insets(10,2,10,0));
-effectAllGPane.setStyle("-fx-border-radius: 1; -fx-border-color: black");
+        	     
 
-//GridPane.setHalignment(chkIncludeAll, HPos.CENTER);
-//GridPane.setValignment(chkIncludeAll, VPos.CENTER);
-              
-Font headerFont = Font.font("BirchStd", FontWeight.BOLD, 15);        
-lblTViewHeader.setFont(headerFont);
- 
-lblFeaturePreview.setFont(headerFont);
-
-//lblAllFeatures.setFont(headerFont);
-//GridPane.setHalignment(lblAllFeatures, HPos.CENTER);
-//GridPane.setValignment(lblAllFeatures, VPos.CENTER);
-        
-//GridPane.setHalignment(btnPreProTypeAll, HPos.LEFT);
-//GridPane.setValignment(btnPreProTypeAll, VPos.CENTER);
- 
-//effectAllGPane.getColumnConstraints().add(new ColumnConstraints(70));
-//effectAllGPane.getColumnConstraints().add(new ColumnConstraints(180));
-//effectAllGPane.getColumnConstraints().add(new ColumnConstraints(148));
-    
      
     }
     
@@ -345,22 +298,21 @@ lblFeaturePreview.setFont(headerFont);
      		output.add(lblAllFeatures, 1, 0);
              
      		final Button btnPreProTypeAll = new Button("Preprocess all");
-     		//btnPreProTypeAll.setPrefWidth(180);
-     		output.add(btnPreProTypeAll, 2, 0);  
+     		output.add(btnPreProTypeAll, 3, 0);  
      		
     	
      		tvFeaturePre =	new TableView<FeaturePreprocessingInfo>();
-     		//tvFeaturePre.setPrefSize(400, 400);
      		tvFeaturePre.setEditable(true);        
 
      			TableColumn<FeaturePreprocessingInfo, Boolean> includeSel = new TableColumn<FeaturePreprocessingInfo, Boolean>("Include?");
      			TableColumn<FeaturePreprocessingInfo,String> featureName = new TableColumn<FeaturePreprocessingInfo,String>("Feature");
      			TableColumn<FeaturePreprocessingInfo,PreprocessingSelector> preprocOperator = new TableColumn<FeaturePreprocessingInfo,PreprocessingSelector>("Preprocessing type");
-     			tvFeaturePre.getColumns().addAll(includeSel,featureName,preprocOperator); 
+     			//tvFeaturePre.getColumns().addAll(includeSel,featureName,preprocOperator); 
 		
-		
-     			//includeSel.setPrefWidth(70);
-     			//The values all the column (all the same)
+     			tvFeaturePre.getColumns().add(includeSel);
+     			tvFeaturePre.getColumns().add(featureName);
+     			tvFeaturePre.getColumns().add(preprocOperator);
+
      			includeSel.setCellValueFactory(new PropertyValueFactory<FeaturePreprocessingInfo, Boolean>("includeFlag"));//before rowID
      			
      			includeSel.setCellFactory(CheckBoxTableCell.forTableColumn(includeSel));
@@ -369,10 +321,8 @@ lblFeaturePreview.setFont(headerFont);
      			
      		
 	        
-	  //  featureName.setPrefWidth(180);
 	    featureName.setCellValueFactory(new PropertyValueFactory<FeaturePreprocessingInfo,String>("featureName"));
 	      
-	     //   preprocOperator.setPrefWidth(148);
 	        preprocOperator.setCellValueFactory(new PropertyValueFactory<FeaturePreprocessingInfo,PreprocessingSelector>("preprocessingOptions"));
 	        preprocOperator.setCellFactory(new Callback<TableColumn<FeaturePreprocessingInfo,PreprocessingSelector>,TableCell<FeaturePreprocessingInfo,PreprocessingSelector>>(){       
 
@@ -395,14 +345,13 @@ lblFeaturePreview.setFont(headerFont);
 	                        		
 	                        		btnPreProSelection.textProperty().bind(item.getPreProName());
 	                           
-	                        		//btnPreProSelection.setPrefWidth(150);
 	                        		btnPreProSelection.setOnAction(new EventHandler<ActionEvent>() {
 
 	                        			@Override
 	                        			public void handle(ActionEvent t) {
 	                                	
 	                        				ProcessingPopup p = new ProcessingPopup(item);//rowNum, btnPreProSelection, experiment);
-	                                    //!experiment.getDataset().isNumeric(item
+
 	                        				p.show(stage.getScene().getRoot(), new EventHandler<MouseEvent>() {
 
 	                        					@Override

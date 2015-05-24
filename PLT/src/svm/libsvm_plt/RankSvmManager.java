@@ -173,7 +173,7 @@ import java.util.HashMap;
 import plt.dataset.TrainableDataSet;
 import plt.featureselection.SelectedFeature;
 import plt.utils.Preference;
-import plt.utils.ANN.SimpleNeuralNetwork;
+import plt.utils.ANN.MultiLayerPerceptron;
 import svm.libsvm.svm;
 import svm.libsvm.svm_model;
 import svm.libsvm.svm_node;
