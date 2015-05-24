@@ -318,7 +318,7 @@ public class DataSetTab extends Tab {
     
     
     
-    public void testLoad(){
+   /* public void testLoad(){
     	
     	DataParser parser1 = new DataParser(new File("/Users/hector/Downloads/adhoc_features/games-global.csv"),",",0,0,true,true,true);
 		parser1.processData();
@@ -328,7 +328,7 @@ public class DataSetTab extends Tab {
 		parser2.processData();
     	orderStatusText.setText(this.dataset.setOrderData(parser2));
 
-    }
+    }*/
     
     
     

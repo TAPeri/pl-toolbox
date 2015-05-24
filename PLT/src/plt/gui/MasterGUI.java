@@ -481,7 +481,7 @@ public class MasterGUI extends BorderPane
         disableTabs(new ArrayList<Integer>(Arrays.asList(1,2,3)));
         
         
-        ((DataSetTab) tab1).testLoad();
+       // ((DataSetTab) tab1).testLoad();
         
         
     }
