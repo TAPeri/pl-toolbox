@@ -255,6 +255,8 @@ public class Population {
 
         Collections.sort(this.elements);
 
+        //System.out.println(this.elements.get(0).getFitness()+" "+this.elements.get(this.elements.size()-1).getFitness());
+        
         List<Individual> newGeneration = new ArrayList<>(this.populationSize);
         newGeneration.addAll(this.elements.subList(0, eliteSize));
 
@@ -264,7 +266,8 @@ public class Population {
 
         while (newGeneration.size() < this.populationSize) {
 
-            Phenotype a = parentSelection.select().getDna();
+            Individual aI = parentSelection.select();
+            Phenotype a = aI.getDna();
             Phenotype b = parentSelection.select().getDna();
 
             crossOver.perform(a, b);

@@ -339,7 +339,6 @@ public class ObjectsOrderFormat implements DataSet {
     	
     	for(int i = 0; i < parser.getData().size(); i++){
 
-    		
         	if(parser.getData().get(i).size()<3){//at least ID + two objects
         		dataFilesValid.setValue(false);
         		return "Line "+i+" contains less than two objects.";

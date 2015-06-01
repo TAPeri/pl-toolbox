@@ -197,7 +197,7 @@ public class ModalPopup {
             Button button,
             boolean isDecoratedWindow) {
 
-        show(content, parent, eventHandler, button, 400, 550, isDecoratedWindow);
+        show(content, parent, eventHandler, button, 500, 550, isDecoratedWindow);
 
     }
 

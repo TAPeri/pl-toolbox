@@ -210,7 +210,7 @@ public class LoadingOptionsPopUp {
         
         VBox box = new VBox();
 
-        	HBox options = new HBox();
+        	HBox options = new HBox(10);
         	
         	options.getStyleClass().add("popUpOptions");
         	
@@ -221,13 +221,17 @@ public class LoadingOptionsPopUp {
         	
         		preview.setEditable(false);
 	
-        		options.getChildren().addAll(
-        			separatorSelector(parser),
-        			skipLineSelector(parser),
-        			selectID(parser));
+            	VBox vb1 = new VBox(10);
+            	VBox vb2 = new VBox(10);
+        	
+        		options.getChildren().addAll(vb1,vb2);
+        		vb2.getChildren().add(skipLineSelector(parser));
+        		
+        		vb1.getChildren().add(separatorSelector(parser));
+        		vb2.getChildren().add(selectID(parser));
         	
         	if(featureNamesOption)
-        		options.getChildren().add(featureNames(parser));
+        		vb1.getChildren().add(featureNames(parser));
 
         	ModalPopup modalPopup = new ModalPopup();
         	modalPopup.show(box, stage.getScene().getRoot(), eventHandler, null, false);
@@ -239,8 +243,8 @@ public class LoadingOptionsPopUp {
 
 		GridPane selectorGrid = new GridPane();
 
-		selectorGrid.add(new Label("Ignore first  "), 0, 0);
-		selectorGrid.add(new Label("Ignore first  "), 0, 1);
+		selectorGrid.add(new Label("Skip "), 0, 0);
+		selectorGrid.add(new Label("Skip  "), 0, 1);
 		
 		TextArea rows = new TextArea("0");
 		rows.setPrefWidth(1);
@@ -438,7 +442,11 @@ public class LoadingOptionsPopUp {
 	        	tc.setCellValueFactory(new Callback<CellDataFeatures<List<String>, String>, ObservableValue<String>>() {
 	                 @Override
 	                 public ObservableValue<String> call(CellDataFeatures<List<String>, String> p) {
-	                     return new SimpleStringProperty((p.getValue().get(colNo)));
+	                	 if(colNo<p.getValue().size())
+	                		 return new SimpleStringProperty((p.getValue().get(colNo)));
+	                	 else
+	                		 return new SimpleStringProperty("");
+
 	                 }
 	             });
 	        	 tc.setPrefWidth(90);

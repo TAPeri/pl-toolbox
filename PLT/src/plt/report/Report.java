@@ -166,10 +166,14 @@ Library.*/
 
 package plt.report;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
+import plt.dataset.TrainableDataSet;
 import plt.plalgorithm.Model;
+import plt.utils.Preference;
 
 /**
  *
@@ -177,20 +181,25 @@ import plt.plalgorithm.Model;
  */
 public class Report {
 
-    private List<Double> afterValidation;
-    private List<Double> beforeValidation;
+    private List<Double[]> afterValidation;
+    private List<Double[]> beforeValidation;
     
-    private List<Double> afterTraining;
-    private List<Double> beforeTraining;
+    private List<Double[]> afterTraining;
+    private List<Double[]> beforeTraining;
+    
+
+    
     
     private List<Model> models;
 
     public Report() {
-        this.models = new LinkedList<>();
-        this.afterValidation = new LinkedList<>();
-        this.beforeValidation = new LinkedList<>();
-        this.afterTraining = new LinkedList<>();
-        this.beforeTraining = new LinkedList<>();
+        this.models = new ArrayList<>();
+        this.afterValidation = new ArrayList<>();
+        this.beforeValidation = new ArrayList<>();
+        this.afterTraining = new ArrayList<>();
+        this.beforeTraining = new ArrayList<>();
+        
+
     }
 
     @Override
@@ -210,7 +219,81 @@ public class Report {
         return this.afterValidation.size();
     }
 
-    public double resultAccurancy(int i) {
+    
+    public static String[] supportedMetrics(){
+    	return new String[]{"Accuracy","Spearman rank correlation"};
+    }
+    
+    
+    public static double calculateMetric(Model model, TrainableDataSet data,int index){
+    	if(index==0){//Accuracy
+    		
+            double trainingAccuracy = 0.0;
+            
+            for (int z=0; z<data.getNumberOfPreferences(); z++) {
+                Preference instance = data.getPreference(z);
+                if (model.preference(instance.getPreferred(), instance.getOther())) {
+             	   trainingAccuracy++;
+                }
+            }
+
+            return trainingAccuracy/data.getNumberOfPreferences();
+    		
+    	}else{
+    		
+            double spearman = 0.0;
+
+            
+            for(Set<Preference> group : data.atomicGroups()){
+                HashMap<Integer,Double> original = new HashMap<Integer,Double>();
+                HashMap<Integer,Double> predicted = new HashMap<Integer,Double>();
+            	
+            	for(Preference pref : group){
+            	
+            		if(!original.containsKey(pref.getPreferred())){
+            			original.put(pref.getPreferred(), 1.0);
+        				predicted.put(pref.getPreferred(), 1.0);
+            		}
+            		if(!original.containsKey(pref.getOther())){
+            			original.put(pref.getOther(), 1.0);
+        				predicted.put(pref.getOther(), 1.0);
+            		}
+            		original.put(pref.getOther(),original.get(pref.getOther())+1);
+
+                    if (model.preference(pref.getPreferred(), pref.getOther())) {
+                    	predicted.put(pref.getOther(),predicted.get(pref.getOther())+1);
+                    }else if(model.preference( pref.getOther(),pref.getPreferred())) {
+                     	predicted.put(pref.getPreferred(),predicted.get(pref.getPreferred())+1);
+                    }else{
+                     	predicted.put(pref.getPreferred(),predicted.get(pref.getPreferred())+0.5);
+                    	predicted.put(pref.getOther(),predicted.get(pref.getOther())+0.5);
+
+                    	System.out.println("...");
+                    }
+            		
+            	}
+            	
+            	double aux = 0.0;
+            	for(int key : original.keySet()){
+            		aux+=(original.get(key)-predicted.get(key))*(original.get(key)-predicted.get(key));
+            	}
+            	aux*=6;
+            	aux/=(original.size()*((original.size()*original.size())-1));
+            	aux = 1-aux;
+            	spearman+=aux;
+            	
+            }
+            
+            
+    		
+    		return spearman/data.atomicGroups().size();
+    	}
+    	
+    	
+    }
+    
+    
+    public Double[] resultAccurancy(int i) {
         if (i >= this.numberOfResults()) {
             throw new IllegalArgumentException();
         }
@@ -218,14 +301,40 @@ public class Report {
         return this.afterValidation.get(i);
     }
 
-    public double getAVGAccuracy() {
-        double result = 0;
-        for (double d : afterValidation) {
-            result += d;
+    public Double[] getAVGAccuracy() {
+        Double[] results = new Double[afterValidation.get(0).length];
+    	for(int i=0;i<results.length;i++)
+    		results[i] = 0.0;
+        for (Double[] d : afterValidation) {
+        	for(int i=0;i<d.length;i++)
+        		results[i] += d[i];
         }
-
-        return result / afterValidation.size();
+    	for(int i=0;i<results.length;i++)
+    		results[i] /= afterValidation.size();
+    	
+        return results;
     }
+    
+    
+    public Double[] getSTDAccuracy() {
+        Double[] results = new Double[afterValidation.get(0).length];
+        
+        Double[] avg = getAVGAccuracy();
+        
+    	for(int i=0;i<results.length;i++)
+    		results[i] = 0.0;
+    	
+        for (Double[] d : afterValidation) {
+        	for(int i=0;i<d.length;i++)
+        		results[i] += ((d[i] - avg[i])*(d[i] - avg[i]));
+        }
+    	for(int i=0;i<results.length;i++){
+    		results[i] = java.lang.Math.sqrt(results[i]/(afterValidation.size()-1.0) );
+    	}
+    	
+        return results;
+    }
+    
 
     public Model getBestModel() {
 
@@ -233,8 +342,8 @@ public class Report {
         double maxAccuracies = Double.MIN_VALUE;
 
         for (int i = 0; i < this.afterValidation.size(); i++) {
-            if (maxAccuracies < this.afterValidation.get(i)) {
-                maxAccuracies = this.afterValidation.get(i);
+            if (maxAccuracies < this.afterValidation.get(i)[0]) {
+                maxAccuracies = this.afterValidation.get(i)[0];
                 best = this.models.get(i);
             }
 
@@ -247,24 +356,61 @@ public class Report {
         return models.get(n);
     }
 
-    public void addExperimentResult(Model model, double afterT, double beforeT) {
+    public void addExperimentResult(Model model, Double[] afterT, Double[] beforeT) {
         this.models.add(model);
         this.afterTraining.add(afterT);
         this.beforeTraining.add(beforeT);
     }
     
-    public void addExperimentResult(Model model, double afterT) {
-        this.addExperimentResult(model, afterT, 0);
+    public void addExperimentResult(Model model, Double afterT[]) {
+    	Double[] tmp = new Double[afterT.length];
+    	for(int i = 0;i<tmp.length;i++)
+    		tmp[i] = 0.0;
+        this.addExperimentResult(model, afterT,tmp );
     }
 
     
+    public void addExperimentResult(Model model,Model before, TrainableDataSet data) {
+    	
+    	Double tmp1[] = new Double[Report.supportedMetrics().length];
+    	Double tmp2[] = new Double[Report.supportedMetrics().length];
+    	for(int i=0;i<tmp1.length;i++){
+    		tmp1[i] = Report.calculateMetric(model,data,i);
+    		if (before!=null){
+    			
+        		tmp2[i] = Report.calculateMetric(before,data,i);
+    			
+    		}else{
+    			
+    			tmp2[i] = 0.0;
+    		}
+    	}
+        this.addExperimentResult(model, tmp1, tmp2);
+    }
     
-    public void addTestAccuracy(double after, double before){
+    
+    
+    
+    public void addTestAccuracy(Model modelAfter,Model modelBefore,TrainableDataSet dataTest) {
+    	
+    	Double tmp1[] = new Double[Report.supportedMetrics().length];
+    	Double tmp2[] = new Double[Report.supportedMetrics().length];
+    	for(int i=0;i<tmp1.length;i++){
+    		tmp1[i] = Report.calculateMetric(modelAfter,dataTest,i);
+    		if(modelBefore!=null)
+    			tmp2[i] = Report.calculateMetric(modelBefore,dataTest,i);
+    		else
+    			tmp2[i] = 0.0;
+    	}
+        this.addTestAccuracy(tmp1, tmp2);
+    }
+    
+    public void addTestAccuracy(Double[] after, Double[] before){
     	this.afterValidation.add(after);
     	this.beforeValidation.add(before);
     }
 
-	public double resultTrainingAccuracy(int i) {
+	public Double[] resultTrainingAccuracy(int i) {
 		return afterTraining.get(i);
 	}
 }

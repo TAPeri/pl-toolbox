@@ -168,7 +168,7 @@ package plt.gui.help;
 
 import javafx.event.EventHandler;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
+//import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
@@ -199,6 +199,8 @@ public class HelpPopup extends ModalPopup
 
         WebEngine e = w.getEngine();
         e.loadContent(helpText_html);
-        super.show(w, parent,null,new Button("close"), 500,500,false);  
+        super.show(w, parent,null,null,false);  
+        //box, stage.getScene().getRoot(), eventHandler, null, false);
+//        super.show(w, parent,null,new Button("close"), 500,500,false);  
     }
 }

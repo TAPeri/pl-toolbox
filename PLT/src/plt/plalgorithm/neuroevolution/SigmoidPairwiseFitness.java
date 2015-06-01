@@ -199,7 +199,7 @@ public class SigmoidPairwiseFitness {
             double fPreferred = h.get(instance.getPreferred());
             double fOther = h.get(instance.getOther());
             
-            int epsilon = fOther > fPreferred ? 5 : 30;
+            double epsilon = fOther > fPreferred ? 5.0 : 30.0;
             double delta= plt.utils.Math.sigmoid(1, epsilon*(fPreferred-fOther)); 
             
             

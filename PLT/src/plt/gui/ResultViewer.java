@@ -529,60 +529,70 @@ public class ResultViewer {
          
          
          
-         Label lblModelAccuracy = new Label("Accuracy Values for Models");
-         lblModelAccuracy.setFont(subsectionHeaderFont);
+        // Label lblModelAccuracy = new Label("Accuracy Values for Models");
+        // lblModelAccuracy.setFont(subsectionHeaderFont);
          
          
          ObservableList<ModelTableDataRow> data = FXCollections.observableArrayList();
          
-         double averageAccuracy = 0;
+         for(int i=0;i<Report.supportedMetrics().length;i++){
+         
+         //double averageAccuracy = 0;
          if( experiment.validatorProperty().get() instanceof NoValidation)
          {
-             data.add(new ModelTableDataRow(0, "Training Accuracy", this.report.resultAccurancy(0),0.0));
-             averageAccuracy = this.report.resultAccurancy(0);
+             data.add(new ModelTableDataRow(0, "Training fold",Report.supportedMetrics()[i], this.report.resultAccurancy(0)[i],0.0));
          }
          else
          {
-            double tmpSum = 0;
-            for (int i=0; i<this.report.numberOfResults();i++)
+            for (int j=0; j<this.report.numberOfResults();j++)
             {
-               data.add(new ModelTableDataRow(i, "Fold "+(i+1), this.report.resultAccurancy(i) * 100, this.report.resultTrainingAccuracy(i)*100 ));
-               tmpSum += this.report.resultAccurancy(i);
+               data.add(new ModelTableDataRow(i, "Fold "+(j+1),Report.supportedMetrics()[i], this.report.resultAccurancy(j)[i] , this.report.resultTrainingAccuracy(j)[i] ));
+              // tmpSum += this.report.resultAccurancy(i);
             }
             
-            averageAccuracy = (tmpSum/this.report.numberOfResults());
+            //averageAccuracy = (tmpSum/this.report.numberOfResults());
          }
-         averageAccuracy = ((averageAccuracy * 100)  );
-         
+         //averageAccuracy = ((averageAccuracy * 100)  );
+         }
          
          TableColumn col1 = new TableColumn("Model name");
-         col1.setPrefWidth(100);
+         //col1.setPrefWidth(100);
          col1.setCellValueFactory(new PropertyValueFactory("modelName"));
-         TableColumn col2 = new TableColumn("Test accuracy (%)");
-         col2.setPrefWidth(350); // Since ScrollPane width is 450.
+         
+         TableColumn col4 = new TableColumn("Metric");
+         //col1.setPrefWidth(100);
+         col4.setCellValueFactory(new PropertyValueFactory("metric"));
+         
+         
+         TableColumn col2 = new TableColumn("Test partition");
+        // col2.setPrefWidth(350); // Since ScrollPane width is 450.
          col2.setCellValueFactory(new PropertyValueFactory("modelAccuracy"));
 
-         TableColumn col3 = new TableColumn("Training accuracy (%)");
-         col3.setPrefWidth(350); // Since ScrollPane width is 450.
+         TableColumn col3 = new TableColumn("Training partition");
+         //col3.setPrefWidth(350); // Since ScrollPane width is 450.
          col3.setCellValueFactory(new PropertyValueFactory("modelTrainingAccuracy"));
                   
          
          
          final TableView modelTView = new TableView(data);
          modelTView.setPrefHeight((this.report.numberOfResults() + 1) * 30);
-         modelTView.getColumns().addAll(col1,col2,col3);
+         modelTView.getColumns().addAll(col1,col4,col2,col3);
          
          GridPane gPaneAvrgAccuracy = new GridPane();
          gPaneAvrgAccuracy.setHgap(20);
          gPaneAvrgAccuracy.setVgap(5);
-         Label lblAverageAccuracy = new Label("Average Accuracy: ");
-         lblAverageAccuracy.setFont(subsectionHeaderFont);
-         gPaneAvrgAccuracy.add(lblAverageAccuracy, 0, 0);
-         gPaneAvrgAccuracy.add(new Label(""+averageAccuracy+"%"), 1, 0);
+         
+         for(int i=0;i<Report.supportedMetrics().length;i++){
+        	 Label lblAverageAccuracy = new Label("Average "+Report.supportedMetrics()[i]+": ");
+        	 //lblAverageAccuracy.setFont(subsectionHeaderFont);
+        	 gPaneAvrgAccuracy.add(lblAverageAccuracy, 0, i);
+        	 gPaneAvrgAccuracy.add(new Label(""+report.getAVGAccuracy()[i]), 1, i);
+        	 gPaneAvrgAccuracy.add(new Label(""+report.getSTDAccuracy()[i]), 2, i);
+         }
          
          VBox innerPaneGenModels = new VBox();
          innerPaneGenModels.setPadding(new Insets(20,10,10,10));
-         innerPaneGenModels.getChildren().addAll(lblModelAccuracy, modelTView, gPaneAvrgAccuracy);
+         innerPaneGenModels.getChildren().addAll( modelTView, gPaneAvrgAccuracy);
          
          bpGenModels.setCenter(innerPaneGenModels);
          
@@ -618,7 +628,7 @@ public class ResultViewer {
                     FileChooser fChooser = new FileChooser();
                     File file = fChooser.showSaveDialog(stage);
                     //m.save(file);
-                    m.save(file,experiment,report.resultAccurancy(index),report.getAVGAccuracy());
+                    m.save(file,experiment,report.resultAccurancy(index)[0],report.getAVGAccuracy()[0]);
                     
                     ModalPopup notification = new ModalPopup();
                     notification.show(new Label("The selected model has been saved."), stage.getScene().getRoot(),null,new Button("Ok"), 200,550,false);  
@@ -695,11 +705,13 @@ public class ResultViewer {
         
         private final SimpleIntegerProperty rowID;
         private final SimpleStringProperty modelName;
+        private final SimpleStringProperty metric;
         private final SimpleDoubleProperty modelAccuracy;
         private final SimpleDoubleProperty modelTrainingAccuracy;
         
         public ModelTableDataRow(int para_rowID,
                                  String para_modelName,
+                                 String metric,
                                  double para_modelAccuracy,
                                  double para_modelTrainingAccuracy)
         {
@@ -707,6 +719,7 @@ public class ResultViewer {
             this.modelName = new SimpleStringProperty(para_modelName);
             this.modelAccuracy = new SimpleDoubleProperty(para_modelAccuracy);
             this.modelTrainingAccuracy = new SimpleDoubleProperty(para_modelTrainingAccuracy);
+            this.metric = new SimpleStringProperty(metric);
         }
         
         public int getRowID()
@@ -717,6 +730,11 @@ public class ResultViewer {
         public String getModelName()
         {
             return modelName.get();
+        }
+        
+        public String getMetric()
+        {
+        	return metric.get();
         }
         
         public double getModelAccuracy()
@@ -737,6 +755,11 @@ public class ResultViewer {
         public void setModelName(String para_modelName)
         {
             modelName.set(para_modelName);
+        }
+        
+        public void setMetric(String metric)
+        {
+        	this.metric.set(metric);
         }
         
         public void setModelAccuracy(double para_modelAccuracy)

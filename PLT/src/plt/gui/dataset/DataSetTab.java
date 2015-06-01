@@ -282,14 +282,14 @@ public class DataSetTab extends Tab {
 	        if (file != null) {
 	            if(latestWorkingDir == null) { latestWorkingDir = file.getParent(); }
 	            
-	            final DataParser parser = new DataParser(file,",",0,0,false,true,true);
+	            final DataParser parser = new DataParser(file,",",0,0,false,false,true);
 	            
 	           	final EventHandler<MouseEvent> eventHandler = new EventHandler<MouseEvent>() {
 
 	           		@Override
 	           		public void handle(MouseEvent t) {
 	           			
-	           			System.out.println("Load ratings");
+	           			//System.out.println("Load ratings");
 	           			DataFileParseStatus status = parser.processData();
 
 	                    if(status.getError().intValue() == 1)
@@ -310,7 +310,7 @@ public class DataSetTab extends Tab {
 	           			
 	           	};
 	            
-	        	preview = new LoadingOptionsPopUp(file,parser,eventHandler,false,stage);
+	        	preview = new LoadingOptionsPopUp(file,parser,eventHandler,true,stage);
 	        }
     	}
     }
@@ -346,9 +346,9 @@ public class DataSetTab extends Tab {
 	        if (file != null) {
 	            if(latestWorkingDir == null) { latestWorkingDir = file.getParent(); }
 	            
-	            final DataParser parser = new DataParser(file,",",0,0,false,true,true);
+	            final DataParser parser = new DataParser(file,",",0,0,false,false,true);
 	            
-	            System.out.println(file.getAbsolutePath());
+	            //System.out.println(file.getAbsolutePath());
 	            
 	            //Handler used when pop up is closed
 	           	final EventHandler<MouseEvent> eventHandler = new EventHandler<MouseEvent>() {
@@ -376,7 +376,7 @@ public class DataSetTab extends Tab {
 	           		}
 	           	};
 	            
-	        	preview = new LoadingOptionsPopUp(file,parser,eventHandler,false,stage);
+	        	preview = new LoadingOptionsPopUp(file,parser,eventHandler,true,stage);
 	        }
       
         }
@@ -397,7 +397,7 @@ public class DataSetTab extends Tab {
 	            if(latestWorkingDir == null) { latestWorkingDir = file.getParent(); }
 	            
 	            final DataParser parser = new DataParser(file,",",0,0,false,false,false);
-	            System.out.println(file.getAbsolutePath());
+	           // System.out.println(file.getAbsolutePath());
 
 	           	final EventHandler<MouseEvent> eventHandler = new EventHandler<MouseEvent>() {
 

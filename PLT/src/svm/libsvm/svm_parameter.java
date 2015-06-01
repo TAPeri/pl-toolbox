@@ -168,12 +168,12 @@ package svm.libsvm;
 public class svm_parameter implements Cloneable,java.io.Serializable
 {
 	/* svm_type */
-	public static final int C_SVC = 0;
+	/*public static final int C_SVC = 0;
 	public static final int NU_SVC = 1;
 	public static final int ONE_CLASS = 2;
 	public static final int EPSILON_SVR = 3;
-	public static final int NU_SVR = 4;
-        public static final int RANK = 5;
+	public static final int NU_SVR = 4;*/
+    public static final int RANK = 5;
 
 	/* kernel_type */
 	public static final int LINEAR = 0;
@@ -191,14 +191,16 @@ public class svm_parameter implements Cloneable,java.io.Serializable
 	// these are for training only
 	public double cache_size; // in MB
 	public double eps;	// stopping criteria
-	public double C;	// for C_SVC, EPSILON_SVR and NU_SVR
-	public int nr_weight;		// for C_SVC
-	public int[] weight_label;	// for C_SVC
-	public double[] weight;		// for C_SVC
 	public double nu;	// for NU_SVC, ONE_CLASS, and NU_SVR
-	public double p;	// for EPSILON_SVR
 	public int shrinking;	// use the shrinking heuristics
-	public int probability; // do probability estimates
+	
+	
+	//public double C;	// for C_SVC, EPSILON_SVR and NU_SVR
+	//public int nr_weight;		// for C_SVC
+	//public int[] weight_label;	// for C_SVC
+	//public double[] weight;		// for C_SVC
+	//public double p;	// for EPSILON_SVR
+//	public int probability; // do probability estimates
 
 	public Object clone() 
 	{

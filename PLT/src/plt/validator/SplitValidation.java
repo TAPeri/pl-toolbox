@@ -176,7 +176,6 @@ import plt.featureselection.SelectedFeature;
 import plt.plalgorithm.Model;
 import plt.plalgorithm.PLAlgorithm;
 import plt.report.Report;
-import plt.utils.Preference;
 
 /**
  *
@@ -220,30 +219,10 @@ public class SplitValidation extends Validator {
         Model model = algorithm.createModel(trainingDataSet,features);
         Model before = algorithm.getUntrainedModel();
 
-        double beforeCorrectness = 0;
-        for (int z = 0; z < validationDataSet.getNumberOfPreferences(); z++) {
-            Preference instance = validationDataSet.getPreference(z);
-            if (before.preference(instance.getPreferred(), instance.getOther())) {
-                beforeCorrectness++;
-            }
-        }
-        beforeCorrectness /= validationDataSet.getNumberOfPreferences();
-        
-        if(model == null) { return null; }
-        
-        double correctness = 0;
-        for (int z = 0; z < validationDataSet.getNumberOfPreferences(); z++) {
-            Preference instance = validationDataSet.getPreference(z);
-            if (model.preference(instance.getPreferred(), instance.getOther())) {
-                correctness++;
-            }
-        }
-        correctness /= validationDataSet.getNumberOfPreferences();
+        report.addExperimentResult(model, null,trainingDataSet);        
+        report.addTestAccuracy(model, before, validationDataSet);
 
-        double trainingAccuracy = 0.0;
-        report.addExperimentResult(model, trainingAccuracy,0.0);
-
-        report.addTestAccuracy(correctness, beforeCorrectness);
+        
         
         return report;
     }

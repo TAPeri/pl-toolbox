@@ -173,7 +173,6 @@ import plt.featureselection.SelectedFeature;
 import plt.plalgorithm.Model;
 import plt.plalgorithm.PLAlgorithm;
 import plt.report.Report;
-import plt.utils.Preference;
 
 /**
  * 
@@ -190,34 +189,13 @@ public class NoValidation extends Validator {
         
         //System.out.println("dataset: " + algorithm.getDataset());
 
-        TrainableDataSet validationDataSet = originalDataSet;
-
         
-        Model model = algorithm.createModel(validationDataSet,features);
+        Model model = algorithm.createModel(originalDataSet,features);
         Model before = algorithm.getUntrainedModel();
         
-        double beforeCorrectness = 0;
-        for (int z = 0; z < validationDataSet.getNumberOfPreferences(); z++) {
-            Preference instance = validationDataSet.getPreference(z);
-            if (before.preference(instance.getPreferred(), instance.getOther())) {
-                beforeCorrectness++;
-            }
-        }
-        beforeCorrectness /= validationDataSet.getNumberOfPreferences();
-        
-        
-        if(model == null) { return null; }
-        double correctness = 0;
-        for (int z = 0; z < validationDataSet.getNumberOfPreferences(); z++) {
-            Preference instance = validationDataSet.getPreference(z);
-            if (model.preference(instance.getPreferred(), instance.getOther())) {
-                correctness++;
-            }
-        }
-        
-        correctness /= validationDataSet.getNumberOfPreferences();
-        report.addExperimentResult(model, correctness,beforeCorrectness);
-        report.addTestAccuracy(correctness, beforeCorrectness);//t
+
+        report.addExperimentResult(model, before,originalDataSet);
+        report.addTestAccuracy(model, before,originalDataSet);
         
         return report;
     }

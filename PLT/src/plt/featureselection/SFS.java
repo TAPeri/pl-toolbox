@@ -219,7 +219,7 @@ public class SFS extends FeatureSelection {
                 test.setSelected(i);
 
                 Report report = v.runWithValidation(algorithm, dataSet, test);
-                double result = report.getAVGAccuracy();
+                double result = report.getAVGAccuracy()[0];
 
                 Logger.getLogger("plt.logger").log(Level.INFO, "Evaluate" + test+": "+result*100);
 

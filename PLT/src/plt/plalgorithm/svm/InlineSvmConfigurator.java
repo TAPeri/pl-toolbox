@@ -214,13 +214,38 @@ public class InlineSvmConfigurator implements RankSvmConfigurator {
 		
 		
         if((this.gammaRequired())
-        &&(this.getGamma() == 0))
+        &&(this.getGamma() <= 0))
         {
-            return "SVM error: Gamma cannot be set to 0.";
+            return "SVM error: Gamma cannot be set to values below 0.";
             
         } else
         	return "";
 
+        
+        //TODO more parameters
+        /*		if(param.degree < 0)
+			return "degree of polynomial kernel < 0";
+
+		if(param.cache_size <= 0)
+			return "cache_size <= 0";
+
+		if(param.eps <= 0)
+			return "eps <= 0";
+			
+						if(param.nu <= 0 || param.nu > 1)
+				return "nu <= 0 or nu > 1";
+		if(param.shrinking != 0 &&
+		   param.shrinking != 1)
+			return "shrinking != 0 and shrinking != 1";			
+			
+			*
+			*
+			*/
+
+        
+        
+        
+        
 	}
 
 	@Override

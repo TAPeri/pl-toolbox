@@ -247,6 +247,7 @@ public class Tab4Help extends ModalPopup {
                     "Systems, Man and Cybernetics, Part A: Systems and Humans, IEEE Transactions on, 39(6):1165–1175, 2009.</li>"+
              "<li>[5] T. Joachims, <i>Optimizing Search Engines Using Clickthrough Data</i>. Proceedings of the ACM Conference on Knowledge Discovery and Data Mining (KDD), ACM, 2002. </li>"+               
                     "</ul>");
-            super.show(w, parent,null,new Button("close"), 500,500,false);  
+            super.show(w, parent,null,null,false);  
+          //  super.show(w, parent,null,new Button("close"), 500,500,false);  
         }
 }

@@ -212,9 +212,6 @@ public class PreprocessedDataSet extends TrainableDataSet {
      * @param preprocessingOperations set of operation to be applied to the dataSet
      */
     public PreprocessedDataSet(DataSet dataSet, PreprocessingOperation[] preprocessingOperations) {
-       // super(dataSet);
-      //  this.dataSet = dataSet;
-       // this.preprocessingOperations = preprocessingOperations;
 
         if (preprocessingOperations.length != dataSet.getNumberOfFeatures()) {
             throw new IllegalArgumentException();

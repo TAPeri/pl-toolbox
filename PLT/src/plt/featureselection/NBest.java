@@ -216,7 +216,7 @@ public class NBest extends FeatureSelection {
             SelectedFeature selection = new SelectedFeature();
             selection.setSelected(i);
             Report report = v.runWithValidation(algorithm,t,selection);
-            results[i] = report.getAVGAccuracy();
+            results[i] = report.getAVGAccuracy()[0];
             Logger.getLogger("plt.logger").log(Level.INFO, "Evaluate " + t.getFeatureName(i) + ": "+results[i]*100);
 
         }

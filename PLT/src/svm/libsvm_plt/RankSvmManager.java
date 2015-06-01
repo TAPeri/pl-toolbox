@@ -173,7 +173,6 @@ import java.util.HashMap;
 import plt.dataset.TrainableDataSet;
 import plt.featureselection.SelectedFeature;
 import plt.utils.Preference;
-import plt.utils.ANN.MultiLayerPerceptron;
 import svm.libsvm.svm;
 import svm.libsvm.svm_model;
 import svm.libsvm.svm_node;
@@ -231,20 +230,16 @@ public class RankSvmManager implements IRankSvm,Cloneable
     {
         // Safety Check.
         if(curr_dataset == null) return false;
-                
-        
-        System.out.println("Running PLT_SVM...");
-              
+                              
         // This extension of LIBSVM provides Rank SVM for PLT.
-        svm_model trainedModel = null;
         if(curr_algParams.svm_type == svm_parameter.RANK)
         {
             // Construct model via training.
-            trainedModel = svm.svm_train(curr_dataset, curr_algParams);
-        }        
-        curr_model = trainedModel;
-        
-        System.out.println("PLT_SVM Done.");
+        	curr_model = svm.svm_train(curr_dataset, curr_algParams);
+        }else{   
+        	curr_model = null;
+        }
+        //System.out.println("PLT_SVM Done.");
         
         return true;
     }
@@ -357,21 +352,8 @@ public class RankSvmManager implements IRankSvm,Cloneable
     
     
     
-    /*public double calculateAccuracy()
-    {
-        return calculateAccuracy(curr_model,curr_algParams,curr_dataset,curr_dataset);
-    }
     
-    public double calculateAccuracy(svm_model para_trainedModel,
-                                    svm_parameter para_algParams,
-                                    svm_problem_pl para_trainingDataset,
-                                    svm_problem_pl para_testingDataset)
-    {
-        return svm.svm_pl_accuracyChecks(para_trainedModel, para_algParams, para_trainingDataset, para_testingDataset);
-    }*/
-    
-    
-    private double[] convertSvmNodeArrayToDoubleArray(svm_node[] para_svmNodeArr)
+    /*private double[] convertSvmNodeArrayToDoubleArray(svm_node[] para_svmNodeArr)
     {
         double[] convertedArr = new double[para_svmNodeArr.length];
         for(int i=0; i<para_svmNodeArr.length; i++)
@@ -380,7 +362,7 @@ public class RankSvmManager implements IRankSvm,Cloneable
         }
         
         return convertedArr;
-    }
+    }*/
     
     
     private Object[] createPLObjects(TrainableDataSet para_tDataSet, SelectedFeature para_fSelected)
@@ -477,19 +459,18 @@ public class RankSvmManager implements IRankSvm,Cloneable
         param.coef0 = 0;
         param.nu = 0.5;
         param.cache_size = 40;
-        param.C = 1;
+       // param.C = 1;
         param.eps = 1e-3;
-        param.p = 0.1;
+        //param.p = 0.1;
         param.shrinking = 1;
-        param.probability = 0;
-        param.nr_weight = 0;
-        param.weight_label = new int[0];
-        param.weight = new double[0];
+       // param.probability = 0;
+       // param.nr_weight = 0;
+        //param.weight_label = new int[0];
+        //param.weight = new double[0];
         
-        if(param.gamma == 0) param.gamma = 0.5;
-        
-        
-        
+        //if(param.gamma == 0) 
+        //	param.gamma = 0.5;
+                
         // Override with User Specified Parameters.
         
         String kernelType = (String) para_userConfig.get("kernel");

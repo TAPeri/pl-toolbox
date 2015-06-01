@@ -228,6 +228,7 @@ public class Tab3Help extends ModalPopup {
              "<li>[6] T. Joachims, <i>Optimizing Search Engines Using Clickthrough Data</i>. Proceedings of the ACM Conference on Knowledge Discovery and Data Mining (KDD), ACM, 2002. </li>"+
 
                     "</ul>");
-            super.show(w, parent,null,new Button("close"), 500,500,false);  
+            super.show(w, parent,null,null,false);  
+         //   super.show(w, parent,null,new Button("close"), 500,500,false);  
         }
 }

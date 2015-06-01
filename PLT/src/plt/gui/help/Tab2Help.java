@@ -200,6 +200,7 @@ public class Tab2Help extends ModalPopup {
 "	</ul></li>\n" +
 "	<li>Data visualization: the right-most panel shows the values of the currently selected feature after the selected preprocessing method is applied.</li>\n" +
 "</ul>");
-            super.show(w, parent,null,new Button("close"), 500,500,false);  
+            super.show(w, parent,null,null,false);  
+//            super.show(w, parent,null,new Button("close"), 500,500,false);  
         }
 }

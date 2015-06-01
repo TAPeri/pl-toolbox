@@ -243,6 +243,8 @@ public class KFoldCV extends Validator {
            // Logger.getLogger("plt.logger").log(Level.INFO, "KFoldCV ["+(i+1)+"/"+k+"]");
             ExecutionProgress.signalBeginTask("KFold "+(i+1),(1.0f/(this.k * 1.0f)) * (i+1));
             
+           // System.out.println("---> "+i);
+            
             TrainableDataSet validationDataSet = originalDataSet.subSet(groups.get(i));
             validationSizes[i] = validationDataSet.getNumberOfPreferences();
             Set<Integer> inputSet = new HashSet<>();
@@ -258,28 +260,15 @@ public class KFoldCV extends Validator {
            Model model = algorithm.createModel(candidateDataSet,features);
            
            if(model == null) { return null; }
-           double trainingAccuracy = 0.0;
            
-           for (int z=0; z<candidateDataSet.getNumberOfPreferences(); z++) {
-               Preference instance = candidateDataSet.getPreference(z);
-               if (model.preference(instance.getPreferred(), instance.getOther())) {
-            	   trainingAccuracy++;
-               }
-           }
-
-           trainingAccuracy/=candidateDataSet.getNumberOfPreferences();
+           report.addExperimentResult(model, null,candidateDataSet);
+           report.addTestAccuracy(model, null,validationDataSet);
            
+           //double trainingAccuracy = Report.calculateMetric(model,candidateDataSet,0);
+           //double correctness = Report.calculateMetric(model,validationDataSet,0);
            
-           double correctness = 0;
-           for (int z=0; z<validationDataSet.getNumberOfPreferences(); z++) {
-               Preference instance = validationDataSet.getPreference(z);
-               if (model.preference(instance.getPreferred(), instance.getOther())) {
-                   correctness++;
-               }
-           }
-           correctness /= validationDataSet.getNumberOfPreferences();
-           report.addExperimentResult(model, trainingAccuracy);
-           report.addTestAccuracy(correctness, 0.0);
+          // report.addExperimentResult(model, trainingAccuracy);
+           //report.addTestAccuracy(correctness, 0.0);
            ExecutionProgress.signalTaskComplete();
         }
 
