@@ -180,7 +180,18 @@ import javafx.scene.Node;
 
 public interface GUIConfigurator {
 
+	/**
+	 * Creates the GUI elements to set up the parameters of a PL algorithm
+	 * 
+	 * @return Node containing the GUI elements necessary to set up the parameters of the algorithm
+	 */
     public Node ui();
+    
+    /**
+     * Initialises an algorithm using the inputs entered through the GUI
+     * 
+     * @return a PLAlgorithm initialised using the parameters set up through the GUI
+     */
 	public PLAlgorithm algorithm();
 	
 }

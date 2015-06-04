@@ -192,6 +192,11 @@ public abstract class PLAlgorithm {
     }
 
 
+    /*
+     * Test that the parameters of the traning algorithm are valid.
+     * If valid, it should return an empty String, otherwise it should
+     * return an error message.
+     */
     public abstract String testParameters();
 
  
@@ -250,6 +255,14 @@ public abstract class PLAlgorithm {
      */
     protected abstract Model beforeRun(TrainableDataSet dataSet,SelectedFeature features);
     
+    /*
+     * Returns a description of the parameters of the algorithm
+     * The structure consists of an ArrayList of pairs of objects
+     * The first object should be a string describing a set of parameters
+     * while the second is the set of parameters itself.
+     * A set of parameters should be an array list of pairs of strings,
+     * representing a parameter name and value respectively. 
+     */
     public abstract ArrayList<Object[]> getProperties();
     
         

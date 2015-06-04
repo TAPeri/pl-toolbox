@@ -176,7 +176,7 @@ import plt.featureselection.SelectedFeature;
 
 /**
  *
- * Preference model
+ * Preference model. This abstract class 
  *
  * @author Vincent Farrugia
  * @author Hector P. Martinez
@@ -220,9 +220,31 @@ public abstract class Model {
 
     }
     
+    /**
+     * Creates a copy of the model
+     * 
+     */
     public abstract Model clone() throws CloneNotSupportedException;
     
+    /**
+     * 
+     * Calculates the output of the preference model for a given object
+     * 
+     * @param features input values
+     * @return the output of the model given features as inputs
+     */
     protected abstract double calculatePreference(double[] features);
 
+    /**
+     * 
+     * Writes to a file all necessary information to reconstruct this model. 
+     * It should include information about how input features where preprocessed
+     * 
+     * @param file Destination where to write the mode
+     * @param experiment Experiment used to train the model
+     * @param accResult_specificModel Accuracy of the model
+     * @param accResult_averageOverFolds If this model is the result of one of the folds of cross validation, this parameter should indicate the average accuracy over all folds
+     * @throws IOException Exception thrown when problems with the file arise
+     */
     abstract public void save(File file, Experiment experiment, double accResult_specificModel, double accResult_averageOverFolds) throws IOException;
 }

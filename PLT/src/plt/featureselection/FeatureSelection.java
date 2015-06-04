@@ -174,12 +174,18 @@ import plt.validator.Validator;
 /**
  * A FeatureSelection algorithm it's meant to select a number of features of a dataset
  * to be used in a preference learning algorithm
+ * 
  * @author Vincent Farrugia
  */
 public abstract class FeatureSelection {
 
     /**
      * run the algorithm
+     * 
+     * @param v Validation scheme used to select features
+ 	 * @param a Algorithm used to evaluate the quality of feature subsets
+ 	 * @param dataSet Data used to evaluate the quality of feature subsets
+     * 
      */
     public abstract void run(Validator v, PLAlgorithm a,TrainableDataSet dataSet);
     

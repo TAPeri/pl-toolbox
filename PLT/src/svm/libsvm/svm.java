@@ -247,7 +247,7 @@ class Cache {
 			if(h.data != null) System.arraycopy(h.data,0,new_data,0,h.len);
 			h.data = new_data;
 			size -= more;
-			do {int _=h.len; h.len=len; len=_;} while(false);
+			do {int tmp=h.len; h.len=len; len=tmp;} while(false);
 		}
 
 		lru_insert(h);
@@ -261,18 +261,18 @@ class Cache {
 		
 		if(head[i].len > 0) lru_delete(head[i]);
 		if(head[j].len > 0) lru_delete(head[j]);
-		do {float[] _=head[i].data; head[i].data=head[j].data; head[j].data=_;} while(false);
-		do {int _=head[i].len; head[i].len=head[j].len; head[j].len=_;} while(false);
+		do {float[] tmp=head[i].data; head[i].data=head[j].data; head[j].data=tmp;} while(false);
+		do {int tmp=head[i].len; head[i].len=head[j].len; head[j].len=tmp;} while(false);
 		if(head[i].len > 0) lru_insert(head[i]);
 		if(head[j].len > 0) lru_insert(head[j]);
 
-		if(i>j) do {int _=i; i=j; j=_;} while(false);
+		if(i>j) do {int tmp=i; i=j; j=tmp;} while(false);
 		for(head_t h = lru_head.next; h!=lru_head; h=h.next)
 		{
 			if(h.len > i)
 			{
 				if(h.len > j)
-					do {float _=h.data[i]; h.data[i]=h.data[j]; h.data[j]=_;} while(false);
+					do {float tmp=h.data[i]; h.data[i]=h.data[j]; h.data[j]=tmp;} while(false);
 				else
 				{
 					// give up
@@ -314,8 +314,8 @@ abstract class Kernel extends QMatrix {
 
 	void swap_index(int i, int j)
 	{
-		do {svm_node[] _=x[i]; x[i]=x[j]; x[j]=_;} while(false);
-		if(x_square != null) do {double _=x_square[i]; x_square[i]=x_square[j]; x_square[j]=_;} while(false);
+		do {svm_node[] tmp=x[i]; x[i]=x[j]; x[j]=tmp;} while(false);
+		if(x_square != null) do {double tmp=x_square[i]; x_square[i]=x_square[j]; x_square[j]=tmp;} while(false);
 	}
 
 	private static double powi(double base, int times)
@@ -516,13 +516,13 @@ class Solver {
 	void swap_index(int i, int j)
 	{
 		Q.swap_index(i,j);
-		do {byte _=y[i]; y[i]=y[j]; y[j]=_;} while(false);
-		do {double _=G[i]; G[i]=G[j]; G[j]=_;} while(false);
-		do {byte _=alpha_status[i]; alpha_status[i]=alpha_status[j]; alpha_status[j]=_;} while(false);
-		do {double _=alpha[i]; alpha[i]=alpha[j]; alpha[j]=_;} while(false);
-		do {double _=p[i]; p[i]=p[j]; p[j]=_;} while(false);
-		do {int _=active_set[i]; active_set[i]=active_set[j]; active_set[j]=_;} while(false);
-		do {double _=G_bar[i]; G_bar[i]=G_bar[j]; G_bar[j]=_;} while(false);
+		do {byte tmp=y[i]; y[i]=y[j]; y[j]=tmp;} while(false);
+		do {double tmp=G[i]; G[i]=G[j]; G[j]=tmp;} while(false);
+		do {byte tmp=alpha_status[i]; alpha_status[i]=alpha_status[j]; alpha_status[j]=tmp;} while(false);
+		do {double tmp=alpha[i]; alpha[i]=alpha[j]; alpha[j]=tmp;} while(false);
+		do {double tmp=p[i]; p[i]=p[j]; p[j]=tmp;} while(false);
+		do {int tmp=active_set[i]; active_set[i]=active_set[j]; active_set[j]=tmp;} while(false);
+		do {double tmp=G_bar[i]; G_bar[i]=G_bar[j]; G_bar[j]=tmp;} while(false);
 	}
 
 	void reconstruct_gradient()
@@ -1382,8 +1382,8 @@ class SVC_Q extends Kernel
 	{
 		cache.swap_index(i,j);
 		super.swap_index(i,j);
-		do {byte _=y[i]; y[i]=y[j]; y[j]=_;} while(false);
-		do {double _=QD[i]; QD[i]=QD[j]; QD[j]=_;} while(false);
+		do {byte tmp=y[i]; y[i]=y[j]; y[j]=tmp;} while(false);
+		do {double tmp=QD[i]; QD[i]=QD[j]; QD[j]=tmp;} while(false);
 	}        
 }
 
@@ -1438,8 +1438,8 @@ class RANK_Q extends Kernel
 	{
 		cache.swap_index(i,j);
 		super.swap_index(i,j);
-		do {byte _=y[i]; y[i]=y[j]; y[j]=_;} while(false);
-		do {double _=QD[i]; QD[i]=QD[j]; QD[j]=_;} while(false);
+		do {byte tmp=y[i]; y[i]=y[j]; y[j]=tmp;} while(false);
+		do {double tmp=QD[i]; QD[i]=QD[j]; QD[j]=tmp;} while(false);
 	}
         
         

@@ -244,8 +244,8 @@ public abstract class TrainableDataSet {
     
     /**
      * create a subset of trainableDataSet given a set of instances
-     * @param subset
-     * @return 
+     * @param subset Preference IDs that should be included on the dataset
+     * @return a dataset with the specified instances
      */
     public abstract TrainableDataSet subSet(Set<Integer> subset) ;
     

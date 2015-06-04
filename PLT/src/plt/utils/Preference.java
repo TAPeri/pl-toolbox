@@ -182,8 +182,11 @@ public class Preference {
     
     /**
      * Given a list of preference for example (A,B,C) where the first is the most preferred, it returns 
-     * a list of pair wise preference (for example A>B, C>B, A>C) as vector of pair (example [[B,A],[B,C],[C,A]])
+     * a list of pair wise preference (for example A &gt; B, C &gt; B, A &gt; C) as vector of pair (example [[B,A],[B,C],[C,A]])
      * where the second element of each pair is the most preferred (example [C,A] means that A is preferred over C)
+  	 *
+  	 * @param list List of object IDs in order of preference
+  	 * @return List of pairwise preferences that represent the given ordered list 
      */
     public static List<Preference> listToPairWisePreference(int[] list) {
         List<Preference> output = new LinkedList<>();

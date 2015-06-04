@@ -196,6 +196,9 @@ public class SelectedFeature implements Cloneable {
     
      /**
      * set feature x in [from,to] as selected
+     * 
+     * @param from First feature to be included
+     * @param to Last feature to be included
      */
     public void setSelected(int from, int to) {
         if (from <0 || from >= to)
